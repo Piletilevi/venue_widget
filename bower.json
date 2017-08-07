@@ -1,0 +1,13 @@
+{
+  "name": "piletilevi-venuemap",
+  "homepage": "https://github.com/Piletilevi/venue_widget",
+  "authors": [
+    "artweb.ee"
+  ],
+  "description": "",
+  "main": "./dist/js/piletilevi-venuemap.js",
+  "keywords": [
+    "piletilevi"
+  ],
+  "private": true
+}
