@@ -88,6 +88,7 @@ piletilevi.venuemap.VenueMap = function() {
 	{
 		if (activeSection) {
 			if (placesMap) {
+
 				placesMap.adjustToZoom();
 			}
 		} else if (sectionsMap) {
@@ -1088,6 +1089,8 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		componentElement.appendChild(legendElement);
 		sectionsElement = document.createElement('div');
 		sectionsElement.className = 'piletilevi_venue_map_places_sections';
+		sectionsElement.style.position = 'relative';
+		sectionsElement.style.overflow = 'hidden';
 		componentElement.appendChild(sectionsElement);
 	};
 	var loadSectionMap = function(sectionId) {
