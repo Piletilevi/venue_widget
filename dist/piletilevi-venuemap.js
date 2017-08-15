@@ -999,9 +999,18 @@ piletilevi.venuemap.VenueMap = function() {
 			for (var key in sectionsDetails) {
 				combinedDetails.priceClasses = combinedDetails.priceClasses
 					.concat(sectionsDetails[key].priceClasses);
-				// TODO: make combined price classes distinct by ID (for legend display)
 				combinedDetails.seatsInfo = combinedDetails.seatsInfo
 					.concat(sectionsDetails[key].seatsInfo);
+			}
+			var index = {};
+			for (var i = 0; i < combinedDetails.priceClasses.length;) {
+				var priceClass = combinedDetails.priceClasses[i];
+				if (index[priceClass.id]) {
+					combinedDetails.priceClasses.splice(i, 1);
+					continue;
+				}
+				index[priceClass.id] = true;
+				++i;
 			}
 			placesMap.updateDetails(combinedDetails);
 			placesMap.setDisplayed(true);
