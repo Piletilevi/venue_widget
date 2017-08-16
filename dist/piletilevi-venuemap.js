@@ -879,6 +879,7 @@ piletilevi.venuemap.VenueMap = function() {
 	var zoomLevel = 0;
 	var translations = [];
 	var placeToolTip;
+	var built = false;
 	var requestCache = {};
 
 	var seatColors = {
@@ -910,6 +911,7 @@ piletilevi.venuemap.VenueMap = function() {
 		if (sectionsMapType == 'full_places_map') {
 			loadVenuePlacesMap();
 		}
+		built = true;
 		self.update();
 		self.display();
 	};
@@ -974,6 +976,10 @@ piletilevi.venuemap.VenueMap = function() {
 		}
 	};
 	this.update = function() {
+		if (!built) {
+			self.build();
+			return;
+		}
 		if (sectionsMapType != 'full_places_map') {
 			if (activeSection) {
 				if (activeSection != previousSection) {
