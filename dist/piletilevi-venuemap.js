@@ -933,6 +933,20 @@ piletilevi.venuemap.VenueMap = function() {
 			width: '100%',
 			height: '100%',
 		});
+		if (data.stageType) {
+			var node = piletilevi.venuemap.Utilities.createSvgNode('text', {
+							id: 'stagename',
+							'text-anchor': 'middle',
+							x: data.stageX,
+							y: data.stageY,
+							fill: '#999999',
+							'font-family': 'Arial',
+							'font-size': 20,
+							'font-weight': 'bold',
+						});
+			node.innerHTML = data.stageType;
+			svgElement.appendChild(node);
+		}
 		for (var i = 0; i < data.seats.length; ++i) {
 			var seat = data.seats[i];
 			var node = piletilevi.venuemap.Utilities.createSvgNode('circle', {
@@ -1484,7 +1498,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement) {
 
 		var arrowTextElement;
 		if (arrowTextElement = svgElement.getElementById('stagename')) {
-			new piletilevi.venuemap.PlacesMapStageLabel(arrowTextElement);
+			new piletilevi.venuemap.PlacesMapStageLabel(venueMap, arrowTextElement);
 		}
 	};
 	this.attachTo = function(destinationElement) {
@@ -1771,8 +1785,14 @@ piletilevi.venuemap.PlaceMapLegendItem = function(text, color, extraClass) {
 	};
 	this.init();
 };
-piletilevi.venuemap.PlacesMapStageLabel = function(textElement) {
+piletilevi.venuemap.PlacesMapStageLabel = function(venueMap, textElement) {
 	var self = this;
+	var init = function() {
+		var type = self.getText();
+		if (type) {
+			self.setText(venueMap.getTranslation('stage-' + type));
+		}
+	};
 	this.setText = function(newText) {
 		if (textElement.String) {
 			textElement.String = newText;
@@ -1787,6 +1807,7 @@ piletilevi.venuemap.PlacesMapStageLabel = function(textElement) {
 	this.getText = function() {
 		return textElement.textContent || textElement.String;
 	};
+	init();
 };
 
 piletilevi.venuemap.PlaceTooltip = function(venueMap) {
