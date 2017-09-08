@@ -2099,9 +2099,13 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 		if (price) {
 			self.row3Element.appendChild(document.createTextNode(price));
 		}
-		var status = venueMap.getTranslation(available ? 'available' : 'booked');
-		self.row4Element.appendChild(document.createTextNode(status));
-
+		var displayStyle = 'none';
+		if (venueMap.isSeatSelectionEnabled()) {
+			displayStyle = '';
+			var status = venueMap.getTranslation(available ? 'available' : 'booked');
+			self.row4Element.appendChild(document.createTextNode(status));
+		}
+		self.statusRowElement.style.display = displayStyle;
 		if (window.innerHeight) {
 			var viewPortWidth = window.innerWidth;
 			var viewPortHeight = window.innerHeight;
