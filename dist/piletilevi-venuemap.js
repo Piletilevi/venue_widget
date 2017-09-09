@@ -810,7 +810,7 @@ piletilevi.venuemap = {
 	DEFAULT_SEAT_INACTIVE_COLOR: '#d0d0d0',
 	SEAT_CIRCLE_RADIUS: 6,
 	SEAT_CIRCLE_STROKE_WIDTH: 0.4,
-	DEBUG_FULL_PLACESMAP_SECTIONS: false,
+	DEBUG_FULL_PLACESMAP_SECTIONS: true,
 };
 
 piletilevi.venuemap.PlacesMapSeatInfo = function(id, row, place, price, available, priceClass) {
@@ -836,6 +836,40 @@ piletilevi.venuemap.SectionDetails = function(id, selectableSeats, seatsInfo, pr
 };
 
 piletilevi.venuemap.Utilities = new function() {
+	var animations = [];
+	var anim = function(element, properties, duration, easeMode) {
+		var timeout = 0;
+		var init = function() {
+			this.element = element;
+			var transitions = [];
+			for (var key in properties) {
+				transitions.push(key + ' ' + duration + 'ms' + ' ' + (easeMode || 'linear'));
+			}
+			element.style.transition = transitions.join(', ');
+			for (var key in properties) {
+				element.style[key] = properties[key];
+			}
+			timeout = window.setTimeout(finish, duration);
+		};
+		var finish = function() {
+			if (element) {
+				element.style.transition = '';
+			}
+		};
+		this.cancel = function() {
+			window.clearTimeout(timeout);
+		};
+		init();
+	};
+	this.animate = function(element, properties, duration, easeMode) {
+		for (var i = animations.length; i--;) {
+			if (animations[i].element == element) {
+				animations[i].cancel();
+				animations.splice(i, 1);
+			}
+		}
+		animations.push(new anim(element, properties, duration, easeMode));
+	};
 	this.sendXhr = function(options) {
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
@@ -1171,15 +1205,17 @@ piletilevi.venuemap.VenueMap = function() {
 		}
 	};
 	this.display = function() {
-		if (displayed)
+		if (displayed) {
 			return;
+		}
 		componentElement.style.display = '';
 		displayed = true;
 		self.trigger('visibilityChange', displayed);
 	};
 	this.hide = function() {
-		if (!displayed)
+		if (!displayed) {
 			return;
+		}
 		componentElement.style.display = 'none';
 		displayed = false;
 		self.trigger('visibilityChange', displayed);
@@ -1227,7 +1263,7 @@ piletilevi.venuemap.VenueMap = function() {
 		sectionsDetails[details.id] = details;
 		for (var i = details.seatsInfo.length; i--;) {
 			var seat = details.seatsInfo[i];
-			seatsSections[seat.id] = details.id;
+			seatsSections[seat.id] = details;
 		}
 	};
 	this.getSectionDetails = function(id) {
@@ -1252,6 +1288,9 @@ piletilevi.venuemap.VenueMap = function() {
 	};
 	this.isSeatSelected = function(seatId) {
 		return selectedSeatsIndex[seatId] || false;
+	};
+	this.getSectionBySeatId = function(seatId) {
+		return seatsSections[seatId] || null;
 	};
 	this.addHandler = function(eventName, callBack) {
 		if (typeof eventHandlers[eventName] == 'undefined') {
@@ -1619,7 +1658,8 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement) {
 	var startX;
 	var startY;
 	var sectionsBoundaries = {};
-	var focalPoint;
+	var nextFocalPoint;
+	var lastZoomlevel = -1;
 
 	var init = function() {
 		componentElement = document.createElement('div');
@@ -1754,51 +1794,47 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement) {
 		self.resize();
 	};
 	this.adjustToZoom = function() {
-		var oldWidth = componentElement.offsetWidth;
-		var oldHeight = componentElement.offsetHeight;
 		var zoomLevel = venueMap.getZoomLevel();
-		var mapWidth = applyZoom(containerElement.offsetWidth, zoomLevel);
-		var mapHeight = applyZoom(containerElement.offsetHeight, zoomLevel);
-		svgElement.style.width = mapWidth + 'px';
-		svgElement.style.height = mapHeight + 'px';
-
-		if (focalPoint) {
-			var absoluteFocalPoint = {
-				x: mapWidth * focalPoint.x,
-				y: mapHeight * focalPoint.y
-			};
-			var centerY = containerElement.offsetHeight / 2;
-			var top = centerY - absoluteFocalPoint.y;
-			top = Math.min(top, 0);
-			top = Math.max(top, containerElement.offsetHeight - mapHeight);
-			top = Math.round(top);
-			var centerX = containerElement.offsetWidth / 2;
-			var left = centerX - absoluteFocalPoint.x;
-			left = Math.min(left, 0);
-			left = Math.max(left, containerElement.offsetWidth - mapWidth);
-			left = Math.round(left);
-			componentElement.style.top = top + 'px';
-			componentElement.style.left = left + 'px';
+		if (zoomLevel == lastZoomlevel) {
 			return;
 		}
-		var widthDifference = oldWidth - mapWidth;
-		var heightDifference = oldHeight - mapHeight;
-		var newLeft = componentElement.offsetLeft + (widthDifference / 2);
-		var newTop = componentElement.offsetTop + (heightDifference / 2);
-		if (newLeft > 0) {
-			componentElement.style.left = 0;
-		} else if (containerElement.offsetWidth >= componentElement.offsetWidth + newLeft) {
-			componentElement.style.left = containerElement.offsetWidth - componentElement.offsetWidth + 'px';
-		} else {
-			componentElement.style.left = newLeft + 'px';
+		var svgDimensions = svgElement.getBoundingClientRect();
+		var mapWidth = applyZoom(containerElement.offsetWidth, zoomLevel);
+		var mapHeight = applyZoom(containerElement.offsetHeight, zoomLevel);
+
+		var relativeFocalPoint = nextFocalPoint;
+		if (!relativeFocalPoint) {
+			relativeFocalPoint = {
+				x: (containerElement.offsetWidth / 2 - componentElement.offsetLeft) / svgDimensions.width,
+				y: (containerElement.offsetHeight / 2 - componentElement.offsetTop) / svgDimensions.height
+			};
 		}
-		if (newTop > 0) {
-			componentElement.style.top = 0;
-		} else if (containerElement.offsetHeight >= componentElement.offsetHeight + newTop) {
-			componentElement.style.top = containerElement.offsetHeight - componentElement.offsetHeight + 'px';
-		} else {
-			componentElement.style.top = newTop + 'px';
-		}
+		var concreteFocalPoint = {
+			x: mapWidth * relativeFocalPoint.x,
+			y: mapHeight * relativeFocalPoint.y
+		};
+		var centerY = containerElement.offsetHeight / 2;
+		var top = centerY - concreteFocalPoint.y;
+		top = Math.min(top, 0);
+		top = Math.max(top, containerElement.offsetHeight - mapHeight);
+		top = Math.round(top);
+		var centerX = containerElement.offsetWidth / 2;
+		var left = centerX - concreteFocalPoint.x;
+		left = Math.min(left, 0);
+		left = Math.max(left, containerElement.offsetWidth - mapWidth);
+		left = Math.round(left);
+
+		var animDuration = Math.min(Math.abs(lastZoomlevel - zoomLevel) * 300, 800);
+		piletilevi.venuemap.Utilities.animate(componentElement, {
+			top: top + 'px',
+			left: left + 'px'
+		}, animDuration, 'ease-in-out');
+		piletilevi.venuemap.Utilities.animate(svgElement, {
+			width: mapWidth + 'px',
+			height: mapHeight + 'px'
+		}, animDuration, 'ease-in-out');
+		lastZoomlevel = zoomLevel;
+		nextFocalPoint = null;
 	};
 	this.setDisplayed = function(newDisplayed) {
 		if (displayed != newDisplayed) {
@@ -1820,7 +1856,6 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement) {
 	};
 	this.selectSection = function(sectionId) {
 		if (!sectionId) {
-			focalPoint = null;
 			venueMap.setZoomLevel(0);
 			return;
 		}
@@ -1839,7 +1874,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement) {
 				break;
 			}
 		}
-		focalPoint = {
+		nextFocalPoint = {
 			x: (boundary.x + boundary.width / 2) / svgDimensions.width,
 			y: (boundary.y + boundary.height / 2) / svgDimensions.height
 		};
@@ -1854,7 +1889,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement) {
 		//componentElement.appendChild(test);
 	};
 	var applyZoom = function(value, zoomLevel) {
-		var zoomStep = 32;
+		var zoomStep = 42;
 		var zoomPercentage = zoomLevel * zoomStep;
 		return value / 100 * (100 + zoomPercentage);
 	};
@@ -1877,7 +1912,7 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement) {
 	var mouseMove = function(event) {
 		var x = Math.max(0, event.pageX);
 		var y = Math.max(0, event.pageY - 2);
-		venueMap.getPlaceToolTip().display(x, y, seatInfo.row, seatInfo.place, seatInfo.price, seatInfo.available);
+		venueMap.getPlaceToolTip().display(seatInfo, x, y);
 
 		if (selectable) {
 			self.setColor(venueMap.getSeatColor('hover'))
@@ -2016,96 +2051,114 @@ piletilevi.venuemap.PlacesMapStageLabel = function(venueMap, textElement) {
 piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 	var self = this;
 	var componentElement;
-	this.row1Element = false;
-	this.row2Element = false;
-	this.row3Element = false;
-	this.row4Element = false;
-	this.statusRowElement = false;
-	this.popupOffset = 0;
+	var sectionElement;
+	var sectionTitleElement;
+	var row1Element;
+	var row2Element;
+	var row3Element;
+	var row4Element;
+	var statusRowElement;
+	var popupOffset = 0;
 
 	var createDomElements = function() {
 		componentElement = document.createElement('div');
 		componentElement.className = 'place_tooltip';
 		componentElement.style.display = 'none';
-		componentElement = componentElement;
 		document.body.appendChild(componentElement);
 
 		var contentElement = document.createElement('div');
 		contentElement.className = 'place_tooltip_content';
 		componentElement.appendChild(contentElement);
+
 		var tableElement = document.createElement('table');
 		contentElement.appendChild(tableElement);
 		var tBodyElement = document.createElement('tbody');
 		tableElement.appendChild(tBodyElement);
+
+		var rowElement, labelElement;
+		//sectionElement = document.createElement('tr');
+		//tBodyElement.appendChild(sectionElement);
+		//labelElement = document.createElement('td');
+		//labelElement.className = 'place_tooltip_label';
+		//labelElement.appendChild(document.createTextNode(venueMap.getTranslation('row')));
+		//sectionElement.appendChild(labelElement);
+		//sectionTitleElement = document.createElement('td');
+		//sectionTitleElement.className = 'place_tooltip_value';
+		//sectionElement.appendChild(sectionTitleElement);
+
+		rowElement = document.createElement('tr');
+		tBodyElement.appendChild(rowElement);
+		labelElement = document.createElement('td');
+		labelElement.className = 'place_tooltip_label';
+		labelElement.appendChild(document.createTextNode(venueMap.getTranslation('row')));
+		rowElement.appendChild(labelElement);
+		row1Element = document.createElement('td');
+		row1Element.className = 'place_tooltip_value';
+		rowElement.appendChild(row1Element);
+
 		var rowElement = document.createElement('tr');
 		tBodyElement.appendChild(rowElement);
-		var subElement = document.createElement('td');
-		subElement.className = 'place_tooltip_label';
-		subElement.appendChild(document.createTextNode(venueMap.getTranslation('row')));
-		rowElement.appendChild(subElement);
-		self.row1Element = document.createElement('td');
-		self.row1Element.className = 'place_tooltip_value';
-		rowElement.appendChild(self.row1Element);
+		labelElement = document.createElement('td');
+		labelElement.className = 'place_tooltip_label';
+		labelElement.appendChild(document.createTextNode(venueMap.getTranslation('place')));
+		rowElement.appendChild(labelElement);
+		row2Element = document.createElement('td');
+		row2Element.className = 'place_tooltip_value';
+		rowElement.appendChild(row2Element);
+
 		var rowElement = document.createElement('tr');
 		tBodyElement.appendChild(rowElement);
-		var subElement = document.createElement('td');
-		subElement.className = 'place_tooltip_label';
-		subElement.appendChild(document.createTextNode(venueMap.getTranslation('place')));
-		rowElement.appendChild(subElement);
-		self.row2Element = document.createElement('td');
-		self.row2Element.className = 'place_tooltip_value';
-		rowElement.appendChild(self.row2Element);
-		var rowElement = document.createElement('tr');
-		tBodyElement.appendChild(rowElement);
-		var subElement = document.createElement('td');
-		subElement.className = 'place_tooltip_label';
-		subElement.appendChild(document.createTextNode(venueMap.getTranslation('price')));
-		rowElement.appendChild(subElement);
-		self.row3Element = document.createElement('td');
-		self.row3Element.className = 'place_tooltip_value';
-		rowElement.appendChild(self.row3Element);
-		self.statusRowElement = document.createElement('tr');
-		tBodyElement.appendChild(self.statusRowElement);
-		self.row4Element = document.createElement('td');
-		self.row4Element.setAttribute('colspan', '2');
-		self.row4Element.className = 'place_tooltip_status';
-		self.statusRowElement.appendChild(self.row4Element);
+		labelElement = document.createElement('td');
+		labelElement.className = 'place_tooltip_label';
+		labelElement.appendChild(document.createTextNode(venueMap.getTranslation('price')));
+		rowElement.appendChild(labelElement);
+		row3Element = document.createElement('td');
+		row3Element.className = 'place_tooltip_value';
+		rowElement.appendChild(row3Element);
+
+		statusRowElement = document.createElement('tr');
+		tBodyElement.appendChild(statusRowElement);
+		row4Element = document.createElement('td');
+		row4Element.setAttribute('colspan', '2');
+		row4Element.className = 'place_tooltip_status';
+		statusRowElement.appendChild(row4Element);
 	};
 	this.clear = function() {
-		while (self.row1Element.firstChild) {
-			self.row1Element.removeChild(self.row1Element.firstChild);
+		while (row1Element.firstChild) {
+			row1Element.removeChild(row1Element.firstChild);
 		}
-		while (self.row2Element.firstChild) {
-			self.row2Element.removeChild(self.row2Element.firstChild);
+		while (row2Element.firstChild) {
+			row2Element.removeChild(row2Element.firstChild);
 		}
-		while (self.row3Element.firstChild) {
-			self.row3Element.removeChild(self.row3Element.firstChild);
+		while (row3Element.firstChild) {
+			row3Element.removeChild(row3Element.firstChild);
 		}
-		while (self.row4Element.firstChild) {
-			self.row4Element.removeChild(self.row4Element.firstChild);
+		while (row4Element.firstChild) {
+			row4Element.removeChild(row4Element.firstChild);
 		}
 	};
-	this.display = function(x, y, row, place, price, available) {
+	this.display = function(seat, x, y) {
 		if (!componentElement) {
 			createDomElements();
 		}
 		self.clear();
-		if (row) {
-			self.row1Element.appendChild(document.createTextNode(row));
+		var section = venueMap.getSectionBySeatId(seat.id);
+		if (seat.row) {
+			row1Element.appendChild(document.createTextNode(seat.row));
 		}
-		if (place) {
-			self.row2Element.appendChild(document.createTextNode(place));
+		if (seat.place) {
+			row2Element.appendChild(document.createTextNode(seat.place));
 		}
-		if (price) {
-			self.row3Element.appendChild(document.createTextNode(price));
+		if (seat.price) {
+			row3Element.appendChild(document.createTextNode(seat.price));
 		}
 		var displayStyle = 'none';
 		if (venueMap.isSeatSelectionEnabled()) {
 			displayStyle = '';
-			var status = venueMap.getTranslation(available ? 'available' : 'booked');
-			self.row4Element.appendChild(document.createTextNode(status));
+			var status = venueMap.getTranslation(seat.available ? 'available' : 'booked');
+			row4Element.appendChild(document.createTextNode(status));
 		}
-		self.statusRowElement.style.display = displayStyle;
+		statusRowElement.style.display = displayStyle;
 		if (window.innerHeight) {
 			var viewPortWidth = window.innerWidth;
 			var viewPortHeight = window.innerHeight;
@@ -2120,14 +2173,14 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 		componentElement.style.display = 'block';
 		var popupWidth = componentElement.offsetWidth;
 		var popupHeight = componentElement.offsetHeight;
-		var leftPosition = x + self.popupOffset;
+		var leftPosition = x + popupOffset;
 		leftPosition -= popupWidth / 2;
-		var topPosition = y - popupHeight - self.popupOffset;
-		if (leftPosition + popupWidth + self.popupOffset >= viewPortWidth) {
-			leftPosition = x - self.popupOffset - popupWidth;
+		var topPosition = y - popupHeight - popupOffset;
+		if (leftPosition + popupWidth + popupOffset >= viewPortWidth) {
+			leftPosition = x - popupOffset - popupWidth;
 		}
-		if (topPosition - self.popupOffset < 0) {
-			topPosition = (y + self.popupOffset + popupHeight);
+		if (topPosition - popupOffset < 0) {
+			topPosition = (y + popupOffset + popupHeight);
 		}
 		componentElement.style.left = leftPosition + 'px';
 		componentElement.style.top = topPosition + 'px';
