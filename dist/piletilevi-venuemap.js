@@ -1734,7 +1734,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement) {
 			var seatPriceClass = priceClassesIndex[seatInfo.priceClass] || null;
 			var selectable = seatsSelectable && seatInfo;
 			placeObject.setPriceClass(seatPriceClass);
-			placeObject.setSelected(selectable && venueMap.isSeatSelected(seatInfo.id));
+			placeObject.setSelected(venueMap.isSeatSelected(seatInfo.id));
 			placeObject.setSelectable(selectable);
 			placeObject.refreshStatus();
 		}
