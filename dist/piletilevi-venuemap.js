@@ -1599,6 +1599,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	var sectionZoomSeatRadius = 6;
 	var seatNumbersRequirement = 6;
 	var sectionLabelsRequirement = 4;
+	var sectionLabelSize = 14;
 
 	var init = function() {
 		componentElement = document.createElement('div');
@@ -1751,8 +1752,8 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		if (zoomDiff > 1) {
 			// for smoother resizing
 			adjustNumberingVisibility(false);
-			adjustSectionLabelsVisibility(false);
 		}
+		adjustSectionLabelsVisibility(false);
 		var svgDimensions = svgElement.getBoundingClientRect();
 		var mapWidth = applyZoom(containerElement.offsetWidth, zoomLevel);
 		var mapHeight = applyZoom(containerElement.offsetHeight, zoomLevel);
@@ -1854,7 +1855,16 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		var currentSvgDimensions = svgElement.getBoundingClientRect();
 		var currentSeatRadius = getSeatRadiusByMapWidth(currentSvgDimensions.width);
 		adjustNumberingVisibility(currentSeatRadius >= seatNumbersRequirement);
-		adjustSectionLabelsVisibility(currentSeatRadius >= sectionLabelsRequirement);
+		var showSections = currentSeatRadius >= sectionLabelsRequirement;
+		if (showSections) {
+			var ratio = currentSvgDimensions.width / svgDimensions.width;
+			var labelSize = sectionLabelSize / ratio;
+			for (var key in sectionLabelElements) {
+				var element = sectionLabelElements[key];
+				element.setAttribute('font-size', labelSize);
+			}
+		}
+		adjustSectionLabelsVisibility(showSections);
 	};
 	var getSeatRadiusByMapWidth = function(width) {
 		var diff = width / svgDimensions.width;
