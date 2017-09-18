@@ -2254,7 +2254,7 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 		}
 		// trim the map
 		var mapRegion = calculateSeatsRegion(relevantSeats);
-		var padding = piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 4;
+		var padding = piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 10;
 		mapRegion.x -= padding;
 		mapRegion.y -= padding;
 		mapRegion.width += padding *2;
