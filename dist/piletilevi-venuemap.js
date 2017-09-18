@@ -1115,42 +1115,6 @@ piletilevi.venuemap.VenueMap = function() {
 			}
 			svgElement.appendChild(createRowNumberNode(edge.firstSeat, edge.lastSeat));
 			svgElement.appendChild(createRowNumberNode(edge.lastSeat, edge.firstSeat));
-			continue;
-			var alignedLeft = edge.firstSeat.x < edge.lastSeat.x;
-			var position = edge.firstSeat.x;
-			if (alignedLeft) {
-				position -= piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 2;
-			} else {
-				position += piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 2;
-			}
-			var calculateAngle = piletilevi.venuemap.Utilities.calculateAngle;
-			var angle = Math.round(
-				alignedLeft
-					? calculateAngle(
-					edge.firstSeat.x,
-					edge.firstSeat.y,
-					edge.lastSeat.x,
-					edge.lastSeat.y
-				) : calculateAngle(
-					edge.lastSeat.x,
-					edge.lastSeat.y,
-					edge.firstSeat.x,
-					edge.firstSeat.y
-				));
-			var node = piletilevi.venuemap.Utilities.createSvgNode('text', {
-				'class': 'place_detail',
-				x: position,
-				y: edge.firstSeat.y,
-				dy: '0.35em', // center align vertically
-				'transform': 'rotate(' + angle + ',' + edge.firstSeat.x + ',' + edge.firstSeat.y + ')',
-				'stroke-width': 0,
-				'text-anchor': alignedLeft ? 'end' : 'start',  // center align horizontally
-				'font-family': 'Verdana',
-				'font-size': 10,
-				'fill': '#999999'
-			});
-			node.innerHTML = edge.firstSeat.row;
-			svgElement.appendChild(node);
 		}
 		for (var i = 0; i < data.seats.length; ++i) {
 			var seat = data.seats[i];
@@ -1827,6 +1791,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	var sectionsBoundaries = {};
 	var nextFocalPoint;
 	var lastZoomlevel = -1;
+	var sectionZoomSeatRadius = 6;
 	var seatNumbersRequirement = 6;
 	var sectionLabelsRequirement = 4;
 
@@ -2058,11 +2023,17 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		var maxZoomLevel = 32;
 		var endWidth;
 		var endHeight;
-		var endZoom;
-		for (endZoom = maxZoomLevel; endZoom > 0; endZoom -= 0.5) {
-			endWidth = applyZoom(boundary.width, endZoom);
-			endHeight = applyZoom(boundary.height, endZoom);
-			if (endWidth <= svgDimensions.width && endHeight <= svgDimensions.height) {
+		var endZoom = 0;
+		for (var testZoom = 0; testZoom <= maxZoomLevel; testZoom += 0.5) {
+			endWidth = applyZoom(boundary.width, testZoom);
+			endHeight = applyZoom(boundary.height, testZoom);
+			var endActualWidth = applyZoom(containerElement.offsetWidth, testZoom);
+			var seatRadius = getSeatRadiusByMapWidth(endActualWidth);
+			if (endWidth > svgDimensions.width || endHeight > svgDimensions.height) {
+				break;
+			}
+			endZoom = testZoom;
+			if (seatRadius > sectionZoomSeatRadius) {
 				break;
 			}
 		}
@@ -2074,10 +2045,13 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	};
 	var adjustDetailsDisplaying = function() {
 		var currentSvgDimensions = svgElement.getBoundingClientRect();
-		var diff = currentSvgDimensions.width / svgDimensions.width;
-		var currentSeatRadius = piletilevi.venuemap.SEAT_CIRCLE_RADIUS * diff;
+		var currentSeatRadius = getSeatRadiusByMapWidth(currentSvgDimensions.width);
 		adjustNumberingVisibility(currentSeatRadius >= seatNumbersRequirement);
 		adjustSectionLabelsVisibility(currentSeatRadius >= sectionLabelsRequirement);
+	};
+	var getSeatRadiusByMapWidth = function(width) {
+		var diff = width / svgDimensions.width;
+		return piletilevi.venuemap.SEAT_CIRCLE_RADIUS * diff;
 	};
 	var adjustNumberingVisibility = function(visible) {
 		if (visible) {
