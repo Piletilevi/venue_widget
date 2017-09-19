@@ -809,7 +809,6 @@ piletilevi.venuemap = {
 	DEFAULT_SEAT_ACTIVE_COLOR: '#27272e',
 	DEFAULT_SEAT_INACTIVE_COLOR: '#d0d0d0',
 	SEAT_CIRCLE_RADIUS: 6,
-	SEAT_CIRCLE_STROKE_WIDTH: 0.4,
 	STAGE_TEXT_SIZE: 20,
 	DEBUG_FULL_PLACESMAP_SECTIONS: false,
 };
@@ -934,6 +933,7 @@ piletilevi.venuemap.VenueMap = function() {
 	var placeToolTip;
 	var built = false;
 	var displayed = false;
+	var inactiveSeatsNumbered = false;
 	var lastLoadedVenueConf = 0;
 	var lastLoadedVenueSuccessful = false;
 	var seatsSections = {};
@@ -1323,6 +1323,12 @@ piletilevi.venuemap.VenueMap = function() {
 			}
 		});
 	};
+	this.areInactiveSeatsNumbered = function() {
+		return inactiveSeatsNumbered;
+	};
+	this.setInactiveSeatsNumbered = function(enabled) {
+		inactiveSeatsNumbered = !!enabled;
+	};
 	init();
 };
 
@@ -1629,8 +1635,9 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			if (!id) {
 				continue;
 			}
+			var textElement = element.querySelector('text');
 			if (!placesIndex[id]) {
-				var placeObject = new piletilevi.venuemap.PlacesMapPlace(venueMap, element);
+				var placeObject = new piletilevi.venuemap.PlacesMapPlace(venueMap, element, textElement);
 				placesIndex[id] = placeObject;
 			}
 		}
@@ -1894,22 +1901,24 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 ScalableComponent.call(piletilevi.venuemap.PlacesMapCanvas.prototype);
 DraggableComponent.call(piletilevi.venuemap.PlacesMapCanvas.prototype);
 
-piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement) {
+piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElement) {
 	var self = this;
 	this.id = false;
 	var selected = false;
 	var seatInfo = null;
 	var selectable = false;
+	var inactiveNumbered = false;
+	var withText = true;
 	var priceClass = null;
 
 	var init = function() {
+		inactiveNumbered = venueMap.areInactiveSeatsNumbered();
 		self.refreshStatus();
 	};
 	var mouseMove = function(event) {
 		var x = Math.max(0, event.pageX);
 		var y = Math.max(0, event.pageY - 2);
 		venueMap.getPlaceToolTip().display(seatInfo, x, y);
-
 		if (selectable) {
 			self.setColor(venueMap.getSeatColor('hover'))
 		}
@@ -1934,11 +1943,18 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement) {
 		}
 	};
 	this.refreshStatus = function() {
-		var seatColor = venueMap.getSeatColor('inactive');
+		var seatColor;
+		withText = true;
 		if (selected) {
 			seatColor = venueMap.getSeatColor('active');
 		} else if (priceClass && (seatInfo.available || !selectable)) {
 			seatColor = priceClass.color;
+		} else {
+			seatColor = venueMap.getSeatColor('inactive');
+			withText = inactiveNumbered;
+		}
+		if (textElement) {
+			textElement.style.display = withText ? '' : 'none';
 		}
 		this.setColor(seatColor);
 		if (seatInfo) {
@@ -1954,9 +1970,16 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement) {
 	this.setColor = function(seatColor) {
 		if (placeElement) {
 			if (selectable) {
-				placeElement.setAttribute("style", "cursor:pointer;stroke:#1F1A17;stroke-width:0.4;fill:" + seatColor);
+				placeElement.setAttribute("style", "cursor:pointer;fill:" + seatColor);
 			} else {
-				placeElement.setAttribute("style", "stroke:#1F1A17;stroke-width:0.4;fill:" + seatColor);
+				placeElement.setAttribute("style", "fill:" + seatColor);
+			}
+			if (textElement && withText) {
+				if (seatColor == venueMap.getSeatColor('inactive')) {
+					textElement.setAttribute('fill', '#000000');
+				} else {
+					textElement.setAttribute('fill', '#ffffff');
+				}
 			}
 		}
 	};
@@ -2209,9 +2232,6 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 		});
 		var cssNode = piletilevi.venuemap.Utilities.createSvgNode('style');
 		cssNode.innerHTML =
-			'.seat_text {' +
-			'  text-shadow: 1px 1px rgba(0,0,0,0.25);' +
-			'}' +
 			'.place_detail {' +
 			'  display: none;' +
 			'}' +
@@ -2379,7 +2399,6 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 					'text-anchor': 'middle',  // center align horizontally
 					'font-family': 'Verdana',
 					'font-size': 6,
-					'fill': 'white'
 				});
 				node.innerHTML = seat.place;
 				groupNode.appendChild(node);
@@ -2419,13 +2438,12 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 				bottomRight.y = y;
 			}
 		}
-		var placeFactor = piletilevi.venuemap.SEAT_CIRCLE_STROKE_WIDTH
-			+ piletilevi.venuemap.SEAT_CIRCLE_RADIUS;
+		var seatRadius = piletilevi.venuemap.SEAT_CIRCLE_RADIUS;
 		var result = {
-			x: topLeft.x - placeFactor,
-			y: topLeft.y - placeFactor,
-			width: bottomRight.x - topLeft.x + placeFactor * 2,
-			height: bottomRight.y - topLeft.y + placeFactor * 2,
+			x: topLeft.x - seatRadius,
+			y: topLeft.y - seatRadius,
+			width: bottomRight.x - topLeft.x + seatRadius * 2,
+			height: bottomRight.y - topLeft.y + seatRadius * 2,
 		};
 		return result;
 	};
