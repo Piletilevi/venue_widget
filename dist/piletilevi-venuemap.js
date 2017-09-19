@@ -244,16 +244,22 @@ var DraggableComponent = function() {
 			initDraggableElement();
 		}
 	};
-	this.unRegisterDraggableElement = function() {
+	this.disableDragging = function() {
 		removeDraggableElement();
 	};
+	this.enableDragging = function() {
+		initDraggableElement();
+	};
+
 	var initDraggableElement = function() {
 		removeDraggableElement();
+		draggableElement.style.cursor = 'grab';
 		touchManager.setTouchAction(gestureElement, 'none');
 		touchManager.setTouchAction(draggableElement, 'none');
 		touchManager.addEventListener(gestureElement, 'start', startHandler);
 	};
 	var removeDraggableElement = function() {
+		draggableElement.style.cursor = '';
 		touchManager.removeEventListener(gestureElement, 'start', startHandler);
 		touchManager.removeEventListener(gestureElement, 'move', moveHandler);
 		touchManager.removeEventListener(gestureElement, 'cancel', endHandler);
@@ -263,6 +269,7 @@ var DraggableComponent = function() {
 		if (touchInfo.touches != undefined && touchInfo.touches.length == 1) {
 			__eventsManager.preventDefaultAction(eventInfo);
 
+			draggableElement.style.cursor = 'grabbing';
 			startElementX = draggableElement.offsetLeft;
 			startElementY = draggableElement.offsetTop;
 
@@ -323,6 +330,7 @@ var DraggableComponent = function() {
 	};
 	var endHandler = function(eventInfo) {
 		__eventsManager.preventDefaultAction(eventInfo);
+		draggableElement.style.cursor = 'grab';
 		touchManager.removeEventListener(gestureElement, 'move', moveHandler);
 		touchManager.removeEventListener(gestureElement, 'end', endHandler);
 		touchManager.removeEventListener(gestureElement, 'cancel', endHandler);
@@ -1760,6 +1768,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			// for smoother resizing
 			adjustNumberingVisibility(false);
 		}
+		lastZoomlevel = zoomLevel;
 		adjustSectionLabelsVisibility(false);
 		var svgDimensions = svgElement.getBoundingClientRect();
 		var mapWidth = applyZoom(containerElement.offsetWidth, zoomLevel);
@@ -1796,16 +1805,24 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			piletilevi.venuemap.Utilities.animate(svgElement, {
 				width: mapWidth + 'px',
 				height: mapHeight + 'px'
-			}, animDuration, 'ease-in-out', adjustDetailsDisplaying);
+			}, animDuration, 'ease-in-out', zoomAdjusted);
 		} else {
 			componentElement.style.top = top + 'px';
 			componentElement.style.left = left + 'px';
 			svgElement.style.width = mapWidth + 'px';
 			svgElement.style.height = mapHeight + 'px';
-			adjustDetailsDisplaying();
+			zoomAdjusted();
 		}
-		lastZoomlevel = zoomLevel;
 		nextFocalPoint = null;
+	};
+	var zoomAdjusted = function()
+	{
+		adjustDetailsDisplaying();
+		if (lastZoomlevel > 0) {
+			self.enableDragging();
+		} else {
+			self.disableDragging();
+		}
 	};
 	this.setDisplayed = function(newDisplayed) {
 		if (displayed != newDisplayed) {
