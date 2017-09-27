@@ -1034,7 +1034,8 @@ piletilevi.venuemap.VenueMap = function() {
 				onFail();
 				lastLoadedVenueSuccessful = false;
 				self.trigger('placesMapLoadFailure');
-			}
+			},
+			true
 		);
 
 	};
@@ -1346,7 +1347,7 @@ piletilevi.venuemap.VenueMap = function() {
 	this.getPlaceToolTip = function() {
 		return placeToolTip;
 	};
-	this.requestShopData = function(path, onSuccess, onFail) {
+	this.requestShopData = function(path, onSuccess, onFail, withCacheWorkaround) {
 		if (typeof requestCache[path] != 'undefined') {
 			if (requestCache[path] === false) {
 				onFail();
@@ -1357,6 +1358,10 @@ piletilevi.venuemap.VenueMap = function() {
 		}
 		var protocol = connectionSecure ? 'https' : 'http';
 		var url = protocol + '://' + shopDomain + path;
+		if (withCacheWorkaround) {
+			var date = new Date;
+			url += '?' + date.getTime();
+		}
 		piletilevi.venuemap.Utilities.sendXhr({
 			'url': url,
 			'onSuccess': function(response) {
