@@ -1767,7 +1767,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	var lastZoomlevel = -1;
 	var sectionZoomSeatRadius = 8;
 	var seatNumbersRequirement = 7;
-	var sectionLabelsRequirement = 4;
+	var sectionLabelsRequirement = 2.9;
 	var sectionLabelSize = 17;
 	var zoomFactor = 1.25;
 
@@ -1775,7 +1775,6 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		sectionLabelElements = sectionLabelElements || {};
 		componentElement = document.createElement('div');
 		componentElement.className = 'places_map_canvas';
-		componentElement.style.transform = 'translateZ(0)'; // activate 3D rendering
 		componentElement.style.overflow = 'auto';
 		componentElement.style.position = 'absolute';
 		componentElement.style.textAlign = 'center';
@@ -2089,8 +2088,9 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	var adjustDetailsDisplaying = function() {
 		var currentSvgDimensions = svgElement.getBoundingClientRect();
 		var currentSeatRadius = getSeatRadiusByMapWidth(currentSvgDimensions.width);
-		adjustNumberingVisibility(currentSeatRadius >= seatNumbersRequirement);
-		var showSections = currentSeatRadius >= sectionLabelsRequirement;
+		var showSeats = currentSeatRadius >= seatNumbersRequirement;
+		adjustNumberingVisibility(showSeats);
+		var showSections = !showSeats && currentSeatRadius >= sectionLabelsRequirement;
 		if (showSections) {
 			var ratio = currentSvgDimensions.width / svgDimensions.width;
 			var labelSize = sectionLabelSize / ratio;
@@ -2610,7 +2610,7 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 				'text-anchor': 'middle',  // center align horizontally
 				'font-family': 'Verdana',
 				'font-size': 14,
-				'fill': '#999999'
+				'fill': '#000000'
 			});
 			sectionLabelElements[sectionId] = node;
 			svgElement.appendChild(node);
