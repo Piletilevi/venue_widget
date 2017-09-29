@@ -942,6 +942,9 @@ piletilevi.venuemap.Utilities = new function() {
 			}
 		}
 	};
+	this.isTransformSupported = function() {
+		return 'transform' in document.body.style;
+	};
 };
 
 piletilevi.venuemap.VenueMap = function() {
@@ -978,6 +981,7 @@ piletilevi.venuemap.VenueMap = function() {
 	var canvasFactory;
 	var extended = false;
 	var massSelectable = false;
+	var placesMapFlipped = false;
 
 	var seatColors = {
 		'hover': piletilevi.venuemap.DEFAULT_SEAT_HOVER_COLOR,
@@ -1398,6 +1402,12 @@ piletilevi.venuemap.VenueMap = function() {
 	this.setMassSelectable = function(input) {
 		massSelectable = !!input;
 	};
+	this.isPlacesMapFlipped = function() {
+		return placesMapFlipped;
+	};
+	this.setPlacesMapFlipped = function(input) {
+		placesMapFlipped = !!input;
+	};
 	this.extend = function() {
 		if (!extensionHandler) {
 			return;
@@ -1612,6 +1622,10 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		mainElement.className = 'piletilevi_venue_map_places_main';
 		mainElement.style.position = 'relative';
 		mainElement.style.overflow = 'hidden';
+		if (venueMap.isPlacesMapFlipped()
+			&& piletilevi.venuemap.Utilities.isTransformSupported()) {
+			mainElement.style.transform = 'rotate(180deg)';
+		}
 		componentElement.appendChild(mainElement);
 		mainElement.addEventListener('wheel', onWheel);
 		if (venueMap.getWithControls()) {
@@ -2274,6 +2288,12 @@ piletilevi.venuemap.PlacesMapStageLabel = function(venueMap, textElement) {
 		var type = self.getText();
 		if (type) {
 			self.setText(venueMap.getTranslation('stage-' + type));
+		}
+		if (venueMap.isPlacesMapFlipped()
+			&& piletilevi.venuemap.Utilities.isTransformSupported()) {
+			var x = textElement.getAttribute('x');
+			var y = textElement.getAttribute('y');
+			textElement.setAttribute('transform', 'rotate(180 ' + x + ' ' + y + ')');
 		}
 	};
 	this.setText = function(newText) {
