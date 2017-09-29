@@ -942,6 +942,30 @@ piletilevi.venuemap.Utilities = new function() {
 			}
 		}
 	};
+	this.getPosition = function(obj) {
+		var curleft = curtop = 0;
+		if (obj.offsetParent) {
+			do {
+				curleft += obj.offsetLeft;
+				curtop += obj.offsetTop;
+			} while (obj = obj.offsetParent);
+		}
+		return {"x": curleft, "y": curtop};
+	};
+	this.getPageScroll = function() {
+		var xScroll, yScroll;
+		if (window.pageYOffset) {
+			yScroll = window.pageYOffset;
+			xScroll = window.pageXOffset;
+		} else if (document.documentElement && document.documentElement.scrollTop) {
+			yScroll = document.documentElement.scrollTop;
+			xScroll = document.documentElement.scrollLeft;
+		} else if (document.body) {// all other Explorers
+			yScroll = document.body.scrollTop;
+			xScroll = document.body.scrollLeft;
+		}
+		return {"x": xScroll, "y": yScroll};
+	};
 };
 
 piletilevi.venuemap.VenueMap = function() {
@@ -1450,7 +1474,9 @@ piletilevi.venuemap.Controls = function(venueMap) {
 		componentElement.appendChild(buttonElement);
 		return buttonElement;
 	};
-
+	this.setVisible = function(visible) {
+		componentElement.style.display = visible ? 'block' : 'none';
+	};
 	this.getComponentElement = function() {
 		return componentElement;
 	};
@@ -1596,11 +1622,18 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 	var canvas;
 	var displayed = false;
 	var controls;
+	var selectionRectangle;
 	var details = {};
 	var pendingCanvasDetails = [];
+	var blockingOverlayElement;
+	var deselectedSeats = [];
 
 	var init = function() {
 		createDomStructure();
+		mainElement.addEventListener('wheel', onWheel);
+		//if (venueMap.isMassSelectable()) {
+		document.addEventListener('keydown', keydown);
+		//}
 	};
 	var createDomStructure = function() {
 		componentElement = document.createElement('div');
@@ -1612,12 +1645,94 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		mainElement.className = 'piletilevi_venue_map_places_main';
 		mainElement.style.position = 'relative';
 		mainElement.style.overflow = 'hidden';
+		blockingOverlayElement = document.createElement('div');
+		blockingOverlayElement.style.position = 'absolute';
+		blockingOverlayElement.style.left = '0';
+		blockingOverlayElement.style.right = '0';
+		blockingOverlayElement.style.top = '0';
+		blockingOverlayElement.style.bottom = '0';
+		blockingOverlayElement.style.display = 'none';
+		mainElement.appendChild(blockingOverlayElement);
 		componentElement.appendChild(mainElement);
-		mainElement.addEventListener('wheel', onWheel);
 		if (venueMap.getWithControls()) {
 			controls = new piletilevi.venuemap.Controls(venueMap);
 			mainElement.appendChild(controls.getComponentElement());
 		}
+	};
+	var keydown = function(event) {
+		console.log('keydownc')
+		if (event.keyCode != 17 || !canvas) // ctrl
+		{
+			return;
+		}
+		canvas.disableDragging();
+		componentElement.style.cursor = 'crosshair';
+		mainElement.addEventListener('mousedown', mousedown);
+		document.removeEventListener('keydown', keydown);
+		document.addEventListener('keyup', keyup);
+	};
+	var keyup = function(event) {
+		if (event.keyCode != 17) // ctrl
+		{
+			return;
+		}
+		endRectangleSelection();
+	};
+	var mousedown = function(event) {
+		mainElement.removeEventListener('mousedown', mousedown);
+		startRectangleSelection(getCursorOffset(event));
+	};
+	var mousemove = function(event) {
+		selectionRectangle.setOtherPoint(getCursorOffset(event));
+	};
+	var mouseup = function(event) {
+		endRectangleSelection();
+	};
+	var startRectangleSelection = function(cursorOffset) {
+		deselectedSeats = [];
+		var selected = canvas.getSelectedSeats();
+		selected.forEach(function(item) {
+			item.setSelected(false);
+			item.refreshStatus();
+			deselectedSeats.push(item.getSeatInfo().id);
+		});
+		blockingOverlayElement.style.display = 'block';
+		if (controls) {
+			controls.setVisible(false);
+		}
+		selectionRectangle = new piletilevi.venuemap.SelectionRectangle(cursorOffset);
+		mainElement.appendChild(selectionRectangle.getComponentElement());
+		mainElement.addEventListener('mousemove', mousemove);
+		mainElement.addEventListener('mouseup', mouseup);
+	};
+	var endRectangleSelection = function() {
+		componentElement.style.cursor = '';
+		if (venueMap.getZoomLevel() > 0) {
+			canvas.enableDragging();
+		}
+		document.removeEventListener('keyup', keyup);
+		mainElement.removeEventListener('mousedown', mousedown);
+		mainElement.removeEventListener('mouseup', mouseup);
+		mainElement.removeEventListener('mousemove', mousemove);
+		if (selectionRectangle) {
+			var region = selectionRectangle.getRegion();
+			canvas.selectSeatsInRegion(region);
+
+			mainElement.removeChild(selectionRectangle.getComponentElement());
+			selectionRectangle = null;
+		}
+		blockingOverlayElement.style.display = 'none';
+		if (controls) {
+			controls.setVisible(true);
+		}
+		document.addEventListener('keydown', keydown);
+	};
+	var getCursorOffset = function(mouseEvent) {
+		var elementOffset = piletilevi.venuemap.Utilities.getPosition(mainElement);
+		return {
+			top: mouseEvent.pageY - elementOffset.y,
+			left: mouseEvent.pageX - elementOffset.x
+		};
 	};
 	var onWheel = function(event) {
 		if (event.preventDefault) {
@@ -1748,6 +1863,51 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 	init();
 };
 
+piletilevi.venuemap.SelectionRectangle = function(anchorPoint) {
+	var self = this;
+	var otherPoint;
+	var style;
+	var region;
+	var componentElement;
+
+	var init = function() {
+		componentElement = document.createElement('div');
+		componentElement.className = 'piletilevi_venuemap_rectangle';
+		style = componentElement.style;
+		style.position = 'absolute';
+		style.borderWidth = '1px';
+		region = {
+			top: anchorPoint.top,
+			left: anchorPoint.left,
+			width: 0,
+			height: 0,
+		};
+		applyRegionStyle();
+	};
+	this.setOtherPoint = function(_otherPoint) {
+		otherPoint = _otherPoint;
+		region = {
+			top: Math.min(anchorPoint.top, otherPoint.top),
+			left: Math.min(anchorPoint.left, otherPoint.left),
+			width: Math.abs(anchorPoint.left - otherPoint.left),
+			height: Math.abs(anchorPoint.top - otherPoint.top),
+		};
+		applyRegionStyle();
+	};
+	var applyRegionStyle = function() {
+		for (var key in region) {
+			style[key] = region[key] + 'px';
+		}
+	};
+	this.getRegion = function() {
+		return region;
+	};
+	this.getComponentElement = function() {
+		return componentElement;
+	};
+	init();
+};
+
 piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabelElements) {
 	var self = this;
 	var placesIndex = {};
@@ -1813,29 +1973,9 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		if (arrowTextElement = svgElement.getElementById('stagename')) {
 			new piletilevi.venuemap.PlacesMapStageLabel(venueMap, arrowTextElement);
 		}
-		if (venueMap.isMassSelectable()) {
-			document.addEventListener('keydown', keydown);
-		}
+
 	};
-	var keydown = function(event) {
-		if (event.keyCode != 17) // ctrl
-		{
-			return;
-		}
-		self.disableDragging();
-		componentElement.style.cursor = 'crosshair';
-		document.removeEventListener('keydown', keydown);
-		document.addEventListener('keyup', keyup);
-	};
-	var keyup = function(event) {
-		if (event.keyCode != 17) // ctrl
-		{
-			return;
-		}
-		componentElement.style.cursor = '';
-		self.enableDragging();
-		document.addEventListener('keydown', keydown);
-	};
+
 	this.attachTo = function(destinationElement) {
 		containerElement = destinationElement;
 		if (containerElement.firstChild) {
@@ -2052,6 +2192,9 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	this.getComponentElement = function() {
 		return componentElement;
 	};
+	this.getContainerElement = function() {
+		return containerElement;
+	};
 	this.selectSection = function(sectionId) {
 		if (!sectionId) {
 			venueMap.setZoomLevel(0);
@@ -2084,6 +2227,36 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			centered: true
 		};
 		venueMap.setZoomLevel(endZoom, true, nextFocalPoint);
+	};
+	this.getSelectedSeats = function() {
+		var result = [];
+		for (var key in placesIndex) {
+			if (placesIndex[key].isSelected()) {
+				result.push(placesIndex[key]);
+			}
+		}
+		return result;
+	};
+	this.selectSeatsInRegion = function(region) {
+		var regionTop = region.top - componentElement.offsetTop;
+		var regionLeft = region.left - componentElement.offsetLeft;
+		var currentSvgDimensions = svgElement.getBoundingClientRect();
+		var mapRatio = currentSvgDimensions.width / svgDimensions.width;
+		for (var key in placesIndex) {
+			var place = placesIndex[key];
+			if (!place.canBeSelected()) {
+				continue;
+			}
+			var element = place.getElement();
+			var x = element.getAttribute('cx') * mapRatio;
+			var y = element.getAttribute('cy') * mapRatio;
+			if (x < regionLeft || x > regionLeft + region.width
+				|| y < regionTop || y > regionTop + region.height) {
+				continue;
+			}
+			place.setSelected(true);
+			place.refreshStatus();
+		}
 	};
 	var adjustDetailsDisplaying = function() {
 		var currentSvgDimensions = svgElement.getBoundingClientRect();
@@ -2157,6 +2330,7 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 	};
 	var click = function(event) {
 		if (selectable && seatInfo) {
+			console.log('pl click')
 			if (seatInfo.available && !selected) {
 				selected = true;
 				self.refreshStatus();
@@ -2209,8 +2383,18 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 			}
 		}
 	};
+	this.canBeSelected = function() {
+		return selectable && !selected
+			&& seatInfo && seatInfo.available;
+	};
 	this.setSelectable = function(newSelectable) {
 		selectable = !!newSelectable;
+	};
+	this.isSelectable = function() {
+		return selectable;
+	};
+	this.getSeatInfo = function() {
+		return seatInfo;
 	};
 	this.setSeatInfo = function(newSeatInfo) {
 		seatInfo = newSeatInfo;
@@ -2220,6 +2404,9 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 	};
 	this.setSelected = function(newSelected) {
 		selected = !!newSelected;
+	};
+	this.isSelected = function() {
+		return selected;
 	};
 	this.getElement = function() {
 		return placeElement;
