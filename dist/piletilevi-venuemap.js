@@ -1479,6 +1479,15 @@ piletilevi.venuemap.SectionsMap = function(venueMap) {
 		componentElement.className = 'piletilevi_venue_map_sections';
 	};
 	this.update = function() {
+		var enabledSectionsIndex = {};
+		var enabledSections = venueMap.getEnabledSections();
+		for (var i = enabledSections.length; i--;) {
+			enabledSectionsIndex[enabledSections[i]] = true;
+		}
+		for (var key in mapRegions) {
+			mapRegions[key].setEnabled(key in enabledSectionsIndex);
+			mapRegions[key].refreshStatus();
+		}
 	};
 	this.display = function() {
 		componentElement.style.display = '';
@@ -1500,40 +1509,24 @@ piletilevi.venuemap.SectionsMap = function(venueMap) {
 			componentElement.appendChild(self.mapElement);
 			var vectorDocument = self.mapElement;
 			self.vectorDocument = vectorDocument;
-			self.updateMapElement();
+			parseMapElement();
+			self.update();
 		}
 	};
-	this.updateMapElement = function() {
+	var parseMapElement = function() {
 		if (self.mapElement && self.vectorDocument) {
 			var vectorDocument = self.vectorDocument;
-			var sectionsToRemove = [];
-			var sectionsIndex = {};
-			var sections = venueMap.getSections();
-			for (var i = sections.length; i--;) {
-				sectionsIndex[sections[i]] = true;
-			}
-			var enabledSectionsIndex = {};
-			var enabledSections = venueMap.getEnabledSections();
-			for (var i = enabledSections.length; i--;) {
-				enabledSectionsIndex[enabledSections[i]] = true;
-			}
+
 			for (var j = 0; j < vectorDocument.childNodes.length; j++) {
 				if (vectorDocument.childNodes[j].id) {
 					var sectionId = vectorDocument.childNodes[j].id.split('section')[1];
 					var sectionVector = vectorDocument.childNodes[j];
-					if (sectionsIndex[sectionId]) {
-						if (!mapRegions[sectionId]) {
-							var regionObject = new piletilevi.venuemap.SectionsMapRegion(venueMap, self, sectionId,
-								sectionVector, enabledSectionsIndex[sectionId]);
-							mapRegions[sectionId] = regionObject;
-						}
-					} else {
-						sectionsToRemove.push(sectionVector);
+					if (!mapRegions[sectionId]) {
+						var regionObject = new piletilevi.venuemap.SectionsMapRegion(venueMap, self
+							, sectionId, sectionVector);
+						mapRegions[sectionId] = regionObject;
 					}
 				}
-			}
-			for (var i = 0; i < sectionsToRemove.length; i++) {
-				sectionsToRemove[i].style.display = 'none';
 			}
 			self.mapElement.style.visibility = 'visible';
 		}
@@ -1547,8 +1540,9 @@ piletilevi.venuemap.SectionsMap = function(venueMap) {
 	init();
 };
 
-piletilevi.venuemap.SectionsMapRegion = function(venueMap, sectionsMap, id, sectionVector, enabled) {
+piletilevi.venuemap.SectionsMapRegion = function(venueMap, sectionsMap, id, sectionVector) {
 	var self = this;
+	var enabled = false;
 	this.id = false;
 
 	var init = function() {
@@ -1556,7 +1550,6 @@ piletilevi.venuemap.SectionsMapRegion = function(venueMap, sectionsMap, id, sect
 		sectionVector.addEventListener('click', self.click);
 		sectionVector.addEventListener('mouseover', self.mouseOver);
 		sectionVector.addEventListener('mouseout', self.mouseOut);
-		self.refreshStatus();
 	};
 	this.refreshStatus = function() {
 		if (!enabled) {
@@ -1591,6 +1584,12 @@ piletilevi.venuemap.SectionsMapRegion = function(venueMap, sectionsMap, id, sect
 			sectionVector.setAttribute("opacity", "0");
 			sectionVector.setAttribute("style", "display: block;");
 		}
+	};
+	this.setEnabled = function(input) {
+		enabled = !!input;
+	};
+	this.isEnabled = function() {
+		return enabled;
 	};
 	this.click = function(event) {
 		venueMap.trigger('sectionSelected', id);
