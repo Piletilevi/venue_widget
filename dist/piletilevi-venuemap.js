@@ -1626,12 +1626,17 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 	var details = {};
 	var pendingCanvasDetails = [];
 	var blockingOverlayElement;
+	var RSM_NONE = 0;
+	var RSM_WAITING = 1;
+	var RSM_IN_PROGRESS = 2;
+	var rectangleSelectionMode = RSM_NONE;
 	var deselectedSeats = [];
 
 	var init = function() {
 		createDomStructure();
 		mainElement.addEventListener('wheel', onWheel);
 		//if (venueMap.isMassSelectable()) {
+		//console.log('add keydown list')
 		document.addEventListener('keydown', keydown);
 		//}
 	};
@@ -1665,8 +1670,13 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		{
 			return;
 		}
+		rectangleSelectionMode = RSM_WAITING;
+		if (controls) {
+			controls.setVisible(false);
+		}
 		canvas.disableDragging();
-		componentElement.style.cursor = 'crosshair';
+		mainElement.style.cursor = 'crosshair';
+		blockingOverlayElement.style.display = 'block';
 		mainElement.addEventListener('mousedown', mousedown);
 		document.removeEventListener('keydown', keydown);
 		document.addEventListener('keyup', keyup);
@@ -1684,11 +1694,14 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 	};
 	var mousemove = function(event) {
 		selectionRectangle.setOtherPoint(getCursorOffset(event));
+		var region = selectionRectangle.getRegion();
+		canvas.selectSeatsInRegion(region);
 	};
 	var mouseup = function(event) {
 		endRectangleSelection();
 	};
 	var startRectangleSelection = function(cursorOffset) {
+		rectangleSelectionMode = RSM_IN_PROGRESS;
 		deselectedSeats = [];
 		var selected = canvas.getSelectedSeats();
 		selected.forEach(function(item) {
@@ -1696,17 +1709,12 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 			item.refreshStatus();
 			deselectedSeats.push(item.getSeatInfo().id);
 		});
-		blockingOverlayElement.style.display = 'block';
-		if (controls) {
-			controls.setVisible(false);
-		}
 		selectionRectangle = new piletilevi.venuemap.SelectionRectangle(cursorOffset);
 		mainElement.appendChild(selectionRectangle.getComponentElement());
 		mainElement.addEventListener('mousemove', mousemove);
 		mainElement.addEventListener('mouseup', mouseup);
 	};
 	var endRectangleSelection = function() {
-		componentElement.style.cursor = '';
 		if (venueMap.getZoomLevel() > 0) {
 			canvas.enableDragging();
 		}
@@ -1721,17 +1729,27 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 			mainElement.removeChild(selectionRectangle.getComponentElement());
 			selectionRectangle = null;
 		}
+		rectangleSelectionMode = RSM_NONE;
+		document.addEventListener('keydown', keydown);
+		// defer controls hiding and such, in case the key is still down and selection restarts
+		window.setTimeout(finalizeRectangleSelectionEnding, 100);
+	};
+	var finalizeRectangleSelectionEnding = function() {
+		if (rectangleSelectionMode != RSM_NONE) {
+			// selection restarted immeditely
+			return;
+		}
+		mainElement.style.cursor = '';
 		blockingOverlayElement.style.display = 'none';
 		if (controls) {
 			controls.setVisible(true);
 		}
-		document.addEventListener('keydown', keydown);
 	};
 	var getCursorOffset = function(mouseEvent) {
 		var elementOffset = piletilevi.venuemap.Utilities.getPosition(mainElement);
 		return {
-			top: mouseEvent.pageY - elementOffset.y,
-			left: mouseEvent.pageX - elementOffset.x
+			top: Math.max(0, mouseEvent.pageY - elementOffset.y),
+			left: Math.max(0, mouseEvent.pageX - elementOffset.x)
 		};
 	};
 	var onWheel = function(event) {
@@ -1739,10 +1757,9 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 			event.preventDefault();
 		}
 		event.returnValue = false;
-		if (event.deltaY == 0) {
+		if (rectangleSelectionMode != RSM_NONE || event.deltaY == 0) {
 			return;
 		}
-
 		var e = event;
 		var rect = mainElement.getBoundingClientRect();
 		var x = e.pageX - rect.left - window.pageXOffset;
@@ -2250,11 +2267,11 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			var element = place.getElement();
 			var x = element.getAttribute('cx') * mapRatio;
 			var y = element.getAttribute('cy') * mapRatio;
-			if (x < regionLeft || x > regionLeft + region.width
-				|| y < regionTop || y > regionTop + region.height) {
+			var outside = x < regionLeft || x > regionLeft + region.width
+				|| y < regionTop || y > regionTop + region.height;
+			if (place.isSelected() == !outside)
 				continue;
-			}
-			place.setSelected(true);
+			place.setSelected(!outside);
 			place.refreshStatus();
 		}
 	};
@@ -2384,8 +2401,7 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 		}
 	};
 	this.canBeSelected = function() {
-		return selectable && !selected
-			&& seatInfo && seatInfo.available;
+		return selectable && seatInfo && seatInfo.available;
 	};
 	this.setSelectable = function(newSelectable) {
 		selectable = !!newSelectable;
