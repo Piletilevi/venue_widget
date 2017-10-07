@@ -280,13 +280,14 @@
 			map.setConfId(110);
 			map.setSectionsMapType('vector');
 			map.setSectionsMapImageUrl('');
+			map.setMassSelectable(true);
 			map.setSections([9159, 36521, 36522]);
 			map.setEnabledSections([9159, 36521, 36522]);
-			map.addHandler('seatSelected', function(seatId) {
-				window.alert('seat id: ' + seatId);
+			map.addHandler('seatsSelected', function(seatsIds) {
+				window.alert('Selected seats: ' + seatsIds.join(', '));
 			});
-			map.addHandler('sectionSelected', function(sectionId) {
-				window.alert('section id: ' + sectionId);
+			map.addHandler('seatsDeselected', function(seatsIds) {
+				window.alert('Deselected seats: ' + seatsIds.join(', '));
 			});
 			// places details
 			map.setSeatSelectionEnabled(true);
