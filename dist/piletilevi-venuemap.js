@@ -170,7 +170,7 @@ window.__eventsManager = new function() {
 	init();
 };
 
-var DraggableComponent = function() {
+var __DraggableComponent = function() {
 	var draggableElement;
 	var parentElement;
 	var gestureElement;
@@ -358,7 +358,7 @@ var DraggableComponent = function() {
 	}
 };
 
-var ScalableComponent = function() {
+var __ScalableComponent = function() {
 	var scaledElement;
 	var gestureElement;
 	var beforeStartCallback;
@@ -969,6 +969,21 @@ piletilevi.venuemap.Utilities = new function() {
 		}
 		return {"x": xScroll, "y": yScroll};
 	};
+	this.debugOnScreen = function(text) {
+		if (!window.debugElement) {
+			window.debugElement = document.createElement('div');
+			var s = window.debugElement.style;
+			s.background = 'red';
+			s.color = 'white';
+			s.position = 'fixed';
+			s.bottom = 0;
+			s.left = 0;
+			s.width = '100%';
+			s.zIndex = '9001';
+			document.body.appendChild(window.debugElement);
+		}
+		window.debugElement.innerHTML = (+new Date()) + ': ' + text;
+	}
 };
 
 piletilevi.venuemap.VenueMap = function() {
@@ -2025,7 +2040,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			'scaledElement': svgElement,
 			'gestureElement': containerElement,
 			'minWidth': containerElement.offsetWidth,
-			//'minHeight': containerElement.offsetHeight, //0
+			'minHeight': containerElement.offsetWidth / aspectRatio,
 			'afterStartCallback': scaleStartCallback,
 			'afterChangeCallback': scaleChangeCallback,
 			'endCallback': scaleEndCallback
@@ -2070,8 +2085,10 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		return true;
 	};
 	var scaleEndCallback = function() {
-		var scale = componentElement.offsetWidth / containerElement.offsetWidth;
+		var svgDimensions = svgElement.getBoundingClientRect();
+		var scale = svgDimensions.width / componentElement.offsetWidth;
 		var zoomLevel = Math.round(Math.log(scale) / Math.log(zoomFactor));
+		lastZoomlevel = -1;
 		venueMap.setCurrentZoomLevel(zoomLevel);
 	};
 	this.updateSectionDetails = function(sectionDetails) {
@@ -2290,8 +2307,9 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			var y = element.getAttribute('cy') * mapRatio;
 			var outside = x < regionLeft || x > regionLeft + region.width
 				|| y < regionTop || y > regionTop + region.height;
-			if (place.isSelected() == !outside)
+			if (place.isSelected() == !outside) {
 				continue;
+			}
 			place.setSelected(!outside);
 			place.refreshStatus();
 		}
@@ -2335,8 +2353,8 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	};
 	init();
 };
-ScalableComponent.call(piletilevi.venuemap.PlacesMapCanvas.prototype);
-DraggableComponent.call(piletilevi.venuemap.PlacesMapCanvas.prototype);
+__ScalableComponent.call(piletilevi.venuemap.PlacesMapCanvas.prototype);
+__DraggableComponent.call(piletilevi.venuemap.PlacesMapCanvas.prototype);
 
 piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElement) {
 	var self = this;
