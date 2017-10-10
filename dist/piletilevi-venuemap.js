@@ -841,32 +841,64 @@ piletilevi.venuemap.SectionDetails = function(id, selectableSeats, seatsInfo, pr
 };
 
 piletilevi.venuemap.Utilities = new function() {
+	var self = this;
 	var animations = [];
+	var transitionsAndEvents = {
+		'transition': 'transitionend',
+		'OTransition': 'oTransitionEnd',
+		'MozTransition': 'transitionend',
+		'WebkitTransition': 'webkitTransitionEnd'
+	}
+	var supportedTransition = '';
+	var transitionSupportChecked = false;
+
 	var anim = function(element, properties, duration, easeMode, onComplete) {
 		var init = function() {
 			this.element = element;
-			var transitions = [];
-			for (var key in properties) {
-				transitions.push(key + ' ' + duration + 'ms' + ' ' + (easeMode || 'linear'));
+			self.checkTransitionSupport();
+			if (supportedTransition) {
+				var transitions = [];
+				for (var key in properties) {
+					transitions.push(key + ' ' + duration + 'ms' + ' ' + (easeMode || 'linear'));
+				}
+				element.style[supportedTransition] = transitions.join(', ');
 			}
-			element.style.transition = transitions.join(', ');
 			for (var key in properties) {
 				element.style[key] = properties[key];
 			}
-			element.addEventListener('transitionend', finish);
+			if (supportedTransition) {
+				element.addEventListener(transitionsAndEvents[supportedTransition], transitionend);
+			} else if (typeof onComplete == 'function') {
+				onComplete();
+			}
+		};
+		var transitionend = function(event) {
+			finish();
+			element.removeEventListener(transitionsAndEvents[supportedTransition], transitionend);
 		};
 		var finish = function() {
 			if (element) {
-				element.style.transition = '';
+				element.style[supportedTransition] = '';
 			}
 			if (typeof onComplete == 'function') {
 				onComplete();
 			}
 		};
 		this.cancel = function() {
-			element.removeEventListener('transitionend', finish);
+			element.removeEventListener(transitionsAndEvents[supportedTransition], transitionend);
 		};
 		init();
+	};
+	this.checkTransitionSupport = function() {
+		if (transitionSupportChecked)
+			return;
+		for (var key in transitionsAndEvents) {
+			if (key in document.body.style) {
+				supportedTransition = key;
+				break;
+			}
+		}
+		transitionSupportChecked = true;
 	};
 	this.animate = function(element, properties, duration, easeMode, onComplete) {
 		for (var i = animations.length; i--;) {
@@ -1473,6 +1505,7 @@ piletilevi.venuemap.Controls = function(venueMap) {
 	var createDomStructure = function() {
 		componentElement = document.createElement('div');
 		componentElement.className = 'piletilevi_venue_map_controls';
+		touchManager.setTouchAction(componentElement, 'manipulation');
 		var buttonElement;
 		if (venueMap.getExtensionHandler() && venueMap.getSectionsMapType() == 'full_places_map') {
 			buttonElement = createButton('extend');
@@ -1480,21 +1513,22 @@ piletilevi.venuemap.Controls = function(venueMap) {
 				venueMap.extend();
 			});
 		}
-		buttonElement = createButton('zoomin', '+');
-		buttonElement.addEventListener('click', function() {
+		buttonElement = createButton('zoomin');
+		buttonElement.addEventListener('click', function(event) {
 			venueMap.zoomIn();
 		});
-		buttonElement = createButton('zoomout', '-');
-		buttonElement.addEventListener('click', function() {
+		buttonElement = createButton('zoomout');
+		buttonElement.addEventListener('click', function(event) {
 			venueMap.zoomOut();
 		});
-		buttonElement = createButton('resetzoom', '×');
+		buttonElement = createButton('resetzoom');
 		buttonElement.addEventListener('click', function() {
 			venueMap.setZoomLevel(0);
 		});
 	};
-	var createButton = function(type, text) {
+	var createButton = function(type) {
 		var buttonElement = document.createElement('div');
+		touchManager.setTouchAction(buttonElement, 'manipulation');
 		buttonElement.className = 'piletilevi_venue_map_control piletilevi_venue_map_control_' + type;
 		componentElement.appendChild(buttonElement);
 		return buttonElement;
@@ -2088,8 +2122,9 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		var svgDimensions = svgElement.getBoundingClientRect();
 		var scale = svgDimensions.width / componentElement.offsetWidth;
 		var zoomLevel = Math.round(Math.log(scale) / Math.log(zoomFactor));
-		lastZoomlevel = -1;
+		lastZoomlevel = zoomLevel;
 		venueMap.setCurrentZoomLevel(zoomLevel);
+		zoomAdjusted();
 	};
 	this.updateSectionDetails = function(sectionDetails) {
 		if (!sectionDetails) {
