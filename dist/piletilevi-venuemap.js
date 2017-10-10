@@ -254,8 +254,6 @@ var __DraggableComponent = function() {
 	var initDraggableElement = function() {
 		removeDraggableElement();
 		draggableElement.style.cursor = 'grab';
-		touchManager.setTouchAction(gestureElement, 'none');
-		touchManager.setTouchAction(draggableElement, 'none');
 		touchManager.addEventListener(gestureElement, 'start', startHandler);
 	};
 	var removeDraggableElement = function() {
@@ -2071,7 +2069,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			containerElement.appendChild(componentElement);
 		}
 		self.registerScalableElement({
-			'scaledElement': svgElement,
+			'scaledElement': componentElement,
 			'gestureElement': containerElement,
 			'minWidth': containerElement.offsetWidth,
 			'minHeight': containerElement.offsetWidth / aspectRatio,
@@ -2119,8 +2117,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		return true;
 	};
 	var scaleEndCallback = function() {
-		var svgDimensions = svgElement.getBoundingClientRect();
-		var scale = svgDimensions.width / componentElement.offsetWidth;
+		var scale = componentElement.offsetWidth / containerElement.offsetWidth;
 		var zoomLevel = Math.round(Math.log(scale) / Math.log(zoomFactor));
 		lastZoomlevel = zoomLevel;
 		venueMap.setCurrentZoomLevel(zoomLevel);
@@ -2177,8 +2174,8 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 
 		containerElement.style.width = width + 'px';
 		containerElement.style.height = height + 'px';
-		svgElement.style.width = width + 'px';
-		svgElement.style.height = height + 'px';
+		componentElement.style.width = width + 'px';
+		componentElement.style.height = height + 'px';
 		lastZoomlevel = -1;
 		self.adjustToZoom(false, focalPoint);
 	};
@@ -2234,17 +2231,15 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			var animDuration = Math.min(zoomDiff * 150, 800);
 			piletilevi.venuemap.Utilities.animate(componentElement, {
 				top: top + 'px',
-				left: left + 'px'
-			}, animDuration, 'ease-in-out');
-			piletilevi.venuemap.Utilities.animate(svgElement, {
+				left: left + 'px',
 				width: mapWidth + 'px',
 				height: mapHeight + 'px'
 			}, animDuration, 'ease-in-out', zoomAdjusted);
 		} else {
 			componentElement.style.top = top + 'px';
 			componentElement.style.left = left + 'px';
-			svgElement.style.width = mapWidth + 'px';
-			svgElement.style.height = mapHeight + 'px';
+			componentElement.style.width = mapWidth + 'px';
+			componentElement.style.height = mapHeight + 'px';
 			zoomAdjusted();
 		}
 		nextFocalPoint = null;
