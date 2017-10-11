@@ -1535,13 +1535,12 @@ piletilevi.venuemap.Controls = function(venueMap) {
 			venueMap.setZoomLevel(0);
 		});
 	};
-	var addClickListener = function(button, listener)
-	{
-		touchManager.addEventListener(button, 'start', function(event) {
-			__eventsManager.preventDefaultAction(event);
-			__eventsManager.cancelBubbling(event);
-			listener();
-		});
+	var addClickListener = function(button, listener) {
+		__eventsManager.addHandler(button, 'click', function(event) {
+				__eventsManager.preventDefaultAction(event);
+				__eventsManager.cancelBubbling(event);
+				listener();
+		}, true);
 	};
 	var createButton = function(type) {
 		var buttonElement = document.createElement('div');
