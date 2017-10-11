@@ -253,13 +253,13 @@ var DraggableComponent = function() {
 
 	var initDraggableElement = function() {
 		removeDraggableElement();
-		draggableElement.style.cursor = 'grab';
+		draggableElement.setAttribute('data-draggable-state', 'draggable');
 		touchManager.setTouchAction(gestureElement, 'none');
 		touchManager.setTouchAction(draggableElement, 'none');
 		touchManager.addEventListener(gestureElement, 'start', startHandler);
 	};
 	var removeDraggableElement = function() {
-		draggableElement.style.cursor = '';
+		draggableElement.removeAttribute('data-draggable-state');
 		touchManager.removeEventListener(gestureElement, 'start', startHandler);
 		touchManager.removeEventListener(gestureElement, 'move', moveHandler);
 		touchManager.removeEventListener(gestureElement, 'cancel', endHandler);
@@ -268,8 +268,7 @@ var DraggableComponent = function() {
 	var startHandler = function(eventInfo, touchInfo) {
 		if (touchInfo.touches != undefined && touchInfo.touches.length == 1) {
 			__eventsManager.preventDefaultAction(eventInfo);
-
-			draggableElement.style.cursor = 'grabbing';
+			draggableElement.setAttribute('data-draggable-state', 'dragging');
 			startElementX = draggableElement.offsetLeft;
 			startElementY = draggableElement.offsetTop;
 
@@ -330,7 +329,7 @@ var DraggableComponent = function() {
 	};
 	var endHandler = function(eventInfo) {
 		__eventsManager.preventDefaultAction(eventInfo);
-		draggableElement.style.cursor = 'grab';
+		draggableElement.setAttribute('data-draggable-state', 'draggable');
 		touchManager.removeEventListener(gestureElement, 'move', moveHandler);
 		touchManager.removeEventListener(gestureElement, 'end', endHandler);
 		touchManager.removeEventListener(gestureElement, 'cancel', endHandler);

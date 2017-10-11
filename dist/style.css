@@ -198,3 +198,13 @@
 	font-weight: bold;
 	padding-top: 0.4em;
 }
+
+[data-draggable-state='draggable'] {
+	cursor: -webkit-grab;
+	cursor: grab;
+}
+
+[data-draggable-state='dragging'] {
+	cursor: -webkit-grabbing;
+	cursor: grabbing;
+}
