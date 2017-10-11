@@ -245,9 +245,13 @@ var __DraggableComponent = function() {
 		}
 	};
 	this.disableDragging = function() {
+		if (!draggableElement)
+			return;
 		removeDraggableElement();
 	};
 	this.enableDragging = function() {
+		if (!draggableElement)
+			return;
 		initDraggableElement();
 	};
 
@@ -265,7 +269,7 @@ var __DraggableComponent = function() {
 	};
 	var startHandler = function(eventInfo, touchInfo) {
 		if (touchInfo.touches != undefined && touchInfo.touches.length == 1) {
-			__eventsManager.preventDefaultAction(eventInfo);
+			//__eventsManager.preventDefaultAction(eventInfo);
 
 			draggableElement.style.cursor = 'grabbing';
 			startElementX = draggableElement.offsetLeft;
@@ -1503,30 +1507,36 @@ piletilevi.venuemap.Controls = function(venueMap) {
 	var createDomStructure = function() {
 		componentElement = document.createElement('div');
 		componentElement.className = 'piletilevi_venue_map_controls';
-		touchManager.setTouchAction(componentElement, 'manipulation');
 		var buttonElement;
 		if (venueMap.getExtensionHandler() && venueMap.getSectionsMapType() == 'full_places_map') {
 			buttonElement = createButton('extend');
-			buttonElement.addEventListener('click', function() {
+			addClickListener(buttonElement, function() {
 				venueMap.extend();
 			});
 		}
 		buttonElement = createButton('zoomin');
-		buttonElement.addEventListener('click', function(event) {
+		addClickListener(buttonElement, function() {
 			venueMap.zoomIn();
 		});
 		buttonElement = createButton('zoomout');
-		buttonElement.addEventListener('click', function(event) {
+		addClickListener(buttonElement, function() {
 			venueMap.zoomOut();
 		});
 		buttonElement = createButton('resetzoom');
-		buttonElement.addEventListener('click', function() {
+		addClickListener(buttonElement, function() {
 			venueMap.setZoomLevel(0);
+		});
+	};
+	var addClickListener = function(button, listener)
+	{
+		touchManager.addEventListener(button, 'start', function(event) {
+			__eventsManager.preventDefaultAction(event);
+			__eventsManager.cancelBubbling(event);
+			listener();
 		});
 	};
 	var createButton = function(type) {
 		var buttonElement = document.createElement('div');
-		touchManager.setTouchAction(buttonElement, 'manipulation');
 		buttonElement.className = 'piletilevi_venue_map_control piletilevi_venue_map_control_' + type;
 		componentElement.appendChild(buttonElement);
 		return buttonElement;
@@ -2070,7 +2080,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		}
 		self.registerScalableElement({
 			'scaledElement': componentElement,
-			'gestureElement': containerElement,
+			'gestureElement': svgElement,
 			'minWidth': containerElement.offsetWidth,
 			'minHeight': containerElement.offsetWidth / aspectRatio,
 			'afterStartCallback': scaleStartCallback,
@@ -2079,7 +2089,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		});
 		self.registerDraggableElement({
 			'draggableElement': componentElement,
-			'gestureElement': containerElement,
+			'gestureElement': svgElement,
 			'boundariesElement': containerElement,
 			'boundariesPadding': boundariesPadding
 		});
@@ -2415,6 +2425,8 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 		}
 	};
 	var click = function(event) {
+		__eventsManager.preventDefaultAction(event);
+		__eventsManager.cancelBubbling(event);
 		if (selectable && seatInfo) {
 			if (seatInfo.available && !selected) {
 				selected = true;
@@ -2445,13 +2457,16 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 		}
 		this.setColor(seatColor);
 		if (seatInfo) {
-			placeElement.addEventListener('click', click);
 			placeElement.addEventListener('mousemove', mouseMove);
 			placeElement.addEventListener('mouseout', mouseOut);
 		} else {
-			placeElement.removeEventListener('click', click);
 			placeElement.removeEventListener('mousemove', mouseMove);
 			placeElement.removeEventListener('mouseout', mouseOut);
+		}
+		if (seatInfo && selectable && (selected || seatInfo.available)) {
+			__eventsManager.addHandler(placeElement, 'click', click, true);
+		} else {
+			__eventsManager.removeHandler(placeElement, 'click', click);
 		}
 	};
 	this.setColor = function(seatColor) {
