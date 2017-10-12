@@ -1005,6 +1005,9 @@ piletilevi.venuemap.VenueMap = function() {
 	var extended = false;
 	var massSelectable = false;
 	var placesMapFlipped = false;
+	var concertId = ''; // temporary solution 0004087
+	var loadingOverrides = false; // temporary solution 0004087
+	var configOverrides = {}; // temporary solution 0004087
 
 	var seatColors = {
 		'hover': piletilevi.venuemap.DEFAULT_SEAT_HOVER_COLOR,
@@ -1038,7 +1041,37 @@ piletilevi.venuemap.VenueMap = function() {
 		componentElement.appendChild(placesMap.getComponentElement());
 		placeToolTip = new piletilevi.venuemap.PlaceTooltip(self);
 		built = true;
-		self.update();
+		if (concertId) {
+			// temporary solution 0004087
+			loadOverrides();
+		} else {
+			self.update();
+		}
+	};
+	var loadOverrides = function() {
+		// temporary solution 0004087
+		loadingOverrides = true;
+		self.requestShopData(
+			'/public/seatingPlanOverrides',
+			function(response) {
+				configOverrides = null;
+				try {
+					configOverrides = JSON.parse(response);
+				} catch (error) {
+					console.error('Failed parsing config overrides response');
+					return;
+				}
+				if (typeof configOverrides != 'object') {
+					console.error('Received invalid config overrides response');
+					return;
+				}
+				loadingOverrides = false;
+				self.update();
+			},
+			function() {
+				console.error('Failed loading config overrides');
+			}
+		);
 	};
 	var loadVenuePlacesMap = function(onSuccess, onFail) {
 		if (lastLoadedVenueConf == confId) {
@@ -1156,9 +1189,17 @@ piletilevi.venuemap.VenueMap = function() {
 		}
 	};
 	this.update = function() {
+		if (loadingOverrides) {
+			// temporary solution 0004087
+			return;
+		}
 		if (!built) {
 			self.build();
 			return;
+		}
+		if (concertId && configOverrides[concertId]) {
+			// temporary solution 0004087
+			confId = configOverrides[concertId];
 		}
 		if (sectionsMapType != 'full_places_map') {
 			if (activeSection) {
@@ -1228,6 +1269,10 @@ piletilevi.venuemap.VenueMap = function() {
 	};
 	this.setConfId = function(newConfId) {
 		confId = newConfId;
+	};
+	this.setConcertId = function(newConcertId) {
+		// temporary solution 0004087
+		concertId = newConcertId;
 	};
 	this.getConfId = function() {
 		return confId;
