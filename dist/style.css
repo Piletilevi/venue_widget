@@ -24,19 +24,19 @@
 
 .piletilevi_venue_map_controls {
 	position: absolute;
-	right: 5px;
-	bottom: 5px;
-	box-shadow: 0 0 4px #c5c5c5;
+	right: 3px;
+	bottom: 3px;
+	box-shadow: 0 0 3px #c5c5c5;
 }
 
 .piletilevi_venue_map_control {
 	cursor: pointer;
 	font-family: Arial;
 	font-size: 27px;
-	width: 26px;
-	height: 26px;
+	width: 30px;
+	height: 30px;
 	border: 0;
-	border-top: 1px solid #D0D0D0;
+	border-top: 1px solid #E6E6E6;
 	padding: 0;
 	outline: none;
 	display: block;

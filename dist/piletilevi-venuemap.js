@@ -170,7 +170,7 @@ window.__eventsManager = new function() {
 	init();
 };
 
-var DraggableComponent = function() {
+var __DraggableComponent = function() {
 	var draggableElement;
 	var parentElement;
 	var gestureElement;
@@ -245,17 +245,19 @@ var DraggableComponent = function() {
 		}
 	};
 	this.disableDragging = function() {
+		if (!draggableElement)
+			return;
 		removeDraggableElement();
 	};
 	this.enableDragging = function() {
+		if (!draggableElement)
+			return;
 		initDraggableElement();
 	};
 
 	var initDraggableElement = function() {
 		removeDraggableElement();
 		draggableElement.setAttribute('data-draggable-state', 'draggable');
-		touchManager.setTouchAction(gestureElement, 'none');
-		touchManager.setTouchAction(draggableElement, 'none');
 		touchManager.addEventListener(gestureElement, 'start', startHandler);
 	};
 	var removeDraggableElement = function() {
@@ -267,7 +269,7 @@ var DraggableComponent = function() {
 	};
 	var startHandler = function(eventInfo, touchInfo) {
 		if (touchInfo.touches != undefined && touchInfo.touches.length == 1) {
-			__eventsManager.preventDefaultAction(eventInfo);
+			//__eventsManager.preventDefaultAction(eventInfo);
 			draggableElement.setAttribute('data-draggable-state', 'dragging');
 			startElementX = draggableElement.offsetLeft;
 			startElementY = draggableElement.offsetTop;
@@ -357,12 +359,13 @@ var DraggableComponent = function() {
 	}
 };
 
-var ScalableComponent = function() {
+var __ScalableComponent = function() {
 	var scaledElement;
 	var gestureElement;
 	var beforeStartCallback;
 	var afterStartCallback;
 	var afterChangeCallback;
+	var preChangeCallback;
 	var endCallback;
 	var speedX = 1;
 	var speedY = 1;
@@ -412,6 +415,9 @@ var ScalableComponent = function() {
 			}
 			if (typeof parameters.afterChangeCallback == 'function') {
 				afterChangeCallback = parameters.afterChangeCallback;
+			}
+			if (typeof parameters.preChangeCallback == 'function') {
+				preChangeCallback = parameters.preChangeCallback;
 			}
 			if (typeof parameters.endCallback == 'function') {
 				endCallback = parameters.endCallback;
@@ -515,6 +521,10 @@ var ScalableComponent = function() {
 				}
 				if (currentHeight < minHeight) {
 					currentHeight = minHeight;
+				}
+
+				if (preChangeCallback) {
+					preChangeCallback(compileInfo());
 				}
 
 				scaledElement.style.width = currentWidth + 'px';
@@ -840,32 +850,64 @@ piletilevi.venuemap.SectionDetails = function(id, selectableSeats, seatsInfo, pr
 };
 
 piletilevi.venuemap.Utilities = new function() {
+	var self = this;
 	var animations = [];
+	var transitionsAndEvents = {
+		'transition': 'transitionend',
+		'OTransition': 'oTransitionEnd',
+		'MozTransition': 'transitionend',
+		'WebkitTransition': 'webkitTransitionEnd'
+	}
+	var supportedTransition = '';
+	var transitionSupportChecked = false;
+
 	var anim = function(element, properties, duration, easeMode, onComplete) {
 		var init = function() {
 			this.element = element;
+			self.checkTransitionSupport();
+			if (supportedTransition) {
 			var transitions = [];
 			for (var key in properties) {
 				transitions.push(key + ' ' + duration + 'ms' + ' ' + (easeMode || 'linear'));
 			}
-			element.style.transition = transitions.join(', ');
+				element.style[supportedTransition] = transitions.join(', ');
+			}
 			for (var key in properties) {
 				element.style[key] = properties[key];
 			}
-			element.addEventListener('transitionend', finish);
+			if (supportedTransition) {
+				element.addEventListener(transitionsAndEvents[supportedTransition], transitionend);
+			} else if (typeof onComplete == 'function') {
+				onComplete();
+			}
+		};
+		var transitionend = function(event) {
+			finish();
+			element.removeEventListener(transitionsAndEvents[supportedTransition], transitionend);
 		};
 		var finish = function() {
 			if (element) {
-				element.style.transition = '';
+				element.style[supportedTransition] = '';
 			}
 			if (typeof onComplete == 'function') {
 				onComplete();
 			}
 		};
 		this.cancel = function() {
-			element.removeEventListener('transitionend', finish);
+			element.removeEventListener(transitionsAndEvents[supportedTransition], transitionend);
 		};
 		init();
+	};
+	this.checkTransitionSupport = function() {
+		if (transitionSupportChecked)
+			return;
+		for (var key in transitionsAndEvents) {
+			if (key in document.body.style) {
+				supportedTransition = key;
+				break;
+			}
+		}
+		transitionSupportChecked = true;
 	};
 	this.animate = function(element, properties, duration, easeMode, onComplete) {
 		for (var i = animations.length; i--;) {
@@ -968,6 +1010,21 @@ piletilevi.venuemap.Utilities = new function() {
 		}
 		return {"x": xScroll, "y": yScroll};
 	};
+	this.debugOnScreen = function(text) {
+		if (!window.debugElement) {
+			window.debugElement = document.createElement('div');
+			var s = window.debugElement.style;
+			s.background = 'red';
+			s.color = 'white';
+			s.position = 'fixed';
+			s.bottom = 0;
+			s.left = 0;
+			s.width = '100%';
+			s.zIndex = '9001';
+			document.body.appendChild(window.debugElement);
+		}
+		window.debugElement.innerHTML = (+new Date()) + ': ' + text;
+	}
 };
 
 piletilevi.venuemap.VenueMap = function() {
@@ -1505,24 +1562,31 @@ piletilevi.venuemap.Controls = function(venueMap) {
 		var buttonElement;
 		if (venueMap.getExtensionHandler() && venueMap.getSectionsMapType() == 'full_places_map') {
 			buttonElement = createButton('extend');
-			buttonElement.addEventListener('click', function() {
+			addClickListener(buttonElement, function() {
 				venueMap.extend();
 			});
 		}
-		buttonElement = createButton('zoomin', '+');
-		buttonElement.addEventListener('click', function() {
+		buttonElement = createButton('zoomin');
+		addClickListener(buttonElement, function() {
 			venueMap.zoomIn();
 		});
-		buttonElement = createButton('zoomout', '-');
-		buttonElement.addEventListener('click', function() {
+		buttonElement = createButton('zoomout');
+		addClickListener(buttonElement, function() {
 			venueMap.zoomOut();
 		});
-		buttonElement = createButton('resetzoom', '×');
-		buttonElement.addEventListener('click', function() {
+		buttonElement = createButton('resetzoom');
+		addClickListener(buttonElement, function() {
 			venueMap.setZoomLevel(0);
 		});
 	};
-	var createButton = function(type, text) {
+	var addClickListener = function(button, listener) {
+		__eventsManager.addHandler(button, 'click', function(event) {
+				__eventsManager.preventDefaultAction(event);
+				__eventsManager.cancelBubbling(event);
+				listener();
+		}, true);
+	};
+	var createButton = function(type) {
 		var buttonElement = document.createElement('div');
 		buttonElement.className = 'piletilevi_venue_map_control piletilevi_venue_map_control_' + type;
 		componentElement.appendChild(buttonElement);
@@ -2002,16 +2066,14 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	};
 	var containerElement;
 	var boundariesPadding = 0;
-	var startX;
-	var startY;
 	var sectionsBoundaries = {};
-	var nextFocalPoint;
 	var lastZoomlevel = -1;
 	var sectionZoomSeatRadius = 8;
 	var seatNumbersRequirement = 7;
 	var sectionLabelsRequirement = 2.9;
 	var sectionLabelSize = 17;
 	var zoomFactor = 1.25;
+	var touchScalingPoint;
 
 	var init = function() {
 		sectionLabelElements = sectionLabelElements || {};
@@ -2066,57 +2128,41 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			containerElement.appendChild(componentElement);
 		}
 		self.registerScalableElement({
-			'scaledElement': svgElement,
-			'gestureElement': containerElement,
+			'scaledElement': componentElement,
+			'gestureElement': svgElement,
 			'minWidth': containerElement.offsetWidth,
-			//'minHeight': containerElement.offsetHeight, //0
+			'minHeight': containerElement.offsetWidth / aspectRatio,
 			'afterStartCallback': scaleStartCallback,
-			'afterChangeCallback': scaleChangeCallback,
+			'preChangeCallback': scaleChangeCallback,
 			'endCallback': scaleEndCallback
 		});
 		self.registerDraggableElement({
 			'draggableElement': componentElement,
-			'gestureElement': containerElement,
+			'gestureElement': svgElement,
 			'boundariesElement': containerElement,
 			'boundariesPadding': boundariesPadding
 		});
 	};
-	var scaleStartCallback = function() {
-		startX = componentElement.offsetLeft;
-		startY = componentElement.offsetTop;
-
+	var scaleStartCallback = function(info) {
+		var rect = containerElement.getBoundingClientRect();
+		var touchPosition = {
+			x: (info.startF0x + info.startF1x) / 2 - rect.left - window.pageXOffset,
+			y: (info.startF0y + info.startF1y) / 2 - rect.top - window.pageYOffset
+		};
+		touchScalingPoint = self.getPointRelativeToContainer(touchPosition.x, touchPosition.y);
 		return true;
 	};
 	var scaleChangeCallback = function(info) {
-		var x = startX + (info.startWidth - info.currentWidth) / 2;
-		var y = startY + (info.startHeight - info.currentHeight) / 2;
-
-		var maxX = 0 + boundariesPadding * containerElement.offsetWidth;
-		var minX = containerElement.offsetWidth * (1 - boundariesPadding) - componentElement.offsetWidth;
-		var maxY = 0 + boundariesPadding * containerElement.offsetHeight;
-		var minY = containerElement.offsetHeight * (1 - boundariesPadding) - componentElement.offsetHeight;
-
-		if (x > maxX) {
-			x = maxX;
-		} else if (x < minX) {
-			x = minX;
-		}
-
-		if (y > maxY) {
-			y = maxY;
-		} else if (y < minY) {
-			y = minY;
-		}
-
-		componentElement.style.left = x + 'px';
-		componentElement.style.top = y + 'px';
-
-		return true;
+		var scaledPosition = getScaledMapPosition(info.currentWidth, info.currentHeight, touchScalingPoint);
+		componentElement.style.left = scaledPosition.x + 'px';
+		componentElement.style.top = scaledPosition.y + 'px';
 	};
 	var scaleEndCallback = function() {
 		var scale = componentElement.offsetWidth / containerElement.offsetWidth;
 		var zoomLevel = Math.round(Math.log(scale) / Math.log(zoomFactor));
+		lastZoomlevel = zoomLevel;
 		venueMap.setCurrentZoomLevel(zoomLevel);
+		zoomAdjusted();
 	};
 	this.updateSectionDetails = function(sectionDetails) {
 		if (!sectionDetails) {
@@ -2169,8 +2215,8 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 
 		containerElement.style.width = width + 'px';
 		containerElement.style.height = height + 'px';
-		svgElement.style.width = width + 'px';
-		svgElement.style.height = height + 'px';
+		componentElement.style.width = width + 'px';
+		componentElement.style.height = height + 'px';
 		lastZoomlevel = -1;
 		self.adjustToZoom(false, focalPoint);
 	};
@@ -2185,7 +2231,6 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			// for smoother resizing
 			adjustNumberingVisibility(false);
 		}
-		var svgDimensions = svgElement.getBoundingClientRect();
 		lastZoomlevel = zoomLevel;
 		adjustSectionLabelsVisibility(false);
 		var mapWidth = applyZoom(containerElement.offsetWidth, zoomLevel);
@@ -2197,49 +2242,53 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			if (!focalPoint) {
 				focalPoint = getCurrentRelativeFocalPoint();
 			}
-			if (focalPoint.centered) {
-				var concreteFocalPoint = {
-					x: mapWidth * focalPoint.x,
-					y: mapHeight * focalPoint.y
-				};
-				var centerY = containerElement.offsetHeight / 2;
-				top = centerY - concreteFocalPoint.y;
-				var centerX = containerElement.offsetWidth / 2;
-				left = centerX - concreteFocalPoint.x;
-			} else {
-				var originalX = svgDimensions.width * focalPoint.x;
-				var newX = mapWidth * focalPoint.x;
-
-				var originalY = svgDimensions.height * focalPoint.y;
-				var newY = mapHeight * focalPoint.y;
-				top = componentElement.offsetTop - (newY - originalY);
-				left = componentElement.offsetLeft - (newX - originalX);
-			}
-			top = Math.min(top, 0);
-			top = Math.max(top, containerElement.offsetHeight - mapHeight);
-			top = Math.round(top);
-			left = Math.min(left, 0);
-			left = Math.max(left, containerElement.offsetWidth - mapWidth);
-			left = Math.round(left);
+			var scaledPosition = getScaledMapPosition(mapWidth, mapHeight, focalPoint);
+			top = scaledPosition.y;
+			left = scaledPosition.x;
 		}
 		if (withAnimation) {
 			var animDuration = Math.min(zoomDiff * 150, 800);
 			piletilevi.venuemap.Utilities.animate(componentElement, {
 				top: top + 'px',
-				left: left + 'px'
-			}, animDuration, 'ease-in-out');
-			piletilevi.venuemap.Utilities.animate(svgElement, {
+				left: left + 'px',
 				width: mapWidth + 'px',
 				height: mapHeight + 'px'
 			}, animDuration, 'ease-in-out', zoomAdjusted);
 		} else {
 			componentElement.style.top = top + 'px';
 			componentElement.style.left = left + 'px';
-			svgElement.style.width = mapWidth + 'px';
-			svgElement.style.height = mapHeight + 'px';
+			componentElement.style.width = mapWidth + 'px';
+			componentElement.style.height = mapHeight + 'px';
 			zoomAdjusted();
 		}
-		nextFocalPoint = null;
+	};
+	var getScaledMapPosition = function(newWidth, newHeight, focalPoint) {
+		var top = 0, left = 0;
+			if (focalPoint.centered) {
+				var concreteFocalPoint = {
+				x: newWidth * focalPoint.x,
+				y: newHeight * focalPoint.y
+				};
+				var centerY = containerElement.offsetHeight / 2;
+				top = centerY - concreteFocalPoint.y;
+				var centerX = containerElement.offsetWidth / 2;
+				left = centerX - concreteFocalPoint.x;
+			} else {
+			var originalX = componentElement.offsetWidth * focalPoint.x;
+			var newX = newWidth * focalPoint.x;
+
+			var originalY = componentElement.offsetHeight * focalPoint.y;
+			var newY = newHeight * focalPoint.y;
+				top = componentElement.offsetTop - (newY - originalY);
+				left = componentElement.offsetLeft - (newX - originalX);
+			}
+			top = Math.min(top, 0);
+		top = Math.max(top, containerElement.offsetHeight - newHeight);
+			top = Math.round(top);
+			left = Math.min(left, 0);
+		left = Math.max(left, containerElement.offsetWidth - newWidth);
+			left = Math.round(left);
+		return {x: left, y: top};
 	};
 	var getCurrentRelativeFocalPoint = function() {
 		return self.getPointRelativeToContainer(
@@ -2334,8 +2383,9 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			var y = element.getAttribute('cy') * mapRatio;
 			var outside = x < regionLeft || x > regionLeft + region.width
 				|| y < regionTop || y > regionTop + region.height;
-			if (place.isSelected() == !outside)
+			if (place.isSelected() == !outside) {
 				continue;
+			}
 			place.setSelected(!outside);
 			place.refreshStatus();
 		}
@@ -2379,8 +2429,8 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	};
 	init();
 };
-ScalableComponent.call(piletilevi.venuemap.PlacesMapCanvas.prototype);
-DraggableComponent.call(piletilevi.venuemap.PlacesMapCanvas.prototype);
+__ScalableComponent.call(piletilevi.venuemap.PlacesMapCanvas.prototype);
+__DraggableComponent.call(piletilevi.venuemap.PlacesMapCanvas.prototype);
 
 piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElement) {
 	var self = this;
@@ -2411,6 +2461,8 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 		}
 	};
 	var click = function(event) {
+		__eventsManager.preventDefaultAction(event);
+		__eventsManager.cancelBubbling(event);
 		if (selectable && seatInfo) {
 			if (seatInfo.available && !selected) {
 				selected = true;
@@ -2441,13 +2493,16 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 		}
 		this.setColor(seatColor);
 		if (seatInfo) {
-			placeElement.addEventListener('click', click);
 			placeElement.addEventListener('mousemove', mouseMove);
 			placeElement.addEventListener('mouseout', mouseOut);
 		} else {
-			placeElement.removeEventListener('click', click);
 			placeElement.removeEventListener('mousemove', mouseMove);
 			placeElement.removeEventListener('mouseout', mouseOut);
+		}
+		if (seatInfo && selectable && (selected || seatInfo.available)) {
+			__eventsManager.addHandler(placeElement, 'click', click, true);
+		} else {
+			__eventsManager.removeHandler(placeElement, 'click', click);
 		}
 	};
 	this.setColor = function(seatColor) {
@@ -2770,7 +2825,7 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 		}
 		// trim the map
 		var mapRegion = calculateSeatsRegion(relevantSeats);
-		var padding = piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 12;
+		var padding = piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 16;
 		mapRegion.x -= padding;
 		mapRegion.y -= padding;
 		mapRegion.width += padding * 2;
