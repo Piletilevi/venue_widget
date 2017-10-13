@@ -245,13 +245,15 @@ var __DraggableComponent = function() {
 		}
 	};
 	this.disableDragging = function() {
-		if (!draggableElement)
+		if (!draggableElement) {
 			return;
+		}
 		removeDraggableElement();
 	};
 	this.enableDragging = function() {
-		if (!draggableElement)
+		if (!draggableElement) {
 			return;
+		}
 		initDraggableElement();
 	};
 
@@ -866,10 +868,10 @@ piletilevi.venuemap.Utilities = new function() {
 			this.element = element;
 			self.checkTransitionSupport();
 			if (supportedTransition) {
-			var transitions = [];
-			for (var key in properties) {
-				transitions.push(key + ' ' + duration + 'ms' + ' ' + (easeMode || 'linear'));
-			}
+				var transitions = [];
+				for (var key in properties) {
+					transitions.push(key + ' ' + duration + 'ms' + ' ' + (easeMode || 'linear'));
+				}
 				element.style[supportedTransition] = transitions.join(', ');
 			}
 			for (var key in properties) {
@@ -899,8 +901,9 @@ piletilevi.venuemap.Utilities = new function() {
 		init();
 	};
 	this.checkTransitionSupport = function() {
-		if (transitionSupportChecked)
+		if (transitionSupportChecked) {
 			return;
+		}
 		for (var key in transitionsAndEvents) {
 			if (key in document.body.style) {
 				supportedTransition = key;
@@ -1114,7 +1117,7 @@ piletilevi.venuemap.VenueMap = function() {
 				configOverrides = null;
 				try {
 					configOverrides = JSON.parse(response);
-				} catch (error) {
+				} catch(error) {
 					console.error('Failed parsing config overrides response');
 					return;
 				}
@@ -1581,9 +1584,9 @@ piletilevi.venuemap.Controls = function(venueMap) {
 	};
 	var addClickListener = function(button, listener) {
 		__eventsManager.addHandler(button, 'click', function(event) {
-				__eventsManager.preventDefaultAction(event);
-				__eventsManager.cancelBubbling(event);
-				listener();
+			__eventsManager.preventDefaultAction(event);
+			__eventsManager.cancelBubbling(event);
+			listener();
 		}, true);
 	};
 	var createButton = function(type) {
@@ -1781,6 +1784,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		if (venueMap.getWithControls()) {
 			controls = new piletilevi.venuemap.Controls(venueMap);
 			mainElement.appendChild(controls.getComponentElement());
+			piletilevi.venuemap.Utilities.addClass(componentElement, 'piletilevi_venue_map_places_with_controls');
 		}
 	};
 	var keydown = function(event) {
@@ -2078,7 +2082,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	var init = function() {
 		sectionLabelElements = sectionLabelElements || {};
 		componentElement = document.createElement('div');
-		componentElement.className = 'places_map_canvas';
+		componentElement.className = 'piletilevi_venue_map_canvas';
 		componentElement.style.overflow = 'auto';
 		componentElement.style.position = 'absolute';
 		componentElement.style.textAlign = 'center';
@@ -2825,7 +2829,7 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 		}
 		// trim the map
 		var mapRegion = calculateSeatsRegion(relevantSeats);
-		var padding = piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 16;
+		var padding = 0;
 		mapRegion.x -= padding;
 		mapRegion.y -= padding;
 		mapRegion.width += padding * 2;

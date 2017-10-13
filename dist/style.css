@@ -22,6 +22,18 @@
 	display: inline;
 }
 
+.piletilevi_venue_map_canvas {
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+	padding: 0 6px 6px;
+}
+
+.piletilevi_venue_map_places_with_controls .piletilevi_venue_map_canvas {
+	padding-left: 39px;
+	padding-right: 39px;
+}
+
 .piletilevi_venue_map_controls {
 	position: absolute;
 	right: 3px;
