@@ -1570,7 +1570,7 @@ piletilevi.venuemap.Controls = function(venueMap) {
 		componentElement = document.createElement('div');
 		componentElement.className = 'piletilevi_venue_map_controls';
 		var buttonElement;
-		if (venueMap.getExtensionHandler() && venueMap.getSectionsMapType() == 'full_places_map') {
+		if (venueMap.getExtensionHandler()) {
 			buttonElement = createButton('extend');
 			addClickListener(buttonElement, function() {
 				venueMap.extend();
