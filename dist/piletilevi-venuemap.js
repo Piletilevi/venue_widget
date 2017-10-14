@@ -925,7 +925,7 @@ piletilevi.venuemap.Utilities = new function() {
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
 			if (xhr.readyState == XMLHttpRequest.DONE) {
-				if (xhr.responseText) {
+				if (xhr.status == 200) {
 					options.onSuccess(xhr.responseText);
 				} else if (options.onFailure) {
 					options.onFailure();
@@ -1036,7 +1036,7 @@ piletilevi.venuemap.VenueMap = function() {
 	var connectionSecure = false;
 	var confId = '';
 	var seatSelectionEnabled = false;
-	var sectionsMapType = 'image';
+	var sectionsMapType = 'vector';
 	var sectionsMapImageUrl = '';
 	var sections = [];
 	var enabledSections = [];
