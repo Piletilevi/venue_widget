@@ -1065,6 +1065,7 @@ piletilevi.venuemap.VenueMap = function() {
 	var extended = false;
 	var massSelectable = false;
 	var placesMapFlipped = false;
+	var legendType = 'price';
 	var concertId = ''; // temporary solution 0004087
 	var loadingOverrides = false; // temporary solution 0004087
 	var configOverrides = {}; // temporary solution 0004087
@@ -1524,6 +1525,12 @@ piletilevi.venuemap.VenueMap = function() {
 	this.setExtensionHandler = function(input) {
 		extensionHandler = input;
 	};
+	this.getLegendType = function() {
+		return legendType;
+	};
+	this.setLegendType = function(input) {
+		legendType = input;
+	};
 	this.isMassSelectable = function() {
 		return massSelectable;
 	};
@@ -1563,7 +1570,7 @@ piletilevi.venuemap.Controls = function(venueMap) {
 		componentElement = document.createElement('div');
 		componentElement.className = 'piletilevi_venue_map_controls';
 		var buttonElement;
-		if (venueMap.getExtensionHandler()) {
+		if (venueMap.getExtensionHandler() && venueMap.getSectionsMapType() == 'full_places_map') {
 			buttonElement = createButton('extend');
 			addClickListener(buttonElement, function() {
 				venueMap.extend();
@@ -1995,16 +2002,27 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		while (legendElement.firstChild) {
 			legendElement.removeChild(legendElement.firstChild);
 		}
+		var legendType = venueMap.getLegendType();
+		var displayed = legendType == 'price' || legendType == 'title';
+		legendElement.style.display = displayed ? 'block' : 'none';
+		if (!displayed)
+			return;
+
 		var label = venueMap.getTranslation('booked');
 		legendItem = new piletilevi.venuemap.PlaceMapLegendItem(label, '#f3f3f5', 'booked');
 		legendItems.push(legendItem);
 		legendElement.appendChild(legendItem.getComponentElement());
-		priceClasses.sort(function(a, b) {
-			return parseFloat(a.price) - parseFloat(b.price);
-		});
+		var sorter = legendType == 'price'
+			? function(a, b) {
+				return parseFloat(a.price) - parseFloat(b.price);
+			}
+			: function(a, b) {
+				return a.title.localeCompare(b.title);
+			};
+		priceClasses.sort(sorter);
 		for (var i = 0; i < priceClasses.length; i++) {
-			if (priceClasses[i].price) {
-				legendItem = new piletilevi.venuemap.PlaceMapLegendItem(priceFormatter(priceClasses[i].price), priceClasses[i].color);
+			if (priceClasses[i][legendType]) {
+				legendItem = new piletilevi.venuemap.PlaceMapLegendItem(priceFormatter(priceClasses[i][legendType]), priceClasses[i].color);
 				legendItems.push(legendItem);
 				legendElement.appendChild(legendItem.getComponentElement());
 			}
