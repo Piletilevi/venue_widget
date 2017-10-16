@@ -2005,8 +2005,9 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		var legendType = venueMap.getLegendType();
 		var displayed = legendType == 'price' || legendType == 'title';
 		legendElement.style.display = displayed ? 'block' : 'none';
-		if (!displayed)
+		if (!displayed) {
 			return;
+		}
 
 		var label = venueMap.getTranslation('booked');
 		legendItem = new piletilevi.venuemap.PlaceMapLegendItem(label, '#f3f3f5', 'booked');
@@ -2014,11 +2015,11 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		legendElement.appendChild(legendItem.getComponentElement());
 		var sorter = legendType == 'price'
 			? function(a, b) {
-				return parseFloat(a.price) - parseFloat(b.price);
-			}
+			return parseFloat(a.price) - parseFloat(b.price);
+		}
 			: function(a, b) {
-				return a.title.localeCompare(b.title);
-			};
+			return a.title.localeCompare(b.title);
+		};
 		priceClasses.sort(sorter);
 		for (var i = 0; i < priceClasses.length; i++) {
 			if (priceClasses[i][legendType]) {
@@ -2103,12 +2104,14 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		componentElement.className = 'piletilevi_venue_map_canvas';
 		componentElement.style.overflow = 'auto';
 		componentElement.style.position = 'absolute';
+		componentElement.style.position = 'relative';
 		componentElement.style.textAlign = 'center';
 		componentElement.style.display = 'none';
 		svgElement.style.verticalAlign = 'top';
 		svgElement.style.top = '0';
 		svgElement.style.left = '0';
 		svgElement.style.position = 'relative';
+		svgElement.style.width = 'auto';
 		var viewBox = svgElement.getAttribute('viewBox').split(' ');
 		svgDimensions.width = +viewBox[2];
 		svgDimensions.height = +viewBox[3];
@@ -2151,7 +2154,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		}
 		self.registerScalableElement({
 			'scaledElement': componentElement,
-			'gestureElement': svgElement,
+			'gestureElement': componentElement,
 			'minWidth': containerElement.offsetWidth,
 			'minHeight': containerElement.offsetWidth / aspectRatio,
 			'afterStartCallback': scaleStartCallback,
@@ -2160,7 +2163,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		});
 		self.registerDraggableElement({
 			'draggableElement': componentElement,
-			'gestureElement': svgElement,
+			'gestureElement': componentElement,
 			'boundariesElement': containerElement,
 			'boundariesPadding': boundariesPadding
 		});
@@ -2233,12 +2236,13 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		var focalPoint = getCurrentRelativeFocalPoint();
 		focalPoint.centered = true;
 		var width = venueMap.getComponentElement().offsetWidth;
-		var height = width / aspectRatio;
 
+		containerElement.style.height = 'auto';
+		componentElement.style.width = 'auto';
+		componentElement.style.height = 'auto';
 		containerElement.style.width = width + 'px';
-		containerElement.style.height = height + 'px';
+		containerElement.style.height = containerElement.offsetHeight + 'px';
 		componentElement.style.width = width + 'px';
-		componentElement.style.height = height + 'px';
 		lastZoomlevel = -1;
 		self.adjustToZoom(false, focalPoint);
 	};
@@ -2286,30 +2290,30 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	};
 	var getScaledMapPosition = function(newWidth, newHeight, focalPoint) {
 		var top = 0, left = 0;
-			if (focalPoint.centered) {
-				var concreteFocalPoint = {
+		if (focalPoint.centered) {
+			var concreteFocalPoint = {
 				x: newWidth * focalPoint.x,
 				y: newHeight * focalPoint.y
-				};
-				var centerY = containerElement.offsetHeight / 2;
-				top = centerY - concreteFocalPoint.y;
-				var centerX = containerElement.offsetWidth / 2;
-				left = centerX - concreteFocalPoint.x;
-			} else {
+			};
+			var centerY = containerElement.offsetHeight / 2;
+			top = centerY - concreteFocalPoint.y;
+			var centerX = containerElement.offsetWidth / 2;
+			left = centerX - concreteFocalPoint.x;
+		} else {
 			var originalX = componentElement.offsetWidth * focalPoint.x;
 			var newX = newWidth * focalPoint.x;
 
 			var originalY = componentElement.offsetHeight * focalPoint.y;
 			var newY = newHeight * focalPoint.y;
-				top = componentElement.offsetTop - (newY - originalY);
-				left = componentElement.offsetLeft - (newX - originalX);
-			}
-			top = Math.min(top, 0);
+			top = componentElement.offsetTop - (newY - originalY);
+			left = componentElement.offsetLeft - (newX - originalX);
+		}
+		top = Math.min(top, 0);
 		top = Math.max(top, containerElement.offsetHeight - newHeight);
-			top = Math.round(top);
-			left = Math.min(left, 0);
+		top = Math.round(top);
+		left = Math.min(left, 0);
 		left = Math.max(left, containerElement.offsetWidth - newWidth);
-			left = Math.round(left);
+		left = Math.round(left);
 		return {x: left, y: top};
 	};
 	var getCurrentRelativeFocalPoint = function() {
@@ -2336,10 +2340,9 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		}
 	};
 	this.getPointRelativeToContainer = function(x, y) {
-		var svgDimensions = svgElement.getBoundingClientRect();
 		return {
-			x: (x - componentElement.offsetLeft) / svgDimensions.width,
-			y: (y - componentElement.offsetTop) / svgDimensions.height
+			x: (x - componentElement.offsetLeft) / componentElement.offsetWidth,
+			y: (y - componentElement.offsetTop) / componentElement.offsetHeight
 		};
 	};
 	this.getComponentElement = function() {
@@ -2391,6 +2394,10 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		return result;
 	};
 	this.selectSeatsInRegion = function(region) {
+		var svgRect = svgElement.getBoundingClientRect();
+		var componentRect = componentElement.getBoundingClientRect();
+		var svgOffsetTop = svgRect.top - componentRect.top;
+		var svgOffsetLeft = svgRect.left - componentRect.left;
 		var regionTop = region.top - componentElement.offsetTop;
 		var regionLeft = region.left - componentElement.offsetLeft;
 		var currentSvgDimensions = svgElement.getBoundingClientRect();
@@ -2401,8 +2408,8 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 				continue;
 			}
 			var element = place.getElement();
-			var x = element.getAttribute('cx') * mapRatio;
-			var y = element.getAttribute('cy') * mapRatio;
+			var x = element.getAttribute('cx') * mapRatio + svgOffsetLeft;
+			var y = element.getAttribute('cy') * mapRatio + svgOffsetTop;
 			var outside = x < regionLeft || x > regionLeft + region.width
 				|| y < regionTop || y > regionTop + region.height;
 			if (place.isSelected() == !outside) {
