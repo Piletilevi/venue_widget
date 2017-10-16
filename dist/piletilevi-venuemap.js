@@ -1490,7 +1490,10 @@ piletilevi.venuemap.VenueMap = function() {
 			return;
 		}
 		var protocol = connectionSecure ? 'https' : 'http';
-		var url = protocol + '://' + shopDomain + path;
+		var requestDomain = path.indexOf('seatingPlanOverrides') < 0
+			? shopDomain
+			: piletilevi.venuemap.SHOP_DOMAIN;
+		var url = protocol + '://' + requestDomain + path;
 		if (withCacheWorkaround) {
 			var date = new Date;
 			url += '?' + date.getTime();
