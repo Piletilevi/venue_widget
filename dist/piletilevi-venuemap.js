@@ -1401,6 +1401,11 @@ piletilevi.venuemap.VenueMap = function() {
 			selectedSeatsIndex[selectedSeats[i]] = true;
 		}
 	};
+	this.unSetSelectedSeats = function(unSelectedSeats) {
+		for (var i = unSelectedSeats.length; i--;) {
+			selectedSeatsIndex[unSelectedSeats[i]] = false;
+		}
+	};
 	this.unSelectSeat = function(seatId) {
 		selectedSeatsIndex[seatId] = false;
 	};
@@ -1791,6 +1796,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 	var createDomStructure = function() {
 		componentElement = document.createElement('div');
 		componentElement.className = 'piletilevi_venue_map_places';
+		componentElement.style.display = 'none';
 		legendElement = document.createElement('div');
 		legendElement.className = 'places_map_legend';
 		componentElement.appendChild(legendElement);
@@ -2597,7 +2603,7 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 	var mouseMove = function(event) {
 		var x = Math.max(0, event.pageX);
 		var y = Math.max(0, event.pageY - 2);
-		venueMap.getPlaceToolTip().display(seatInfo, x, y);
+		venueMap.getPlaceToolTip().display(seatInfo, selected, x, y);
 		if (selectable) {
 			self.setColor(venueMap.getSeatColor('hover'))
 		}
@@ -2863,7 +2869,7 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 			sectionTitleElement.removeChild(sectionTitleElement.firstChild);
 		}
 	};
-	this.display = function(seat, x, y) {
+	this.display = function(seat, selected, x, y) {
 		if (!componentElement) {
 			createDomElements();
 		}
@@ -2889,8 +2895,14 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 		var displayStyle = 'none';
 		if (venueMap.isSeatSelectionEnabled()) {
 			displayStyle = '';
-			var status = venueMap.getTranslation(seat.available ? 'available' : 'booked');
-			row4Element.appendChild(document.createTextNode(status));
+			var status = 'booked';
+			if (selected) {
+				status = 'selected';
+			} else if (seat.available) {
+				status = 'available';
+			}
+			var text = venueMap.getTranslation(status);
+			row4Element.appendChild(document.createTextNode(text));
 		}
 		statusRowElement.style.display = displayStyle;
 		if (window.innerHeight) {
