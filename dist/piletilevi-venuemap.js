@@ -1578,6 +1578,15 @@ piletilevi.venuemap.VenueMap = function() {
 			piletilevi.venuemap.Utilities.removeClass(componentElement, extensionClass);
 		}
 	};
+	this.dispose = function() {
+		if (componentElement && componentElement.parentNode) {
+			componentElement.parentNode.removeChild(componentElement);
+		}
+		componentElement = null;
+		if (placeToolTip) {
+			placeToolTip.dispose();
+		}
+	};
 	init();
 };
 
@@ -2936,6 +2945,12 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 		if (componentElement) {
 			componentElement.style.display = 'none';
 		}
+	};
+	this.dispose = function() {
+		if (componentElement && componentElement.parentNode) {
+			componentElement.parentNode.removeChild(componentElement);
+		}
+		componentElement = null;
 	};
 };
 
