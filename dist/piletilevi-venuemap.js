@@ -1287,6 +1287,7 @@ piletilevi.venuemap.VenueMap = function() {
 				}
 				previousSection = activeSection;
 				self.hide();
+				zoomLevel = 0;
 				loadSectionPlacesMap(
 					activeSection,
 					function() {
@@ -1943,7 +1944,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 	};
 	this.changeCanvas = function(newCanvas) {
 		if (canvas) {
-			mainElement.removeChild(canvas.getComponentElement());
+			canvas.remove();
 		}
 		canvas = newCanvas;
 		canvas.attachTo(mainElement);
@@ -2188,6 +2189,14 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			'boundariesElement': containerElement,
 			'boundariesPadding': boundariesPadding
 		});
+	};
+	this.remove = function() {
+		self.unRegisterScalableElement();
+		self.disableDragging();
+		window.__eventsManager.removeHandler(window, 'resize', self.resize);
+		if (componentElement.parentNode) {
+			componentElement.parentNode.removeChild(componentElement);
+		}
 	};
 	var scaleStartCallback = function(info) {
 		var rect = containerElement.getBoundingClientRect();
