@@ -1064,7 +1064,7 @@ piletilevi.venuemap.VenueMap = function() {
 	var translations = [];
 	var placeToolTip;
 	var built = false;
-	var displayed = false;
+	var displayed = true;
 	var inactiveSeatsNumbered = false;
 	var lastLoadedVenueConf = 0;
 	var lastLoadedVenueSuccessful = false;
@@ -1091,13 +1091,13 @@ piletilevi.venuemap.VenueMap = function() {
 		componentElement = document.createElement('div');
 		componentElement.className = 'piletilevi_venue_map';
 		componentElement.style.display = 'none';
-		componentElement.style.position = 'relative';
 		componentElement.style['-moz-user-select'] = 'none';
 		componentElement.style['-ms-user-select'] = 'none';
 		componentElement.style['-webkit-user-select'] = 'none';
 		componentElement.style.userSelect = 'none';
 		canvasFactory = new piletilevi.venuemap.VenuePlacesMapCanvasFactory(self);
 		self.hide();
+		window.__eventsManager.addHandler(window, 'resize', self.resize);
 	};
 	var adjustToZoom = function(withAnimation, focalPoint) {
 		if (activeSection || sectionsMapType == 'full_places_map') {
@@ -1326,12 +1326,14 @@ piletilevi.venuemap.VenueMap = function() {
 			);
 		}
 	};
+	var fixedHeight = 0;
 	this.display = function() {
 		if (displayed) {
 			return;
 		}
 		componentElement.style.display = '';
 		displayed = true;
+		self.resize();
 		self.trigger('visibilityChange', displayed);
 	};
 	this.hide = function() {
@@ -1481,7 +1483,18 @@ piletilevi.venuemap.VenueMap = function() {
 		zoomLevel = currentZoom;
 	};
 	this.resize = function() {
-		placesMap.resize();
+		var dupe = componentElement.cloneNode(false);
+		dupe.style.visibility = 'hidden';
+		dupe.style.display = 'block';
+		componentElement.parentNode.appendChild(dupe);
+		fixedHeight = dupe.offsetHeight;
+		componentElement.parentNode.removeChild(dupe);
+		if (placesMap) {
+			placesMap.resize();
+		}
+	};
+	this.getFixedHeight = function() {
+		return fixedHeight;
 	};
 	this.getZoomLevel = function() {
 		return zoomLevel;
@@ -1962,7 +1975,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 			canvas.remove();
 		}
 		canvas = newCanvas;
-		canvas.attachTo(mainElement);
+		canvas.attachTo(self);
 		for (var key in details) {
 			canvas.updateSectionDetails(details[key]);
 		}
@@ -2006,9 +2019,16 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		}
 	};
 	this.resize = function() {
+		if (!displayed || !canvas)
+			return;
 		if (canvas) {
 			canvas.resize();
 		}
+	};
+	this.getLegendHeight = function() {
+		var style = window.getComputedStyle(legendElement);
+		var margins = parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+		return legendElement.offsetHeight + margins;
 	};
 	this.setDisplayed = function(newDisplayed) {
 		if (displayed == newDisplayed) {
@@ -2019,6 +2039,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 			canvas.setDisplayed(true);
 		}
 		componentElement.style.display = displayed ? '' : 'none';
+
 	};
 	this.getComponentElement = function() {
 		return componentElement;
@@ -2066,6 +2087,9 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 				legendElement.appendChild(legendItem.getComponentElement());
 			}
 		}
+	};
+	this.getMainElement = function() {
+		return mainElement;
 	};
 	init();
 };
@@ -2137,6 +2161,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	var touchScalingPoint;
 	var containerDimensions;
 	var containerInnerDimensions;
+	var container;
 
 	var init = function() {
 		sectionLabelElements = sectionLabelElements || {};
@@ -2173,7 +2198,6 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			}
 		}
 		componentElement.appendChild(svgElement);
-		window.__eventsManager.addHandler(window, 'resize', self.resize);
 
 		var arrowTextElement;
 		if (arrowTextElement = svgElement.getElementById('stagename')) {
@@ -2182,8 +2206,9 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 
 	};
 
-	this.attachTo = function(destinationElement) {
-		containerElement = destinationElement;
+	this.attachTo = function(destination) {
+		container = destination;
+		containerElement = container.getMainElement();
 		if (containerElement.firstChild) {
 			containerElement.insertBefore(componentElement, containerElement.firstChild);
 		} else {
@@ -2208,7 +2233,6 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	this.remove = function() {
 		self.unRegisterScalableElement();
 		self.disableDragging();
-		window.__eventsManager.removeHandler(window, 'resize', self.resize);
 		if (componentElement.parentNode) {
 			componentElement.parentNode.removeChild(componentElement);
 		}
@@ -2273,9 +2297,6 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	this.setSectionsBoundaries = function(newSectionsBoundaries) {
 		sectionsBoundaries = newSectionsBoundaries;
 	};
-	this.position = function() {
-		self.resize();
-	};
 	this.resize = function() {
 		componentElement.style.width = '';
 		componentElement.style.height = '';
@@ -2283,21 +2304,25 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		containerElement.style.height = '';
 
 		var paddings = getPaddings();
-		var svgWidth, svgHeight;
-		svgWidth = componentElement.offsetWidth - paddings.left - paddings.right;
-		svgHeight = svgWidth / aspectRatio;
-
 		var svgStyle = svgElement.style;
-		svgStyle.width = svgWidth + 'px';
-		svgStyle.height = svgHeight + 'px';
-		var highSvg = componentElement.offsetHeight > containerElement.offsetHeight;
-		if (highSvg) {
-			// container has limited height
-			svgHeight = containerElement.offsetHeight - paddings.top - paddings.bottom;
-			svgWidth = svgHeight * aspectRatio;
+		if (venueMap.getFixedHeight()) {
+			containerElement.style.height = venueMap.getFixedHeight() - container.getLegendHeight() + 'px';
+		} else {
+			var svgWidth, svgHeight;
+			svgWidth = componentElement.offsetWidth - paddings.left - paddings.right;
+			svgHeight = svgWidth / aspectRatio;
+
+			svgStyle.width = svgWidth + 'px';
+			svgStyle.height = svgHeight + 'px';
+			var highSvg = componentElement.offsetHeight > containerElement.offsetHeight;
+			if (highSvg) {
+				// container has limited height
+				svgHeight = containerElement.offsetHeight - paddings.top - paddings.bottom;
+				svgWidth = svgHeight * aspectRatio;
+			}
+			svgStyle.width = svgWidth + 'px';
+			svgStyle.height = svgHeight + 'px';
 		}
-		svgStyle.width = svgWidth + 'px';
-		svgStyle.height = svgHeight + 'px';
 		containerDimensions = {
 			width: containerElement.offsetWidth,
 			height: containerElement.offsetHeight
@@ -2416,7 +2441,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 			displayed = newDisplayed;
 			componentElement.style.display = displayed ? '' : 'none';
 			if (displayed) {
-				self.position();
+				self.resize();
 			}
 		}
 	};
@@ -2947,6 +2972,7 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 		}
 	};
 	this.dispose = function() {
+		window.__eventsManager.removeHandler(window, 'resize', self.resize);
 		if (componentElement && componentElement.parentNode) {
 			componentElement.parentNode.removeChild(componentElement);
 		}
