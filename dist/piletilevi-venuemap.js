@@ -2692,9 +2692,9 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 			placeElement.removeEventListener('mouseout', mouseOut);
 		}
 		if (seatInfo && selectable && (selected || seatInfo.available)) {
-			__eventsManager.addHandler(placeElement, 'click', click, true);
+			touchManager.addEventListener(placeElement, 'start', click, true);
 		} else {
-			__eventsManager.removeHandler(placeElement, 'click', click);
+			touchManager.removeEventListener(placeElement, 'start', click);
 		}
 	};
 	this.setColor = function(seatColor) {
