@@ -64,7 +64,6 @@
 }
 
 .piletilevi_venue_map_control {
-	cursor: pointer;
 	font-family: Arial;
 	font-size: 27px;
 	width: 30px;
@@ -80,6 +79,11 @@
 	color: #c5c5c5;
 	text-align: center;
 	overflow: hidden;
+}
+
+.piletilevi_venue_map_control.piletilevi_venue_map_control_active {
+	color: #000;
+	cursor: pointer;
 }
 
 .piletilevi_venue_map_control:first-child {
@@ -105,6 +109,10 @@
 	height: 10px;
 	width: 14px;
 	border: 2px solid #c5c5c5;
+}
+
+.piletilevi_venue_map_control_extend.piletilevi_venue_map_control_active:after {
+	border-color: #000;
 }
 
 .piletilevi_venue_map_extended .piletilevi_venue_map_control_extend:after {
