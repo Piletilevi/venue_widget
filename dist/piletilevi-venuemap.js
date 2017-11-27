@@ -1,175 +1,3 @@
-window.__eventsManager = new function() {
-	var self = this;
-	this.addHandler = false;
-	this.fireEvent = false;
-	var mouseEnterSupported;
-	var mouseLeaveSupported;
-	var eventsSet;
-	var init = function() {
-		if (typeof document.documentElement.onmouseenter == 'object') {
-			mouseEnterSupported = true;
-		}
-		if (typeof document.documentElement.onmouseleave == 'object') {
-			mouseLeaveSupported = true;
-		}
-		self.fireEvent = fireEvent_standards;
-		self.addHandler = addHandler_standards;
-		if (navigator.appName == "Microsoft Internet Explorer") {
-			if (navigator.appVersion.match(/MSIE ([\d.]+);/)) {
-				var version = navigator.appVersion.match(/MSIE ([\d.]+);/)[1];
-				if (version < 9 || !window.addEventListener) {
-					self.fireEvent = fireEvent_ie;
-					self.addHandler = addHandler_ie;
-				}
-				else {
-					self.addHandler = addHandler_ie9;
-				}
-			}
-		}
-	};
-	this.getEventTarget = function(event) {
-		var eventElement = null;
-		if (event.target) {
-			eventElement = event.target;
-		}
-		else if (event.srcElement) {
-			eventElement = event.srcElement;
-		}
-		return eventElement;
-	};
-	var addHandler_ie9 = function(object, event, handler, useCapture) {
-		if (typeof useCapture == 'undefined') {
-			useCapture = false;
-		}
-
-		if (object == null || typeof object != 'object' && typeof object != 'function' || handler == null || typeof handler != 'function') {
-			return false;
-		}
-		else {
-			if (event == 'mousewheel') {
-				object.addEventListener('DOMMouseScroll', handler, useCapture);
-			}
-			object.addEventListener(event, handler, false);
-		}
-	};
-	var addHandler_standards = function(object, event, handler, useCapture) {
-		if (typeof useCapture == 'undefined') {
-			useCapture = false;
-		}
-		if (object == null || typeof object != 'object' && typeof object != 'function' || handler == null || typeof handler != 'function') {
-			return false;
-		}
-		else {
-			if (event === 'mouseenter' && !mouseEnterSupported) {
-				object.addEventListener('mouseover', mouseEnter(handler), useCapture);
-			}
-			else if (event === 'mouseleave' && !mouseLeaveSupported) {
-				object.addEventListener('mouseout', mouseEnter(handler), useCapture);
-			}
-			else if (event === 'mousewheel') {
-				object.addEventListener('DOMMouseScroll', handler, useCapture);
-			}
-			object.addEventListener(event, handler, false);
-		}
-	};
-	var addHandler_ie = function(object, event, handler, useCapture) {
-		if (object == null || typeof object != 'object' && typeof object != 'function' || handler == null || typeof handler != 'function') {
-			return false;
-		}
-		else {
-			if (object.attachEvent) {
-				object.attachEvent('on' + event, handler);
-			}
-			else if (event === 'readystatechange') //this is for Internet Explorer, not supporting attachEvent on XMLHTTPRequest
-			{
-				object.onreadystatechange = handler;
-			}
-		}
-	};
-	var fireEvent_ie = function(object, eventName) {
-		var eventObject = document.createEventObject();
-		return object.fireEvent('on' + eventName, eventObject)
-	};
-	var fireEvent_standards = function(object, eventName) {
-		if (object) {
-			var eventObject = document.createEvent("HTMLEvents");
-			eventObject.initEvent(eventName, true, true);
-			return !object.dispatchEvent(eventObject);
-		}
-		return false;
-	};
-	this.removeHandler = function(object, event, handler) {
-		if (object) {
-			if (object.removeEventListener) {
-				if (event == 'mousewheel') {
-					object.removeEventListener('DOMMouseScroll', handler, false);
-				}
-				object.removeEventListener(event, handler, false);
-			}
-			else if (object.detachEvent) {
-				object.detachEvent('on' + event, handler);
-			}
-		}
-	};
-	this.cancelBubbling = function(event) {
-		event.cancelBubble = true;
-		if (event.stopPropagation) {
-			event.stopPropagation();
-		}
-	};
-	this.preventDefaultAction = function(event) {
-		if (event.preventDefault) {
-			event.preventDefault();
-		}
-		event.returnValue = false;
-	};
-	var mouseEnter = function(handler) {
-		return function(event) {
-			var relTarget = event.relatedTarget;
-			if (this === relTarget || isAChildOf(this, relTarget)) {
-				return;
-			}
-			handler.call(this, event);
-		}
-	};
-	var isAChildOf = function(_parent, _child) {
-		if (_parent === _child) {
-			return false;
-		}
-		while (_child && _child !== _parent) {
-			_child = _child.parentNode;
-		}
-		return _child === _parent;
-	}
-
-	this.detectTouchEventsSet = function() {
-		if (!eventsSet) {
-			eventsSet = 'unsupported';
-			if (detectEventSupport('touchstart') && detectEventSupport('touchmove') && detectEventSupport('touchend') && detectEventSupport('touchcancel')) {
-				eventsSet = 'touch';
-			}
-			else if (detectEventSupport('mousedown') && detectEventSupport('mouseup') && detectEventSupport('mousemove')) {
-				eventsSet = 'mouse';
-			}
-		}
-
-		return eventsSet;
-	};
-	var detectEventSupport = function(eventName) {
-		var element = document.createElement('div');
-		var event = 'on' + eventName;
-		var eventSupported = (event in element);
-		if (!eventSupported) {
-			element.setAttribute(event, 'return;');
-			if (typeof element[event] == 'function') {
-				eventSupported = true;
-			}
-		}
-		return eventSupported;
-	};
-	init();
-};
-
 var __DraggableComponent = function() {
 	var draggableElement;
 	var parentElement;
@@ -271,7 +99,6 @@ var __DraggableComponent = function() {
 	};
 	var startHandler = function(eventInfo, touchInfo) {
 		if (touchInfo.touches != undefined && touchInfo.touches.length == 1) {
-			//__eventsManager.preventDefaultAction(eventInfo);
 			draggableElement.setAttribute('data-draggable-state', 'dragging');
 			startElementX = draggableElement.offsetLeft;
 			startElementY = draggableElement.offsetTop;
@@ -292,7 +119,7 @@ var __DraggableComponent = function() {
 	};
 	var moveHandler = function(eventInfo, touchInfo) {
 		if (touchInfo.touches != undefined && touchInfo.touches.length == 1) {
-			__eventsManager.preventDefaultAction(eventInfo);
+			eventInfo.preventDefault();
 			currentTouchX = touchInfo.touches[0].pageX;
 			currentTouchY = touchInfo.touches[0].pageY;
 
@@ -332,7 +159,7 @@ var __DraggableComponent = function() {
 
 	};
 	var endHandler = function(eventInfo) {
-		__eventsManager.preventDefaultAction(eventInfo);
+		eventInfo.preventDefault();
 		draggableElement.setAttribute('data-draggable-state', 'draggable');
 		touchManager.removeEventListener(gestureElement, 'move', moveHandler);
 		touchManager.removeEventListener(gestureElement, 'end', endHandler);
@@ -1104,7 +931,7 @@ piletilevi.venuemap.VenueMap = function() {
 		componentElement.style.userSelect = 'none';
 		canvasFactory = new piletilevi.venuemap.VenuePlacesMapCanvasFactory(self);
 		self.hide();
-		window.__eventsManager.addHandler(window, 'resize', self.resize);
+		window.addEventListener('resize', self.resize);
 	};
 	var adjustToZoom = function(withAnimation, focalPoint) {
 		adjustZoomControls();
@@ -1305,8 +1132,9 @@ piletilevi.venuemap.VenueMap = function() {
 			}
 		} else {
 			placesMap.updateSectionsDetails(sectionsDetails);
-			if (fullMapGenerated)
+			if (fullMapGenerated) {
 				return;
+			}
 			loadVenuePlacesMap(
 				function() {
 					placesMap.setDisplayed(true);
@@ -1615,25 +1443,26 @@ piletilevi.venuemap.Controls = function(venueMap) {
 	var buttonElements = {};
 	var handlers = {
 		extend: function(event) {
-			__eventsManager.preventDefaultAction(event);
-			__eventsManager.cancelBubbling(event);
+			event.preventDefault();
+			event.cancelBubble = true;
+
 			venueMap.extend();
 		},
 		zoomin: function(event) {
-			__eventsManager.preventDefaultAction(event);
-			__eventsManager.cancelBubbling(event);
+			event.preventDefault();
+			event.cancelBubble = true;
 			venueMap.zoomIn();
 		},
 		zoomout: function(event) {
-			__eventsManager.preventDefaultAction(event);
-			__eventsManager.cancelBubbling(event);
+			event.preventDefault();
+			event.cancelBubble = true;
 			venueMap.zoomOut();
 		},
 		resetzoom: function(event) {
-			__eventsManager.preventDefaultAction(event);
-			__eventsManager.cancelBubbling(event);
+			event.preventDefault();
+			event.cancelBubble = true;
 			venueMap.setZoomLevel(0);
-		},
+		}
 	};
 	var componentElement;
 
@@ -1661,14 +1490,15 @@ piletilevi.venuemap.Controls = function(venueMap) {
 	this.changeStates = function(changes) {
 		for (var key in changes) {
 			var button = buttonElements[key];
-			if (!button)
+			if (!button) {
 				continue;
+			}
 			if (changes[key]) {
 				piletilevi.venuemap.Utilities.addClass(button, CLASS_ACTIVE);
-				__eventsManager.addHandler(button, 'click', handlers[key], true);
+				button.addEventListener('click', handlers[key], true);
 			} else {
 				piletilevi.venuemap.Utilities.removeClass(button, CLASS_ACTIVE);
-				__eventsManager.removeHandler(button, 'click', handlers[key]);
+				button.removeEventListener('click', handlers[key], true);
 			}
 		}
 	};
@@ -1995,8 +1825,9 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		return input;
 	};
 	this.adjustZoomControls = function() {
-		if (!controls)
+		if (!controls) {
 			return;
+		}
 		var maxZoom = canvas ? canvas.getMaxZoomLevel() : 0;
 		var currentZoom = venueMap.getZoomLevel();
 		var states = {
@@ -2715,8 +2546,8 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 		}
 	};
 	var click = function(event) {
-		__eventsManager.preventDefaultAction(event);
-		__eventsManager.cancelBubbling(event);
+		event.preventDefault();
+		event.cancelBubble = true;
 		if (selectable && seatInfo) {
 			if (seatInfo.available && !selected) {
 				selected = true;
@@ -3037,7 +2868,8 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 		}
 	};
 	this.dispose = function() {
-		window.__eventsManager.removeHandler(window, 'resize', self.resize);
+		window.removeEventListener('resize', self.resize);
+
 		if (componentElement && componentElement.parentNode) {
 			componentElement.parentNode.removeChild(componentElement);
 		}
@@ -3128,6 +2960,7 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 			seat.x -= mapRegion.x;
 			seat.y -= mapRegion.y;
 		}
+
 		if (options.withStage && data.stageType) {
 			node = piletilevi.venuemap.Utilities.createSvgNode('text', {
 				id: 'stagename',
@@ -3284,7 +3117,7 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 		var transform = 'rotate(' + angle + ',' + seat1.x + ',' + seat1.y + ')';
 		var flipped = venueMap.isPlacesMapFlipped();
 		if (flipped) {
-			transform += ', rotate(180 ' + position + ' ' + seat1.y +  ')';
+			transform += ', rotate(180 ' + position + ' ' + seat1.y + ')';
 		}
 		var anchor = alignedLeft && !flipped || !alignedLeft && flipped
 			? 'end' : 'start';
