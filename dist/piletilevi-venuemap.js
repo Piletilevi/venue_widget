@@ -1190,6 +1190,10 @@ piletilevi.venuemap.VenueMap = function() {
 		return sectionsMap;
 	};
 	this.setSectionsMapType = function(newMapType) {
+		if (newMapType == 'full_places_map') {
+			// for backwards compatibility
+			newMapType = 'full_venue';
+		}
 		sectionsMapType = newMapType;
 	};
 	this.getSectionsMapType = function() {
