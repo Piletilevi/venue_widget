@@ -935,14 +935,14 @@ piletilevi.venuemap.VenueMap = function() {
 	};
 	var adjustToZoom = function(withAnimation, focalPoint) {
 		adjustZoomControls();
-		if (activeSection || sectionsMapType == 'full_places_map') {
+		if (activeSection || sectionsMapType == 'full_venue') {
 			placesMap.adjustToZoom(withAnimation, focalPoint);
 		} else if (sectionsMap) {
 			//sectionsMap.position(); // broken
 		}
 	};
 	this.build = function() {
-		if (sectionsMapType != 'full_places_map') {
+		if (sectionsMapType != 'full_venue') {
 			sectionsMap = new piletilevi.venuemap.SectionsMap(self);
 			componentElement.appendChild(sectionsMap.getComponentElement());
 		}
@@ -1084,7 +1084,7 @@ piletilevi.venuemap.VenueMap = function() {
 			// temporary solution 0004087
 			confId = configOverrides[concertId];
 		}
-		if (sectionsMapType != 'full_places_map') {
+		if (sectionsMapType != 'full_venue') {
 			if (activeSection) {
 				sectionsMap.hide();
 				placesMap.setDisplayed(true);
@@ -1190,10 +1190,6 @@ piletilevi.venuemap.VenueMap = function() {
 		return sectionsMap;
 	};
 	this.setSectionsMapType = function(newMapType) {
-		if (newMapType == 'full_places_map') {
-			// for backwards compatibility
-			newMapType = 'full_venue';
-		}
 		sectionsMapType = newMapType;
 	};
 	this.getSectionsMapType = function() {
@@ -1281,7 +1277,7 @@ piletilevi.venuemap.VenueMap = function() {
 	};
 	this.setSelectedSection = function(sectionId) {
 		activeSection = sectionId;
-		if (placesMap && sectionsMapType == 'full_places_map') {
+		if (placesMap && sectionsMapType == 'full_venue') {
 			placesMap.selectSection(sectionId);
 		}
 	};
@@ -2462,7 +2458,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		var showSeats = currentSeatRadius >= seatNumbersRequirement;
 		adjustNumberingVisibility(showSeats);
 
-		var showSections = venueMap.getSectionsMapType() == 'full_places_map'
+		var showSections = venueMap.getSectionsMapType() == 'full_venue'
 			&& !showSeats && currentSeatRadius >= sectionLabelsRequirement;
 		if (showSections) {
 			var ratio = currentSvgDimensions.width / svgDimensions.width;
@@ -2809,7 +2805,7 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 		}
 		self.clear();
 		var sectionTitle = '';
-		if (venueMap.getSectionsMapType() == 'full_places_map') {
+		if (venueMap.getSectionsMapType() == 'full_venue') {
 			var section = venueMap.getSectionBySeatId(seat.id);
 			sectionTitle = section ? section.title : '';
 		}
@@ -2823,9 +2819,6 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 		if (seat.place) {
 			row2Element.appendChild(document.createTextNode(seat.place));
 		}
-		if (seat.price) {
-			row3Element.appendChild(document.createTextNode(seat.price));
-		}
 		var displayStyle = 'none';
 		if (venueMap.isSeatSelectionEnabled()) {
 			displayStyle = '';
@@ -2838,6 +2831,14 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 			var text = venueMap.getTranslation(status);
 			row4Element.appendChild(document.createTextNode(text));
 		}
+
+		if (seat.price && status != 'booked') {
+			priceElement.appendChild(document.createTextNode(seat.price));
+			priceRowElement.style.display = '';
+		} else {
+			priceRowElement.style.display = 'none';
+		}
+
 		statusRowElement.style.display = displayStyle;
 		if (window.innerHeight) {
 			var viewPortWidth = window.innerWidth;
