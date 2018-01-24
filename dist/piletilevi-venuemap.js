@@ -2137,7 +2137,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		maxZoomWidth = svgDimensions.width * diff;
 		var paddings = getPaddings();
 		maxZoomWidth += paddings.left + paddings.right;
-		maxZoomLevel = calculateZoomLevelFromMapWidth(maxZoomWidth);
+		maxZoomLevel = Math.max(0, calculateZoomLevelFromMapWidth(maxZoomWidth));
 	};
 	this.getMaxZoomLevel = function() {
 		return maxZoomLevel;
@@ -2938,10 +2938,15 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 		var paddingX = 0;
 		var paddingY = 0;
 		var maxAspectRatio = 2.25;
+		var minAspectRatio = 0.75;
 		if (mapRegion.width / mapRegion.height > maxAspectRatio) {
 			// too short
 			var newHeight = mapRegion.width / maxAspectRatio;
 			paddingY = (newHeight - mapRegion.height) / 2;
+		} else if (mapRegion.width / mapRegion.height < minAspectRatio) {
+			// too slim
+			var newWidth = mapRegion.height * minAspectRatio;
+			paddingX = (newWidth - mapRegion.width) / 2;
 		}
 		mapRegion.x -= paddingX;
 		mapRegion.y -= paddingY;
