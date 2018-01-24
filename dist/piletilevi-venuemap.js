@@ -1004,8 +1004,9 @@ piletilevi.venuemap.VenueMap = function() {
 				lastLoadedPlacesSuccessful = false;
 				self.trigger('placesMapLoadFailure');
 			},
-			true
+			false
 		);
+
 	};
 	var receiveVenuePlacesMap = function(response) {
 		placesMapData = JSON.parse(response);
@@ -2074,7 +2075,12 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 
 		var arrowTextElement;
 		if (arrowTextElement = svgElement.getElementById('stagename')) {
-			new piletilevi.venuemap.PlacesMapStageLabel(venueMap, arrowTextElement);
+			//temporary workaround, no merge needed to main branch
+			if (venueMap.getConfId() == 6527) {
+				arrowTextElement.parentNode.style.display = 'none';
+			} else {
+				new piletilevi.venuemap.PlacesMapStageLabel(venueMap, arrowTextElement);
+			}
 		}
 
 	};
@@ -2233,7 +2239,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		if (venueMap.getZoomLevel() > maxZoomLevel) {
 			venueMap.setZoomLevel(maxZoomLevel, false);
 		} else {
-			self.adjustToZoom(false, focalPoint);
+		self.adjustToZoom(false, focalPoint);
 			container.adjustZoomControls();
 		}
 	};
@@ -2714,8 +2720,9 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 	var sectionTitleElement;
 	var row1Element;
 	var row2Element;
-	var row3Element;
+	var priceElement;
 	var row4Element;
+	var priceRowElement;
 	var statusRowElement;
 	var popupOffset = 0;
 
@@ -2765,15 +2772,15 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 		row2Element.className = 'place_tooltip_value';
 		rowElement.appendChild(row2Element);
 
-		var rowElement = document.createElement('tr');
-		tBodyElement.appendChild(rowElement);
+		priceRowElement = document.createElement('tr');
+		tBodyElement.appendChild(priceRowElement);
 		labelElement = document.createElement('td');
 		labelElement.className = 'place_tooltip_label';
 		labelElement.appendChild(document.createTextNode(venueMap.getTranslation('price')));
-		rowElement.appendChild(labelElement);
-		row3Element = document.createElement('td');
-		row3Element.className = 'place_tooltip_value';
-		rowElement.appendChild(row3Element);
+		priceRowElement.appendChild(labelElement);
+		priceElement = document.createElement('td');
+		priceElement.className = 'place_tooltip_value';
+		priceRowElement.appendChild(priceElement);
 
 		statusRowElement = document.createElement('tr');
 		tBodyElement.appendChild(statusRowElement);
@@ -2789,8 +2796,8 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 		while (row2Element.firstChild) {
 			row2Element.removeChild(row2Element.firstChild);
 		}
-		while (row3Element.firstChild) {
-			row3Element.removeChild(row3Element.firstChild);
+		while (priceElement.firstChild) {
+			priceElement.removeChild(priceElement.firstChild);
 		}
 		while (row4Element.firstChild) {
 			row4Element.removeChild(row4Element.firstChild);
@@ -2928,12 +2935,19 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 		}
 		// trim the map
 		var mapRegion = calculateSeatsRegion(relevantSeats);
-		var paddingX = piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 4;
-		var paddingY = piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 2;
+		var paddingX = 0;
+		var paddingY = 0;
+		var maxAspectRatio = 2.25;
+		if (mapRegion.width / mapRegion.height > maxAspectRatio) {
+			// too short
+			var newHeight = mapRegion.width / maxAspectRatio;
+			paddingY = (newHeight - mapRegion.height) / 2;
+		}
 		mapRegion.x -= paddingX;
 		mapRegion.y -= paddingY;
 		mapRegion.width += paddingX * 2;
 		mapRegion.height += paddingY * 2;
+
 		if (options.withStage && data.stageType) {
 			var textSize = piletilevi.venuemap.Utilities.getSvgTextBBox(venueMap.getTranslation('stage-' + data.stageType), {
 				'font-family': 'Arial',
