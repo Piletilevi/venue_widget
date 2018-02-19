@@ -1938,7 +1938,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		}
 
 		var label = venueMap.getTranslation('booked');
-		legendItem = new piletilevi.venuemap.PlaceMapLegendItem(label, '#f3f3f5', 'booked');
+		legendItem = new piletilevi.venuemap.PlaceMapLegendItem(label, venueMap.getSeatColor('inactive'), 'booked');
 		legendItems.push(legendItem);
 		legendElement.appendChild(legendItem.getComponentElement());
 		var sorter = legendType == 'price'
