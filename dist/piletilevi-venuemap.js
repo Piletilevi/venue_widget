@@ -2948,6 +2948,11 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 			var newWidth = mapRegion.height * minAspectRatio;
 			paddingX = (newWidth - mapRegion.width) / 2;
 		}
+		var paddingForRowLabels = piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 4.5;
+		if (paddingForRowLabels > paddingX || paddingForRowLabels > paddingY) {
+			paddingX += paddingForRowLabels;
+			paddingY += paddingForRowLabels;
+		}
 		mapRegion.x -= paddingX;
 		mapRegion.y -= paddingY;
 		mapRegion.width += paddingX * 2;
