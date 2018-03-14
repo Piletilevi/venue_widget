@@ -2548,7 +2548,6 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 		if (selectable) {
 			self.setColor(venueMap.getSeatColor('hover'))
 		}
-		console.log('status',status)
 	};
 	var mouseOut = function(event) {
 		venueMap.getPlaceToolTip().hide();
