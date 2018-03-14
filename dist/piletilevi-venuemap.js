@@ -875,6 +875,7 @@ piletilevi.venuemap.VenueMap = function() {
 	var confId = '';
 	var seatSelectionEnabled = false;
 	var sectionsMapType = 'vector';
+	var currency = '';
 	var sectionsMapImageUrl = '';
 	var sections = [];
 	var enabledSections = [];
@@ -1412,6 +1413,12 @@ piletilevi.venuemap.VenueMap = function() {
 	this.setPlacesMapFlipped = function(input) {
 		placesMapFlipped = input
 			&& piletilevi.venuemap.Utilities.isTransformSupported();
+	};
+	this.setCurrency = function(input) {
+		currency = input;
+	};
+	this.getCurrency = function() {
+		return currency;
 	};
 	this.extend = function() {
 		if (!extensionHandler) {
@@ -1951,7 +1958,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		priceClasses.sort(sorter);
 		for (var i = 0; i < priceClasses.length; i++) {
 			if (priceClasses[i][legendType]) {
-				legendItem = new piletilevi.venuemap.PlaceMapLegendItem(priceFormatter(priceClasses[i][legendType]), priceClasses[i].color);
+				legendItem = new piletilevi.venuemap.PlaceMapLegendItem(priceFormatter(priceClasses[i][legendType]), priceClasses[i].color, '', venueMap.getCurrency());
 				legendItems.push(legendItem);
 				legendElement.appendChild(legendItem.getComponentElement());
 			}
@@ -2642,9 +2649,10 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 	init();
 };
 
-piletilevi.venuemap.PlaceMapLegendItem = function(text, color, extraClass) {
+piletilevi.venuemap.PlaceMapLegendItem = function(text, color, extraClass, suffix) {
 	this.colorElement = false;
 	this.titleElement = false;
+	this.suffixElement = false;
 	this.text = false;
 	this.color = false;
 	var componentElement;
@@ -2664,11 +2672,19 @@ piletilevi.venuemap.PlaceMapLegendItem = function(text, color, extraClass) {
 		this.titleElement = document.createElement('span');
 		this.titleElement.className = 'places_map_legend_title';
 		componentElement.appendChild(this.titleElement);
+		if (suffix) {
+			this.suffixElement = document.createElement('span');
+			this.suffixElement.className = 'places_map_legend_suffix';
+			componentElement.appendChild(this.suffixElement);
+		}
 		this.refreshContents();
 	};
 	this.refreshContents = function() {
 		var titleText = this.text;
 		this.setTextContent(this.titleElement, titleText);
+		if (suffix) {
+			this.setTextContent(this.suffixElement, suffix);
+		}
 		this.colorElement.style.backgroundColor = this.color;
 	};
 	this.setTextContent = function(element, text) {
