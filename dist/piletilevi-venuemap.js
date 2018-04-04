@@ -2533,12 +2533,16 @@ __DraggableComponent.call(piletilevi.venuemap.PlacesMapCanvas.prototype);
 piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElement) {
 	var self = this;
 	this.id = false;
-	var selected = false;
 	var seatInfo = null;
 	var selectable = false;
 	var inactiveNumbered = false;
 	var withText = true;
 	var priceClass = null;
+	var status = 0;
+	var STATUS_TAKEN = 0;
+	var STATUS_AVAILABLE = 1;
+	var STATUS_SELECTED = 2;
+	var STATUS_NONE = 3;
 
 	var init = function() {
 		inactiveNumbered = venueMap.areInactiveSeatsNumbered();
@@ -2547,7 +2551,7 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 	var mouseMove = function(event) {
 		var x = Math.max(0, event.pageX);
 		var y = Math.max(0, event.pageY - 2);
-		venueMap.getPlaceToolTip().display(seatInfo, selected, x, y);
+		venueMap.getPlaceToolTip().display(seatInfo, status, x, y);
 		if (selectable) {
 			self.setColor(venueMap.getSeatColor('hover'))
 		}
@@ -2562,13 +2566,13 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 		event.preventDefault();
 		event.cancelBubble = true;
 		if (selectable && seatInfo) {
-			if (seatInfo.available && !selected) {
-				selected = true;
+			if (status == STATUS_AVAILABLE) {
+				status = STATUS_SELECTED;
 				self.refreshStatus();
 				venueMap.trigger('seatsSelected', [seatInfo.id]);
 				venueMap.trigger('seatSelected', seatInfo.id);
-			} else if (selected) {
-				selected = false;
+			} else if (status == STATUS_SELECTED) {
+				status = STATUS_AVAILABLE;
 				self.refreshStatus();
 				venueMap.trigger('seatsDeselected', [seatInfo.id]);
 				venueMap.trigger('seatUnSelected', seatInfo.id);
@@ -2578,9 +2582,9 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 	this.refreshStatus = function() {
 		var seatColor;
 		withText = true;
-		if (selected) {
+		if (status == STATUS_SELECTED) {
 			seatColor = venueMap.getSeatColor('active');
-		} else if (priceClass && (seatInfo.available || !selectable)) {
+		} else if (priceClass && (status == STATUS_AVAILABLE || !selectable)) {
 			seatColor = priceClass.color;
 		} else {
 			seatColor = venueMap.getSeatColor('inactive');
@@ -2597,7 +2601,7 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 			placeElement.removeEventListener('mousemove', mouseMove);
 			placeElement.removeEventListener('mouseout', mouseOut);
 		}
-		if (seatInfo && selectable && (selected || seatInfo.available)) {
+		if (seatInfo && selectable && (status == STATUS_AVAILABLE || status == STATUS_SELECTED)) {
 			touchManager.addEventListener(placeElement, 'start', click, true);
 		} else {
 			touchManager.removeEventListener(placeElement, 'start', click);
@@ -2620,7 +2624,8 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 		}
 	};
 	this.canBeSelected = function() {
-		return selectable && seatInfo && seatInfo.available;
+		return selectable && seatInfo && (status == STATUS_AVAILABLE
+			|| status == STATUS_SELECTED);
 	};
 	this.setSelectable = function(newSelectable) {
 		selectable = !!newSelectable;
@@ -2633,15 +2638,26 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
 	};
 	this.setSeatInfo = function(newSeatInfo) {
 		seatInfo = newSeatInfo;
+		if (typeof newSeatInfo['status'] == 'undefined') {
+			// left for backwards compatibility
+			status = +seatInfo['available'] || 0;
+		} else {
+			status = +seatInfo['status'];
+		}
 	};
 	this.setPriceClass = function(newPriceClass) {
 		priceClass = newPriceClass;
 	};
 	this.setSelected = function(newSelected) {
-		selected = !!newSelected;
+		switch (status) {
+			case STATUS_AVAILABLE:
+			case STATUS_SELECTED:
+				status = newSelected ? STATUS_SELECTED : STATUS_AVAILABLE;
+				break;
+		}
 	};
 	this.isSelected = function() {
-		return selected;
+		return status == STATUS_SELECTED;
 	};
 	this.getElement = function() {
 		return placeElement;
@@ -2734,10 +2750,12 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 	var componentElement;
 	var sectionElement;
 	var sectionTitleElement;
-	var row1Element;
-	var row2Element;
+	var rowRowElement;
+	var rowElement;
+	var placeRowElement;
+	var placeElement;
 	var priceElement;
-	var row4Element;
+	var statusElement;
 	var priceRowElement;
 	var statusRowElement;
 	var popupOffset = 0;
@@ -2757,7 +2775,7 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 		var tBodyElement = document.createElement('tbody');
 		tableElement.appendChild(tBodyElement);
 
-		var rowElement, labelElement;
+		var labelElement;
 		sectionElement = document.createElement('tr');
 		tBodyElement.appendChild(sectionElement);
 		labelElement = document.createElement('td');
@@ -2768,25 +2786,25 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 		sectionTitleElement.className = 'place_tooltip_value';
 		sectionElement.appendChild(sectionTitleElement);
 
-		rowElement = document.createElement('tr');
-		tBodyElement.appendChild(rowElement);
+		rowRowElement = document.createElement('tr');
+		tBodyElement.appendChild(rowRowElement);
 		labelElement = document.createElement('td');
 		labelElement.className = 'place_tooltip_label';
 		labelElement.appendChild(document.createTextNode(venueMap.getTranslation('row')));
-		rowElement.appendChild(labelElement);
-		row1Element = document.createElement('td');
-		row1Element.className = 'place_tooltip_value';
-		rowElement.appendChild(row1Element);
+		rowRowElement.appendChild(labelElement);
+		rowElement = document.createElement('td');
+		rowElement.className = 'place_tooltip_value';
+		rowRowElement.appendChild(rowElement);
 
-		var rowElement = document.createElement('tr');
-		tBodyElement.appendChild(rowElement);
+		placeRowElement = document.createElement('tr');
+		tBodyElement.appendChild(placeRowElement);
 		labelElement = document.createElement('td');
 		labelElement.className = 'place_tooltip_label';
 		labelElement.appendChild(document.createTextNode(venueMap.getTranslation('place')));
-		rowElement.appendChild(labelElement);
-		row2Element = document.createElement('td');
-		row2Element.className = 'place_tooltip_value';
-		rowElement.appendChild(row2Element);
+		placeRowElement.appendChild(labelElement);
+		placeElement = document.createElement('td');
+		placeElement.className = 'place_tooltip_value';
+		placeRowElement.appendChild(placeElement);
 
 		priceRowElement = document.createElement('tr');
 		tBodyElement.appendChild(priceRowElement);
@@ -2800,33 +2818,45 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 
 		statusRowElement = document.createElement('tr');
 		tBodyElement.appendChild(statusRowElement);
-		row4Element = document.createElement('td');
-		row4Element.setAttribute('colspan', '2');
-		row4Element.className = 'place_tooltip_status';
-		statusRowElement.appendChild(row4Element);
+		statusElement = document.createElement('td');
+		statusElement.setAttribute('colspan', '2');
+		statusElement.className = 'place_tooltip_status';
+		statusRowElement.appendChild(statusElement);
 	};
 	this.clear = function() {
-		while (row1Element.firstChild) {
-			row1Element.removeChild(row1Element.firstChild);
+		while (rowElement.firstChild) {
+			rowElement.removeChild(rowElement.firstChild);
 		}
-		while (row2Element.firstChild) {
-			row2Element.removeChild(row2Element.firstChild);
+		while (placeElement.firstChild) {
+			placeElement.removeChild(placeElement.firstChild);
 		}
 		while (priceElement.firstChild) {
 			priceElement.removeChild(priceElement.firstChild);
 		}
-		while (row4Element.firstChild) {
-			row4Element.removeChild(row4Element.firstChild);
+		while (statusElement.firstChild) {
+			statusElement.removeChild(statusElement.firstChild);
 		}
 		while (sectionTitleElement.firstChild) {
 			sectionTitleElement.removeChild(sectionTitleElement.firstChild);
 		}
+		rowRowElement.style.display = 'none';
+		placeRowElement.style.display = 'none';
+		priceRowElement.style.display = 'none';
+		statusRowElement.style.display = 'none';
+		sectionElement.style.display = 'none';
 	};
-	this.display = function(seat, selected, x, y) {
+	this.display = function(seat, status, x, y) {
 		if (!componentElement) {
 			createDomElements();
 		}
 		self.clear();
+		var statuses = {
+			0: 'booked',
+			1: 'available',
+			2: 'selected',
+			3: 'not_sold'
+		};
+		var statusCode = statuses[status] || statuses[0];
 		var sectionTitle = '';
 		if (venueMap.getSectionsMapType() == 'full_venue') {
 			var section = venueMap.getSectionBySeatId(seat.id);
@@ -2834,35 +2864,28 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 		}
 		if (sectionTitle) {
 			sectionTitleElement.appendChild(document.createTextNode(sectionTitle));
+			sectionElement.style.display = '';
 		}
-		sectionElement.style.display = sectionTitle ? '' : 'none';
-		if (seat.row) {
-			row1Element.appendChild(document.createTextNode(seat.row));
-		}
-		if (seat.place) {
-			row2Element.appendChild(document.createTextNode(seat.place));
-		}
-		var displayStyle = 'none';
-		if (venueMap.isSeatSelectionEnabled()) {
-			displayStyle = '';
-			var status = 'booked';
-			if (selected) {
-				status = 'selected';
-			} else if (seat.available) {
-				status = 'available';
+		if (statusCode != 'not_sold') {
+			if (seat.row) {
+				rowElement.appendChild(document.createTextNode(seat.row));
+				rowRowElement.style.display = '';
 			}
-			var text = venueMap.getTranslation(status);
-			row4Element.appendChild(document.createTextNode(text));
+			if (seat.place) {
+				placeElement.appendChild(document.createTextNode(seat.place));
+				placeRowElement.style.display = '';
+			}
+		}
+		if (venueMap.isSeatSelectionEnabled()) {
+			var text = venueMap.getTranslation(statusCode);
+			statusElement.appendChild(document.createTextNode(text));
+			statusRowElement.style.display = '';
 		}
 
-		if (seat.price && status != 'booked') {
+		if (seat.price && statusCode != 'booked' && statusCode != 'not_sold') {
 			priceElement.appendChild(document.createTextNode(seat.price));
 			priceRowElement.style.display = '';
-		} else {
-			priceRowElement.style.display = 'none';
 		}
-
-		statusRowElement.style.display = displayStyle;
 		if (window.innerHeight) {
 			var viewPortWidth = window.innerWidth;
 			var viewPortHeight = window.innerHeight;
