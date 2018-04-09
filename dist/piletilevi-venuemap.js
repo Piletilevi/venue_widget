@@ -1357,9 +1357,14 @@ piletilevi.venuemap.VenueMap = function() {
 			return;
 		}
 		var protocol = connectionSecure ? 'https' : 'http';
-		var requestDomain = path.indexOf('seatingPlanOverrides') < 0
-			? shopDomain
-			: piletilevi.venuemap.SHOP_DOMAIN;
+		var requestDomain = shopDomain;
+		if (path.indexOf('seatingPlanOverrides') >= 0) {
+			requestDomain = piletilevi.venuemap.SHOP_DOMAIN;
+		}
+		if (requestDomain == piletilevi.venuemap.SHOP_DOMAIN) {
+			// http would get redirected
+			protocol = 'https';
+		}
 		var url = protocol + '://' + requestDomain + path;
 		if (withCacheWorkaround) {
 			var date = new Date;
