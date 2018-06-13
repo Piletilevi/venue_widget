@@ -566,7 +566,7 @@ window.touchManager = new function() {
 		};
 	};
 	var cachePointerEvent = function(event) {
-		if (event.pointerId) {
+		if (typeof event.pointerId != "undefined") {
 			pointerCache[event.pointerId] = {
 				'clientX': event.clientX,
 				'clientY': event.clientY,
@@ -2037,7 +2037,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 	var sectionZoomSeatRadius = 8;
 	var seatNumbersRequirement = 7;
 	var sectionLabelsRequirement = 2.9;
-	var sectionLabelSize = 17;
+	var sectionLabelSize = 14;
 	var zoomFactor = 1.25;
 	var touchScalingPoint;
 	var containerDimensions;
