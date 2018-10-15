@@ -998,6 +998,7 @@ piletilevi.venuemap.VenueMap = function() {
 			function(response) {
 				receiveVenuePlacesMap(response);
 				lastLoadedPlacesSuccessful = true;
+				self.trigger('placesMapLoadSuccess');
 				onSuccess();
 			},
 			function() {
