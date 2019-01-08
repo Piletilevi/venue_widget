@@ -47,6 +47,7 @@
 
 .piletilevi_venue_map_places_main {
 	min-height: 180px;
+	min-width: 100%;
 }
 
 .piletilevi_venue_map_places_with_controls .piletilevi_venue_map_canvas {
@@ -139,6 +140,10 @@
 	margin: -0.15em;
 }
 
+.piletilevi_venue_map_places_with_map .places_map_legend {
+	width: 80%;
+}
+
 .places_map_legend_item {
 	min-width: 5.95em;
 	box-sizing: border-box;
@@ -185,6 +190,7 @@
 	z-index: 100;
 	padding-bottom: 10px;
 	position: absolute;
+	max-width: 50%;
 }
 
 .place_tooltip_content {
@@ -255,4 +261,27 @@
 [data-draggable-state='dragging'] {
 	cursor: -webkit-grabbing;
 	cursor: grabbing;
+}
+
+.piletilevi_venue_map_places {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.places_map_sections_thumbnail {
+	width: 20%;
+	height: 5em;
+	position: relative;
+}
+
+.piletilevi_venue_map_places:not(.piletilevi_venue_map_places_with_map) .places_map_sections_thumbnail {
+	display: none;
+}
+
+.places_map_sections_thumbnail_overflow {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
 }

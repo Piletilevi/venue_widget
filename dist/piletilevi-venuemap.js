@@ -283,7 +283,10 @@ var __ScalableComponent = function() {
 	};
 	var initScalableElement = function() {
 		removeScalableElement();
-		touchManager.setTouchAction(gestureElement, 'none'); // disable browser-related touch manipulation
+		//	0005505: Täissaaliplaani kiirus
+		if(window.userAgent != 'Firefox') {
+			touchManager.setTouchAction(gestureElement, 'none'); // disable browser-related touch manipulation
+		}
 		touchManager.addEventListener(gestureElement, 'start', startHandler);
 	};
 	var removeScalableElement = function() {
@@ -915,6 +918,7 @@ piletilevi.venuemap.VenueMap = function() {
 	var placesMapAvailableSections = {};
 	var fullMapGenerated = false;
 	var fixedHeight = 0;
+	this.displayMapInPlaces = false;
 
 	var seatColors = {
 		'hover': piletilevi.venuemap.DEFAULT_SEAT_HOVER_COLOR,
@@ -1074,6 +1078,16 @@ piletilevi.venuemap.VenueMap = function() {
 	var adjustZoomControls = function() {
 		placesMap.adjustZoomControls();
 	};
+	var moveSectionsMapToPlaces = function() {
+		var sectionsThumbnailElement = placesMap.getSectionsThumbnailElement();
+		var sectionsMapElement = sectionsMap.getComponentElement();
+		sectionsThumbnailElement.insertBefore(sectionsMapElement, sectionsThumbnailElement.firstChild);
+	};
+
+	var moveSectionsMapToSections = function() {
+		var sectionsMapElement = sectionsMap.getComponentElement();
+		componentElement.appendChild(sectionsMapElement);
+	};
 	this.update = function() {
 		if (loadingOverrides) {
 			// temporary solution 0004087
@@ -1088,8 +1102,23 @@ piletilevi.venuemap.VenueMap = function() {
 			confId = configOverrides[concertId];
 		}
 		if (sectionsMapType != 'full_venue') {
+			var regions = sectionsMap.getMapRegions();
 			if (activeSection) {
-				sectionsMap.hide();
+				if(self.displayMapInPlaces) {
+					sectionsMap.display();
+					moveSectionsMapToPlaces();
+					if (typeof regions[activeSection] !== "undefined") {
+						regions[activeSection].markActivePermanently();
+						for (var sectionId in regions) {
+							if (sectionId != activeSection) {
+								regions[sectionId].markInactivePermanently();
+							}
+						}
+					}
+				}else {
+					sectionsMap.hide();
+				}
+
 				placesMap.setDisplayed(true);
 
 				var sectionDetails = self.getSectionDetails(activeSection);
@@ -1119,6 +1148,13 @@ piletilevi.venuemap.VenueMap = function() {
 					}
 				);
 			} else {
+				if(self.displayMapInPlaces) {
+					moveSectionsMapToSections();
+					for (var sectionId in regions) {
+						regions[sectionId].unLockActive();
+						regions[sectionId].refreshStatus();
+					}
+				}
 				self.setCurrentZoomLevel(0);
 				previousSection = 0;
 				placesMap.setDisplayed(false);
@@ -1607,6 +1643,7 @@ piletilevi.venuemap.SectionsMap = function(venueMap) {
 piletilevi.venuemap.SectionsMapRegion = function(venueMap, sectionsMap, id, sectionVector) {
 	var self = this;
 	var enabled = false;
+	var activeLocked = false;
 	this.id = false;
 
 	var init = function() {
@@ -1636,18 +1673,30 @@ piletilevi.venuemap.SectionsMapRegion = function(venueMap, sectionsMap, id, sect
 		}
 	};
 	this.markActive = function() {
-		if (sectionVector) {
+		if (sectionVector && !activeLocked) {
 			sectionVector.setAttribute("fill", "#75bb01");
 			sectionVector.setAttribute("opacity", "0.8");
 			sectionVector.setAttribute("style", "display: block;");
 		}
 	};
 	this.markInactive = function() {
-		if (sectionVector) {
+		if (sectionVector && !activeLocked) {
 			sectionVector.setAttribute("fill", "#cccccc");
 			sectionVector.setAttribute("opacity", "0");
 			sectionVector.setAttribute("style", "display: block;");
 		}
+	};
+	this.markActivePermanently = function() {
+		self.markActive();
+		activeLocked = true;
+	};
+	this.markInactivePermanently = function() {
+		self.markInactive();
+		activeLocked = true;
+	};
+	this.unLockActive = function() {
+		activeLocked = false;
+		self.markInactive();
 	};
 	this.setEnabled = function(input) {
 		enabled = !!input;
@@ -1662,6 +1711,7 @@ piletilevi.venuemap.SectionsMapRegion = function(venueMap, sectionsMap, id, sect
 };
 
 piletilevi.venuemap.PlacesMap = function(venueMap) {
+	var sectionsThumbnailElement;
 	var legendElement;
 	var legendItems = [];
 	var self = this;
@@ -1681,7 +1731,10 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 
 	var init = function() {
 		createDomStructure();
-		mainElement.addEventListener('wheel', onWheel);
+		//temporary fix 0005272: Täissaaliplaani sektorite kattumine - kiire võimalik lahendus
+		if(venueMap.getConfId() != 6964 || window.userAgent != 'Firefox') {
+			mainElement.addEventListener('wheel', onWheel);
+		}
 		if (venueMap.isMassSelectable()) {
 			document.addEventListener('keydown', keydown);
 		}
@@ -1690,9 +1743,20 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		componentElement = document.createElement('div');
 		componentElement.className = 'piletilevi_venue_map_places';
 		componentElement.style.display = 'none';
+
 		legendElement = document.createElement('div');
 		legendElement.className = 'places_map_legend';
 		componentElement.appendChild(legendElement);
+
+		//if(venueMap.displayMapInPlaces) {
+		sectionsThumbnailElement = document.createElement('div');
+		sectionsThumbnailElement.className = 'places_map_sections_thumbnail';
+		componentElement.appendChild(sectionsThumbnailElement);
+
+		var sectionsThumbnailOverflowElement = document.createElement('div');
+		sectionsThumbnailOverflowElement.className = 'places_map_sections_thumbnail_overflow';
+		sectionsThumbnailElement.appendChild(sectionsThumbnailOverflowElement);
+		//}
 		mainElement = document.createElement('div');
 		mainElement.className = 'piletilevi_venue_map_places_main';
 		mainElement.style.position = 'relative';
@@ -1711,6 +1775,9 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 			mainElement.appendChild(controls.getComponentElement());
 			piletilevi.venuemap.Utilities.addClass(componentElement, 'piletilevi_venue_map_places_with_controls');
 		}
+	};
+	this.getSectionsThumbnailElement = function() {
+		return sectionsThumbnailElement;
 	};
 	var keydown = function(event) {
 		if (event.keyCode != 17 || !canvas) // ctrl
@@ -1885,6 +1952,9 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 		updateLegend(combinedPriceClasses);
 	};
 	this.updateSectionDetails = function(newDetails) {
+		if(venueMap.displayMapInPlaces) {
+			domHelper.addClass(componentElement, 'piletilevi_venue_map_places_with_map');
+		}
 		if (!newDetails) {
 			return;
 		}
@@ -2089,13 +2159,14 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		var arrowTextElement;
 		if (arrowTextElement = svgElement.getElementById('stagename')) {
 			//temporary workaround, no merge needed to main branch
-			if (venueMap.getConfId() == 6527) {
+			if (venueMap.getConfId() == 6602) {
+				domHelper.addClass(componentElement, 'labels_hidden_important');
+			}else if (venueMap.getConfId() == 6527) {
 				arrowTextElement.parentNode.style.display = 'none';
 			} else {
 				new piletilevi.venuemap.PlacesMapStageLabel(venueMap, arrowTextElement);
 			}
 		}
-
 	};
 
 	this.attachTo = function(destination) {
@@ -2252,7 +2323,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 		if (venueMap.getZoomLevel() > maxZoomLevel) {
 			venueMap.setZoomLevel(maxZoomLevel, false);
 		} else {
-		self.adjustToZoom(false, focalPoint);
+			self.adjustToZoom(false, focalPoint);
 			container.adjustZoomControls();
 		}
 	};
@@ -3125,6 +3196,9 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 			svgElement.appendChild(node);
 			boundaries[sectionId] = sectionRegion;
 		}
+
+		venueMap.displayMapInPlaces = (data.displayMapInPlaces == "1");
+
 		var canvas = new piletilevi.venuemap.PlacesMapCanvas(venueMap, svgElement, sectionLabelElements);
 		canvas.setSectionsBoundaries(boundaries);
 		return canvas;
