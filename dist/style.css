@@ -141,7 +141,7 @@
 }
 
 .piletilevi_venue_map_places_with_map .places_map_legend {
-	width: 80%;
+	width: 70%;
 }
 
 .places_map_legend_item {
@@ -269,8 +269,8 @@
 }
 
 .places_map_sections_thumbnail {
-	width: 20%;
-	height: 5em;
+	width: 30%;
+	max-height: 15em;
 	position: relative;
 }
 
