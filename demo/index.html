@@ -64,10 +64,7 @@
 	<script type="text/javascript" src="../dist/piletilevi-venuemap.js"></script>
 	<script class="js_example" type="text/javascript">
 		// can't use live now - the .htaccess supposed to set access header isn't functioning there
-//			window.EXAMPLES_SHOP_DOMAIN = 'shop.piletilevi.ee';
-//			window.EXAMPLES_SHOP_DOMAIN = 'shop.piletilevi-ru.test.helmes.ee';
-			window.EXAMPLES_SHOP_DOMAIN = 'piletilevi_shop-master.local';
-//			window.EXAMPLES_SHOP_DOMAIN = 'fe1.piletilevi-ru.dev';
+			window.EXAMPLES_SHOP_DOMAIN = 'store.piletilevi.ee';
 	</script>
 	<!-- sections map -->
 	<script class="js_example" type="text/javascript">
@@ -76,6 +73,7 @@
 		element = document.querySelector('.example_1');
 		map = new piletilevi.venuemap.VenueMap();
 		map.setShopDomain(window.EXAMPLES_SHOP_DOMAIN);
+		map.setConnectionSecure(true);
 		map.setConfId(110);
 		map.setSectionsMapType('vector');
 		map.setSectionsMapImageUrl('');
@@ -109,6 +107,7 @@
 			var mapElement = element.querySelector('.map');
 			map = new piletilevi.venuemap.VenueMap();
 			map.setShopDomain(window.EXAMPLES_SHOP_DOMAIN);
+			map.setConnectionSecure(true);
 			map.setConfId(110);
 			map.setSectionsMapType('vector');
 			map.setSectionsMapImageUrl('');
@@ -175,6 +174,7 @@
 
 			map = new piletilevi.venuemap.VenueMap();
 			map.setShopDomain(window.EXAMPLES_SHOP_DOMAIN);
+			map.setConnectionSecure(true);
 			map.setConfId(110);
 			map.setSectionsMapType('vector');
 			map.setSectionsMapImageUrl('');
@@ -235,6 +235,7 @@
 			element = document.querySelector('.example_4');
 			var map = new piletilevi.venuemap.VenueMap();
 			map.setShopDomain(window.EXAMPLES_SHOP_DOMAIN);
+			map.setConnectionSecure(true);
 			map.setConfId('bad_conf_id');
 			map.setSectionsMapType('vector');
 			map.setSectionsMapImageUrl('');
@@ -277,6 +278,7 @@
 
 			map = new piletilevi.venuemap.VenueMap();
 			map.setShopDomain(window.EXAMPLES_SHOP_DOMAIN);
+			map.setConnectionSecure(true);
 			map.setConfId(110);
 			map.setSectionsMapType('vector');
 			map.setSectionsMapImageUrl('');
