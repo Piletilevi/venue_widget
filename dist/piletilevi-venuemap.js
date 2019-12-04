@@ -297,8 +297,7 @@ const __ScalableComponent = function() {
         touchManager.removeEventListener(gestureElement, 'end', endHandler);
     };
     const startHandler = function(eventInfo, touchInfo) {
-        document.getElementById('debug').innerHTML = 'start ' + touchInfo.touches.length + '<br>' + document.getElementById('debug').innerHTML;
-        if (touchInfo.touches != undefined && touchInfo.touches.length > 1) {
+        if (typeof touchInfo.touches !== 'undefined' && touchInfo.touches.length > 1) {
             eventInfo.preventDefault();
             scale = 1;
             if (scaledElement.tagName.toUpperCase() == 'SVG') {
@@ -329,9 +328,7 @@ const __ScalableComponent = function() {
         }
     };
     const moveHandler = function(eventInfo, touchInfo) {
-        document.getElementById('debug').innerHTML = 'move ' + touchInfo.touches.length + '<br>' + document.getElementById('debug').innerHTML;
-
-        if (touchInfo.touches != undefined && touchInfo.touches.length > 1) {
+        if (typeof touchInfo.touches !== 'undefined' && touchInfo.touches.length > 1) {
             eventInfo.preventDefault();
             f0x = touchInfo.touches[0].pageX;
             f0y = touchInfo.touches[0].pageY;
@@ -373,16 +370,18 @@ const __ScalableComponent = function() {
         }
     };
     const endHandler = function(eventInfo, touchInfo) {
-        document.getElementById('debug').innerHTML = 'end ' + touchInfo.touches.length + '<br>' + document.getElementById('debug').innerHTML;
         eventInfo.preventDefault();
         eventInfo.stopPropagation();
 
-        touchManager.removeEventListener(gestureElement, 'move', moveHandler);
-        touchManager.removeEventListener(gestureElement, 'end', endHandler);
-        touchManager.removeEventListener(gestureElement, 'cancel', endHandler);
+        //end event can be fired multiple times. we should only remove handlers after all pointers are removed.
+        if (typeof touchInfo.touches !== 'undefined' && touchInfo.touches.length === 0) {
+            touchManager.removeEventListener(gestureElement, 'move', moveHandler);
+            touchManager.removeEventListener(gestureElement, 'end', endHandler);
+            touchManager.removeEventListener(gestureElement, 'cancel', endHandler);
 
-        if (endCallback) {
-            endCallback(compileInfo());
+            if (endCallback) {
+                endCallback(compileInfo());
+            }
         }
     };
 
@@ -516,10 +515,15 @@ window.touchManager = new function() {
     const fireCallback = function(eventType, event) {
         const eventInfo = compileEventInfo(event);
 
+        //first gather callbacks, then run them. just in case they modify handlers.
+        let callBacks = [];
         for (let i = 0; i < handlers[eventType].length; i++) {
             if (handlers[eventType][i]['element'] === eventInfo['currentTarget']) {
-                handlers[eventType][i]['callback'](event, eventInfo);
+                callBacks.push(handlers[eventType][i]['callback']);
             }
+        }
+        for (let i = 0; i < callBacks.length; i++) {
+            callBacks[i](event, eventInfo);
         }
     };
     let compileEventInfo;
@@ -2623,7 +2627,6 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
         }
     };
     const pointerEnd = function(event) {
-        document.getElementById('debug').innerHTML = seatInfo.id + '<br>' + document.getElementById('debug').innerHTML;
         event.preventDefault();
         if (selectable && seatInfo) {
             if (status == STATUS_AVAILABLE) {
