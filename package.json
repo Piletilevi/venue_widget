@@ -4,7 +4,7 @@
   "main": "index.js",
   "version": "10.21.0",
   "author": "artweb.ee",
-  "license": "MIT",
+  "license": "ISC",
   "repository": "Piletilevi/venue_widget",
   "homepage": "http://artweb.ee",
   "keywords": [

@@ -2,4 +2,4 @@
 
 ## Installation
 
-    bower install git://github.com/Piletilevi/venue_widget.git
+    npm install Piletilevi/venue_widget
