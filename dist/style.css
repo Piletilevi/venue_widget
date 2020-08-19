@@ -1,289 +1,291 @@
 .piletilevi_venue_map {
-	position: relative;
+    position: relative;
 }
 
 .piletilevi_venue_map_sections > svg {
-	position: absolute;
-	left: 0;
-	right: 0;
-	top: 0;
-	bottom: 0;
-	max-width: 100%;
-	max-height: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .piletilevi_venuemap_selection_rectangle {
-	background: rgba(10, 45, 237, 0.08);
-	border: 1px solid rgba(10, 45, 237, 0.2);
-	box-sizing: border-box;
+    background: rgba(10, 45, 237, 0.08);
+    border: 1px solid rgba(10, 45, 237, 0.2);
+    box-sizing: border-box;
 }
 
 .piletilevi_venue_map .place_detail {
-	display: none;
+    display: none;
 }
 
 .piletilevi_venue_map .with_seat_numbers .place_detail {
-	display: inline;
+    display: inline;
 }
 
 .piletilevi_venue_map .section_label {
-	display: none;
-	text-shadow: 1px 1px #fff;
-	pointer-events: none;
+    display: none;
+    text-shadow: 1px 1px #ffffff;
+    pointer-events: none;
 }
 
 .piletilevi_venue_map .with_section_labels .section_label {
-	display: inline;
+    display: inline;
 }
 
 .piletilevi_venue_map_canvas {
-	display: block;
-	text-align: center;
-	white-space: nowrap;
-	-moz-box-sizing: border-box;
-	-webkit-box-sizing: border-box;
-	box-sizing: border-box;
+    display: block;
+    text-align: center;
+    white-space: nowrap;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
 }
+
 .piletilevi_venue_map_canvas .place {
     cursor: pointer;
 }
+
 .piletilevi_venue_map_places_main {
-	min-height: 180px;
-	min-width: 100%;
+    min-height: 180px;
+    min-width: 100%;
 }
 
 .piletilevi_venue_map_places_with_controls .piletilevi_venue_map_canvas {
-	padding-left: 39px;
-	padding-right: 39px;
+    padding-left: 39px;
+    padding-right: 39px;
 }
 
 .piletilevi_venue_map_canvas svg {
-	display: inline;
-	vertical-align: top;
+    display: inline;
+    vertical-align: top;
 }
 
 .piletilevi_venue_map_controls {
-	position: absolute;
-	right: 3px;
-	bottom: 30px;
-	box-shadow: 0 0 3px #c5c5c5;
+    position: absolute;
+    right: 3px;
+    bottom: 30px;
+    box-shadow: 0 0 3px #c5c5c5;
 }
 
 .piletilevi_venue_map_control {
-	font-family: Arial;
-	font-size: 27px;
-	width: 30px;
-	height: 30px;
-	border: 0;
-	border-top: 1px solid #E6E6E6;
-	padding: 0;
-	outline: none;
-	display: block;
-	line-height: 0;
-	font-weight: bold;
-	background: #fff;
-	color: #c5c5c5;
-	text-align: center;
-	overflow: hidden;
+    font-family: Arial;
+    font-size: 27px;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-top: 1px solid #e6e6e6;
+    padding: 0;
+    outline: none;
+    display: block;
+    line-height: 0;
+    font-weight: bold;
+    background: #ffffff;
+    color: #c5c5c5;
+    text-align: center;
+    overflow: hidden;
 }
 
 .piletilevi_venue_map_control.piletilevi_venue_map_control_active {
-	color: #000;
-	cursor: pointer;
+    color: #000000;
+    cursor: pointer;
 }
 
 .piletilevi_venue_map_control:first-child {
-	border-top: 0;
+    border-top: 0;
 }
 
 .piletilevi_venue_map_control:before {
-	display: inline-block;
-	content: '';
-	height: 100%;
-	width: 1px;
-	margin-left: -1px;
-	vertical-align: middle;
+    display: inline-block;
+    content: '';
+    height: 100%;
+    width: 1px;
+    margin-left: -1px;
+    vertical-align: middle;
 }
 
 .piletilevi_venue_map_control:after {
-	display: inline-block;
-	content: '';
-	vertical-align: middle;
+    display: inline-block;
+    content: '';
+    vertical-align: middle;
 }
 
 .piletilevi_venue_map_control_extend:after {
-	height: 10px;
-	width: 14px;
-	border: 2px solid #c5c5c5;
+    height: 10px;
+    width: 14px;
+    border: 2px solid #c5c5c5;
 }
 
 .piletilevi_venue_map_control_extend.piletilevi_venue_map_control_active:after {
-	border-color: #000;
+    border-color: #000000;
 }
 
 .piletilevi_venue_map_extended .piletilevi_venue_map_control_extend:after {
-	height: 5px;
+    height: 5px;
 }
 
 .piletilevi_venue_map_control_zoomin:after {
-	content: '+';
+    content: '+';
 }
 
 .piletilevi_venue_map_control_zoomout:after {
-	content: '-';
+    content: '-';
 }
 
 .piletilevi_venue_map_control_resetzoom:after {
-	content: '×';
+    content: '×';
 }
 
 .places_map_legend {
-	padding-bottom: 1.5em;
-	margin: -0.15em;
+    padding-bottom: 1.5em;
+    margin: -0.15em;
 }
 
 .piletilevi_venue_map_places_with_map .places_map_legend {
-	width: 70%;
+    width: 70%;
 }
 
 .places_map_legend_item {
-	min-width: 5.95em;
-	box-sizing: border-box;
-	color: #000;
-	display: inline-block;
-	vertical-align: top;
-	text-align: left;
-	padding: 0 0.5em;
-	position: relative;
-	overflow: hidden;
-	margin: 0.15em 0.15em 0.43em;
-	white-space: nowrap;
-	font-weight: bold;
+    min-width: 5.95em;
+    box-sizing: border-box;
+    color: #000000;
+    display: inline-block;
+    vertical-align: top;
+    text-align: left;
+    padding: 0 0.5em;
+    position: relative;
+    overflow: hidden;
+    margin: 0.15em 0.15em 0.43em;
+    white-space: nowrap;
+    font-weight: bold;
 }
 
 .places_map_legend_title {
-	display: inline-block;
-	white-space: nowrap;
-	position: relative;
-	font-size: 0.93em;
-	line-height: 1.5em;
-	vertical-align: middle;
+    display: inline-block;
+    white-space: nowrap;
+    position: relative;
+    font-size: 0.93em;
+    line-height: 1.5em;
+    vertical-align: middle;
 }
 
 .places_map_legend_suffix {
-	font-size: 0.93em;
-	line-height: 1.5em;
-	vertical-align: middle;
-	color: #9a9a9a;
-	margin-left: 0.25em;
+    font-size: 0.93em;
+    line-height: 1.5em;
+    vertical-align: middle;
+    color: #9a9a9a;
+    margin-left: 0.25em;
 }
 
 .places_map_legend_color {
-	display: inline-block;
-	width: 0.93em;
-	height: 0.93em;
-	margin-right: 0.4em;
-	border-radius: 999px;
-	vertical-align: middle;
+    display: inline-block;
+    width: 0.93em;
+    height: 0.93em;
+    margin-right: 0.4em;
+    border-radius: 999px;
+    vertical-align: middle;
 }
 
 .place_tooltip {
-	display: none;
-	z-index: 100;
-	padding-bottom: 10px;
-	position: absolute;
-	max-width: 50%;
+    display: none;
+    z-index: 100;
+    padding-bottom: 10px;
+    position: absolute;
+    max-width: 50%;
 }
 
 .place_tooltip_content {
-	position: relative;
-	font-size: 0.92em;
-	padding: 0.6em;
-	background: #fff;
-	-webkit-box-shadow: 0.25em 0.25em 0.5em rgba(0, 0, 0, 0.2);
-	-moz-box-shadow: 0.25em 0.25em 0.5em rgba(0, 0, 0, 0.2);
-	box-shadow: 0.25em 0.25em 0.5em rgba(0, 0, 0, 0.2);
+    position: relative;
+    font-size: 0.92em;
+    padding: 0.6em;
+    background: #ffffff;
+    -webkit-box-shadow: 0.25em 0.25em 0.5em rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0.25em 0.25em 0.5em rgba(0, 0, 0, 0.2);
+    box-shadow: 0.25em 0.25em 0.5em rgba(0, 0, 0, 0.2);
 }
 
 .place_tooltip_content td {
-	padding: 3px 4px;
+    padding: 3px 4px;
 }
 
 .place_tooltip table,
 .place_tooltip table tr {
-	display: block;
+    display: block;
 }
 
 .place_tooltip:before {
-	/* shadow effect for triangle */
-	content: "";
-	height: 5px;
-	left: 50%;
-	margin-left: -5px;
-	position: absolute;
-	bottom: 0;
-	width: 10px;
-	-moz-box-shadow: 0 6px 5px rgba(0, 0, 0, 0.13);
-	-webkit-box-shadow: 0 6px 5px rgba(0, 0, 0, 0.13);
-	box-shadow: 0 6px 5px rgba(0, 0, 0, 0.13);
+    /* shadow effect for triangle */
+    content: "";
+    height: 5px;
+    left: 50%;
+    margin-left: -5px;
+    position: absolute;
+    bottom: 0;
+    width: 10px;
+    -moz-box-shadow: 0 6px 5px rgba(0, 0, 0, 0.13);
+    -webkit-box-shadow: 0 6px 5px rgba(0, 0, 0, 0.13);
+    box-shadow: 0 6px 5px rgba(0, 0, 0, 0.13);
 }
 
 .place_tooltip:after {
-	/* bottom triangle */
-	content: "";
-	position: absolute;
-	bottom: 0;
-	left: 50%;
-	margin-left: -10px;
-	border-top: 10px solid #fff;
-	border-left: 10px solid transparent;
-	border-right: 10px solid transparent;
+    /* bottom triangle */
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    margin-left: -10px;
+    border-top: 10px solid #ffffff;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
 }
 
 .place_tooltip_label {
-	display: inline;
+    display: inline;
 }
 
 .place_tooltip_value {
-	display: inline;
-	font-weight: bold;
+    display: inline;
+    font-weight: bold;
 }
 
 .place_tooltip_status {
-	display: block;
-	font-weight: bold;
-	padding-top: 0.4em;
+    display: block;
+    font-weight: bold;
+    padding-top: 0.4em;
 }
 
 [data-draggable-state='draggable'] {
-	cursor: -webkit-grab;
-	cursor: grab;
+    cursor: -webkit-grab;
+    cursor: grab;
 }
 
 [data-draggable-state='dragging'] {
-	cursor: -webkit-grabbing;
-	cursor: grabbing;
+    cursor: -webkit-grabbing;
+    cursor: grabbing;
 }
 
 .piletilevi_venue_map_places {
-	display: flex;
-	flex-wrap: wrap;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .places_map_sections_thumbnail {
-	width: 30%;
-	max-height: 15em;
-	position: relative;
+    width: 30%;
+    max-height: 15em;
+    position: relative;
 }
 
 .piletilevi_venue_map_places:not(.piletilevi_venue_map_places_with_map) .places_map_sections_thumbnail {
-	display: none;
+    display: none;
 }
 
 .places_map_sections_thumbnail_overflow {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	left: 0;
-	top: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
 }

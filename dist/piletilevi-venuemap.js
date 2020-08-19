@@ -27,26 +27,26 @@ const __DraggableComponent = function() {
 
     this.registerDraggableElement = function(parameters) {
         if (typeof parameters == 'object') {
-            if (parameters.draggableElement != undefined) {
+            if (parameters.draggableElement !== undefined) {
                 draggableElement = parameters.draggableElement;
             }
 
-            if (parameters.parentElement != undefined) {
+            if (parameters.parentElement !== undefined) {
                 parentElement = parameters.parentElement;
             } else if (draggableElement) {
                 parentElement = draggableElement.parentNode;
             }
 
-            if (parameters.gestureElement != undefined) {
+            if (parameters.gestureElement !== undefined) {
                 gestureElement = parameters.gestureElement;
             } else if (draggableElement) {
                 gestureElement = draggableElement;
             }
 
-            if (parameters.boundariesElement != undefined) {
+            if (parameters.boundariesElement !== undefined) {
                 boundariesElement = parameters.boundariesElement;
             }
-            if (parameters.boundariesPadding != undefined) {
+            if (parameters.boundariesPadding !== undefined) {
                 boundariesPadding = parseFloat(parameters.boundariesPadding);
             } else {
                 boundariesPadding = 0;
@@ -120,7 +120,7 @@ const __DraggableComponent = function() {
         }
     };
     const moveHandler = function(eventInfo, touchInfo) {
-        if (touchInfo.touches != undefined && touchInfo.touches.length == 1) {
+        if (touchInfo.touches !== undefined && touchInfo.touches.length == 1) {
             eventInfo.preventDefault();
             currentTouchX = touchInfo.touches[0].pageX;
             currentTouchY = touchInfo.touches[0].pageY;
@@ -129,10 +129,10 @@ const __DraggableComponent = function() {
             currentElementY = startElementY + currentTouchY - startTouchY;
 
             if (boundariesElement) {
-                var minX;
-                var maxX;
-                var minY;
-                var maxY;
+                let minX;
+                let maxX;
+                let minY;
+                let maxY;
 
                 if (currentElementX > (minX = boundariesElement.offsetWidth * boundariesPadding)) {
                     currentElementX = minX;
@@ -226,17 +226,17 @@ const __ScalableComponent = function() {
 
     this.registerScalableElement = function(parameters) {
         if (typeof parameters == 'object') {
-            if (parameters.scaledElement != undefined) {
+            if (parameters.scaledElement !== undefined) {
                 scaledElement = parameters.scaledElement;
             }
 
-            if (parameters.gestureElement != undefined) {
+            if (parameters.gestureElement !== undefined) {
                 gestureElement = parameters.gestureElement;
             } else {
                 gestureElement = scaledElement;
             }
 
-            if (parameters.scaledElement != undefined) {
+            if (parameters.scaledElement !== undefined) {
                 scaledElement = parameters.scaledElement;
             }
             if (typeof parameters.beforeStartCallback == 'function') {
@@ -302,7 +302,7 @@ const __ScalableComponent = function() {
             scale = 1;
             if (scaledElement.tagName.toUpperCase() == 'SVG') {
                 // not all browsers provide offsetWidth/Height for SVGs
-                var svgBoxInfo = scaledElement.getBoundingClientRect();
+                let svgBoxInfo = scaledElement.getBoundingClientRect();
                 startWidth = svgBoxInfo.width;
                 startHeight = svgBoxInfo.height;
             } else {
@@ -508,7 +508,7 @@ window.touchManager = new function() {
     };
     const captureEndEvent_mouse = function(event) {
         if (event.button === 0) {
-            var eventType = 'end';
+            let eventType = 'end';
             fireCallback(eventType, event);
         }
     };
@@ -528,13 +528,13 @@ window.touchManager = new function() {
     };
     let compileEventInfo;
     const compileEventInfo_touch = function(event) {
-        var eventInfo = {
+        let eventInfo = {
             'target': event.target,
             'currentTarget': event.currentTarget,
             'touches': event.touches
         };
         if (typeof event.touches[0] != 'undefined') {
-            var firstTouch = event.touches[0];
+            let firstTouch = event.touches[0];
             eventInfo['clientX'] = firstTouch.clientX;
             eventInfo['clientY'] = firstTouch.clientY;
             eventInfo['pageX'] = firstTouch.pageX;
@@ -543,8 +543,8 @@ window.touchManager = new function() {
         return eventInfo;
     };
     const compileEventInfo_pointer = function(event) {
-        var touches = [];
-        for (var id in pointerCache) {
+        let touches = [];
+        for (let id in pointerCache) {
             touches.push(pointerCache[id]);
         }
         return {
@@ -558,7 +558,7 @@ window.touchManager = new function() {
         };
     };
     const compileEventInfo_mouse = function(event) {
-        var currentTouchInfo = {
+        let currentTouchInfo = {
             'clientX': event.clientX,
             'clientY': event.clientY,
             'pageX': event.pageX,
@@ -574,7 +574,7 @@ window.touchManager = new function() {
             'pageY': event.pageY,
         };
     };
-    var cachePointerEvent = function(event) {
+    let cachePointerEvent = function(event) {
         if (typeof event.pointerId != 'undefined') {
             pointerCache[event.pointerId] = {
                 'clientX': event.clientX,
@@ -634,7 +634,7 @@ window.touchManager = new function() {
     };
     this.removeEventListener = function(element, eventType, callback) {
         if (typeof handlers[eventType] != 'undefined') {
-            for (var i = 0; i < handlers[eventType].length; i++) {
+            for (let i = 0; i < handlers[eventType].length; i++) {
                 if (handlers[eventType][i]['callback'] == callback && handlers[eventType][i]['element'] == element) {
                     handlers[eventType][i] = null;
                     handlers[eventType].splice(i, 1);
@@ -653,7 +653,7 @@ window.touchManager = new function() {
     init();
 };
 
-var piletilevi = piletilevi || {};
+let piletilevi = {};
 
 piletilevi.venuemap = {
     SHOP_DOMAIN: 'shop.piletilevi.ee',
@@ -688,29 +688,29 @@ piletilevi.venuemap.SectionDetails = function(id, selectableSeats, seatsInfo, pr
 };
 
 piletilevi.venuemap.Utilities = new function() {
-    var self = this;
-    var animations = [];
-    var transitionsAndEvents = {
+    let self = this;
+    let animations = [];
+    let transitionsAndEvents = {
         'transition': 'transitionend',
         'OTransition': 'oTransitionEnd',
         'MozTransition': 'transitionend',
         'WebkitTransition': 'webkitTransitionEnd'
     };
-    var supportedTransition = '';
-    var transitionSupportChecked = false;
+    let supportedTransition = '';
+    let transitionSupportChecked = false;
 
-    var anim = function(element, properties, duration, easeMode, onComplete) {
-        var init = function() {
+    const anim = function(element, properties, duration, easeMode, onComplete) {
+        let init = function() {
             this.element = element;
             self.checkTransitionSupport();
             if (supportedTransition) {
-                var transitions = [];
-                for (var key in properties) {
+                let transitions = [];
+                for (let key in properties) {
                     transitions.push(key + ' ' + duration + 'ms' + ' ' + (easeMode || 'linear'));
                 }
                 element.style[supportedTransition] = transitions.join(', ');
             }
-            for (var key in properties) {
+            for (let key in properties) {
                 element.style[key] = properties[key];
             }
             if (supportedTransition) {
@@ -719,11 +719,11 @@ piletilevi.venuemap.Utilities = new function() {
                 onComplete();
             }
         };
-        var transitionend = function(event) {
+        let transitionend = function(event) {
             finish();
             element.removeEventListener(transitionsAndEvents[supportedTransition], transitionend);
         };
-        var finish = function() {
+        let finish = function() {
             if (element) {
                 element.style[supportedTransition] = '';
             }
@@ -740,7 +740,7 @@ piletilevi.venuemap.Utilities = new function() {
         if (transitionSupportChecked) {
             return;
         }
-        for (var key in transitionsAndEvents) {
+        for (let key in transitionsAndEvents) {
             if (key in document.body.style) {
                 supportedTransition = key;
                 break;
@@ -749,7 +749,7 @@ piletilevi.venuemap.Utilities = new function() {
         transitionSupportChecked = true;
     };
     this.animate = function(element, properties, duration, easeMode, onComplete) {
-        for (var i = animations.length; i--;) {
+        for (let i = animations.length; i--;) {
             if (animations[i].element == element) {
                 animations[i].cancel();
                 animations.splice(i, 1);
@@ -758,7 +758,7 @@ piletilevi.venuemap.Utilities = new function() {
         animations.push(new anim(element, properties, duration, easeMode, onComplete));
     };
     this.sendXhr = function(options) {
-        var xhr = new XMLHttpRequest();
+        let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
             if (xhr.readyState == XMLHttpRequest.DONE) {
                 if (xhr.status == 200) {
@@ -775,28 +775,28 @@ piletilevi.venuemap.Utilities = new function() {
         return Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
     };
     this.createSvgNode = function(name, attributes) {
-        var result = document.createElementNS('http://www.w3.org/2000/svg', name);
+        let result = document.createElementNS('http://www.w3.org/2000/svg', name);
         attributes = attributes || {};
-        for (var i in attributes) {
+        for (let i in attributes) {
             result.setAttributeNS(null, i, attributes[i]);
         }
         return result;
     };
     this.getSvgTextBBox = function(text, attributes) {
-        var svgElement = piletilevi.venuemap.Utilities.createSvgNode('svg');
-        var node = piletilevi.venuemap.Utilities.createSvgNode('text', attributes);
+        let svgElement = piletilevi.venuemap.Utilities.createSvgNode('svg');
+        let node = piletilevi.venuemap.Utilities.createSvgNode('text', attributes);
 
-        var textNode = document.createTextNode(text);
+        let textNode = document.createTextNode(text);
         node.appendChild(textNode);
         svgElement.appendChild(node);
         document.body.appendChild(svgElement);
-        var result = node.getBBox();
+        let result = node.getBBox();
         document.body.removeChild(svgElement);
         return result;
     };
     this.addClass = function(element, className) {
         if (element) {
-            var elementClassName = element.getAttribute('class') || '';
+            let elementClassName = element.getAttribute('class') || '';
             if (-1 == elementClassName.indexOf(className)) {
                 if (elementClassName == '') {
                     element.setAttribute('class', className);
@@ -808,7 +808,7 @@ piletilevi.venuemap.Utilities = new function() {
     };
     this.removeClass = function(element, className) {
         if (element) {
-            var elementClassName = element.getAttribute('class') + '';
+            let elementClassName = element.getAttribute('class') + '';
             if (-1 != elementClassName.indexOf(className)) {
                 if (-1 != elementClassName.indexOf(className + ' ')) {
                     className += ' ';
@@ -824,7 +824,7 @@ piletilevi.venuemap.Utilities = new function() {
         return 'transform' in document.body.style;
     };
     this.getPosition = function(obj) {
-        var curleft = curtop = 0;
+        let curleft = curtop = 0;
         if (obj.offsetParent) {
             do {
                 curleft += obj.offsetLeft;
@@ -834,7 +834,7 @@ piletilevi.venuemap.Utilities = new function() {
         return {'x': curleft, 'y': curtop};
     };
     this.getPageScroll = function() {
-        var xScroll, yScroll;
+        let xScroll, yScroll;
         if (window.pageYOffset) {
             yScroll = window.pageYOffset;
             xScroll = window.pageXOffset;
@@ -848,7 +848,7 @@ piletilevi.venuemap.Utilities = new function() {
         return {'x': xScroll, 'y': yScroll};
     };
     this.createStretchHackElement = function(viewBox) {
-        var result = document.createElement('img');
+        let result = document.createElement('img');
         result.src = 'data:image/svg+xml,%3Csvg viewBox=\'' + viewBox
             + '\' xmlns=\'http://www.w3.org/2000/svg\'/%3E';
         result.style.width = '100%';
@@ -861,61 +861,61 @@ piletilevi.venuemap.Utilities = new function() {
 };
 
 piletilevi.venuemap.VenueMap = function() {
-    var self = this;
-    var shopDomain = piletilevi.venuemap.SHOP_DOMAIN;
-    var connectionSecure = false;
-    var confId = '';
-    var seatSelectionEnabled = false;
-    var sectionsMapType = 'vector';
-    var currency = '';
-    var sectionsMapImageUrl = '';
-    var sections = [];
-    var enabledSections = [];
-    var selectedSeats = [];
-    var selectedSeatsIndex = {};
-    var eventHandlers = {};
-    var sectionsDetails = {};
-    var sectionsMap;
-    var placesMap;
-    var previousSection;
-    var activeSection;
-    var componentElement;
-    var zoomLevel = 0;
-    var translations = [];
-    var placeToolTip;
-    var built = false;
-    var displayed = true;
-    var inactiveSeatsNumbered = false;
-    var lastLoadedVenueConf = 0;
-    var lastLoadedVenueSuccessful = false;
-    var lastLoadedPlacesConf = 0;
-    var lastLoadedPlacesSuccessful = false;
-    var withControls = false;
-    var extensionHandler;
-    var seatsSections = {};
-    var requestCache = {};
-    var canvasFactory;
-    var extended = false;
-    var massSelectable = false;
-    var placesMapFlipped = false;
-    var legendType = 'price';
-    var concertId = ''; // temporary solution 0004087
-    var loadingOverrides = false; // temporary solution 0004087
-    var configOverrides = {}; // temporary solution 0004087
-    var zoomLimit = 16; // max seat radius in pixels
-    var placesMapData;
-    var placesMapAvailableSections = {};
-    var fullMapGenerated = false;
-    var fixedHeight = 0;
+    const self = this;
+    let shopDomain = piletilevi.venuemap.SHOP_DOMAIN;
+    let connectionSecure = false;
+    let confId = '';
+    let seatSelectionEnabled = false;
+    let sectionsMapType = 'vector';
+    let currency = '';
+    let sectionsMapImageUrl = '';
+    let sections = [];
+    let enabledSections = [];
+    let selectedSeats = [];
+    let selectedSeatsIndex = {};
+    let eventHandlers = {};
+    let sectionsDetails = {};
+    let sectionsMap;
+    let placesMap;
+    let previousSection;
+    let activeSection;
+    let componentElement;
+    let zoomLevel = 0;
+    let translations = [];
+    let placeToolTip;
+    let built = false;
+    let displayed = true;
+    let inactiveSeatsNumbered = false;
+    let lastLoadedVenueConf = 0;
+    let lastLoadedVenueSuccessful = false;
+    let lastLoadedPlacesConf = 0;
+    let lastLoadedPlacesSuccessful = false;
+    let withControls = false;
+    let extensionHandler;
+    let seatsSections = {};
+    let requestCache = {};
+    let canvasFactory;
+    let extended = false;
+    let massSelectable = false;
+    let placesMapFlipped = false;
+    let legendType = 'price';
+    let concertId = ''; // temporary solution 0004087
+    let loadingOverrides = false; // temporary solution 0004087
+    let configOverrides = {}; // temporary solution 0004087
+    let zoomLimit = 16; // max seat radius in pixels
+    let placesMapData;
+    let placesMapAvailableSections = {};
+    let fullMapGenerated = false;
+    let fixedHeight = 0;
     this.displayMapInPlaces = false;
 
-    var seatColors = {
+    const seatColors = {
         'hover': piletilevi.venuemap.DEFAULT_SEAT_HOVER_COLOR,
         'active': piletilevi.venuemap.DEFAULT_SEAT_ACTIVE_COLOR,
         'inactive': piletilevi.venuemap.DEFAULT_SEAT_INACTIVE_COLOR
     };
 
-    var init = function() {
+    const init = function() {
         componentElement = document.createElement('div');
         componentElement.className = 'piletilevi_venue_map';
         componentElement.style.display = 'none';
@@ -927,7 +927,7 @@ piletilevi.venuemap.VenueMap = function() {
         self.hide();
         window.addEventListener('resize', self.resize);
     };
-    var adjustToZoom = function(withAnimation, focalPoint) {
+    const adjustToZoom = function(withAnimation, focalPoint) {
         adjustZoomControls();
         if (activeSection || sectionsMapType == 'full_venue') {
             placesMap.adjustToZoom(withAnimation, focalPoint);
@@ -951,7 +951,7 @@ piletilevi.venuemap.VenueMap = function() {
             self.update();
         }
     };
-    var loadOverrides = function() {
+    const loadOverrides = function() {
         // temporary solution 0004087
         loadingOverrides = true;
         self.requestShopData(
@@ -976,7 +976,7 @@ piletilevi.venuemap.VenueMap = function() {
             }
         );
     };
-    var loadVenuePlacesMap = function(onSuccess, onFail) {
+    const loadVenuePlacesMap = function(onSuccess, onFail) {
         if (lastLoadedPlacesConf == confId) {
             if (lastLoadedPlacesSuccessful) {
                 onSuccess();
@@ -1003,16 +1003,16 @@ piletilevi.venuemap.VenueMap = function() {
         );
 
     };
-    var receiveVenuePlacesMap = function(response) {
+    const receiveVenuePlacesMap = function(response) {
         placesMapData = JSON.parse(response);
         placesMapAvailableSections = {};
-        for (var i = 0; i < placesMapData.seats.length; ++i) {
-            var seat = placesMapData.seats[i];
+        for (let i = 0; i < placesMapData.seats.length; ++i) {
+            let seat = placesMapData.seats[i];
             placesMapAvailableSections[seat.section] = true;
         }
     };
 
-    var loadVenueMap = function(onSuccess, onFail) {
+    const loadVenueMap = function(onSuccess, onFail) {
         if (lastLoadedVenueConf == confId) {
             if (lastLoadedVenueSuccessful) {
                 onSuccess();
@@ -1022,7 +1022,7 @@ piletilevi.venuemap.VenueMap = function() {
             return;
         }
         lastLoadedVenueConf = confId;
-        if (sectionsMapType == 'image') {
+        if (sectionsMapType === 'image') {
             sectionsMap.createImageElement(sectionsMapImageUrl);
             onSuccess();
         } else {
@@ -1041,19 +1041,20 @@ piletilevi.venuemap.VenueMap = function() {
             );
         }
     };
-    var receiveVenueMap = function(response) {
-        var mapData = response;
-        var parser = new DOMParser();
+
+    const receiveVenueMap = function(response) {
+        let mapData = response;
+        let parser = new DOMParser();
         try {
-            var svgDocument = parser.parseFromString(mapData, 'image/svg+xml');
+            let svgDocument = parser.parseFromString(mapData, 'image/svg+xml');
             if (svgDocument && svgDocument.getElementsByTagName('parsererror').length > 0) {
                 svgDocument = null;
             }
             if (svgDocument) {
-                var elements = svgDocument.getElementsByTagName('image');
-                var protocol = connectionSecure ? 'https' : 'http';
-                var hrefBase = protocol + '://' + shopDomain;
-                for (var i = elements.length; i--;) {
+                let elements = svgDocument.getElementsByTagName('image');
+                let protocol = connectionSecure ? 'https' : 'http';
+                let hrefBase = protocol + '://' + shopDomain;
+                for (let i = elements.length; i--;) {
                     elements[i].setAttribute('xlink:href', hrefBase + elements[i].getAttribute('xlink:href'));
                 }
                 sectionsMap.mapElement = document.adoptNode(svgDocument.documentElement);
@@ -1063,17 +1064,19 @@ piletilevi.venuemap.VenueMap = function() {
         } catch (e) {
         }
     };
-    var adjustZoomControls = function() {
+
+    const adjustZoomControls = function() {
         placesMap.adjustZoomControls();
     };
-    var moveSectionsMapToPlaces = function() {
-        var sectionsThumbnailElement = placesMap.getSectionsThumbnailElement();
-        var sectionsMapElement = sectionsMap.getComponentElement();
+
+    const moveSectionsMapToPlaces = function() {
+        let sectionsThumbnailElement = placesMap.getSectionsThumbnailElement();
+        let sectionsMapElement = sectionsMap.getComponentElement();
         sectionsThumbnailElement.insertBefore(sectionsMapElement, sectionsThumbnailElement.firstChild);
     };
 
-    var moveSectionsMapToSections = function() {
-        var sectionsMapElement = sectionsMap.getComponentElement();
+    const moveSectionsMapToSections = function() {
+        let sectionsMapElement = sectionsMap.getComponentElement();
         componentElement.appendChild(sectionsMapElement);
     };
     this.update = function() {
@@ -1090,14 +1093,14 @@ piletilevi.venuemap.VenueMap = function() {
             confId = configOverrides[concertId];
         }
         if (sectionsMapType != 'full_venue') {
-            var regions = sectionsMap.getMapRegions();
+            let regions = sectionsMap.getMapRegions();
             if (activeSection) {
                 if (self.displayMapInPlaces) {
                     sectionsMap.display();
                     moveSectionsMapToPlaces();
                     if (typeof regions[activeSection] !== 'undefined') {
                         regions[activeSection].markActivePermanently();
-                        for (var sectionId in regions) {
+                        for (let sectionId in regions) {
                             if (sectionId != activeSection) {
                                 regions[sectionId].markInactivePermanently();
                             }
@@ -1109,7 +1112,7 @@ piletilevi.venuemap.VenueMap = function() {
 
                 placesMap.setDisplayed(true);
 
-                var sectionDetails = self.getSectionDetails(activeSection);
+                let sectionDetails = self.getSectionDetails(activeSection);
                 placesMap.updateSectionDetails(sectionDetails);
                 if (activeSection == previousSection) {
                     return;
@@ -1125,7 +1128,7 @@ piletilevi.venuemap.VenueMap = function() {
                         }
                         placesMap.setDisplayed(true);
                         self.display();
-                        var canvas = canvasFactory.createCanvas({
+                        let canvas = canvasFactory.createCanvas({
                             data: placesMapData,
                             relevantSections: [activeSection]
                         });
@@ -1138,7 +1141,7 @@ piletilevi.venuemap.VenueMap = function() {
             } else {
                 if (self.displayMapInPlaces) {
                     moveSectionsMapToSections();
-                    for (var sectionId in regions) {
+                    for (let sectionId in regions) {
                         regions[sectionId].unLockActive();
                         regions[sectionId].refreshStatus();
                     }
@@ -1166,7 +1169,7 @@ piletilevi.venuemap.VenueMap = function() {
                 function() {
                     placesMap.setDisplayed(true);
                     self.display();
-                    var canvas = canvasFactory.createCanvas({
+                    let canvas = canvasFactory.createCanvas({
                         data: placesMapData,
                         relevantSections: enabledSections,
                         withStage: true
@@ -1248,8 +1251,8 @@ piletilevi.venuemap.VenueMap = function() {
     };
     this.addSectionDetails = function(details) {
         sectionsDetails[details.id] = details;
-        for (var i = details.seatsInfo.length; i--;) {
-            var seat = details.seatsInfo[i];
+        for (let i = details.seatsInfo.length; i--;) {
+            let seat = details.seatsInfo[i];
             seatsSections[seat.id] = details;
         }
     };
@@ -1258,12 +1261,12 @@ piletilevi.venuemap.VenueMap = function() {
     };
     this.setSelectedSeats = function(newSelectedSeats) {
         selectedSeats = newSelectedSeats;
-        for (var i = selectedSeats.length; i--;) {
+        for (let i = selectedSeats.length; i--;) {
             selectedSeatsIndex[selectedSeats[i]] = true;
         }
     };
     this.unSetSelectedSeats = function(unSelectedSeats) {
-        for (var i = unSelectedSeats.length; i--;) {
+        for (let i = unSelectedSeats.length; i--;) {
             selectedSeatsIndex[unSelectedSeats[i]] = false;
         }
     };
@@ -1291,12 +1294,12 @@ piletilevi.venuemap.VenueMap = function() {
         eventHandlers[eventName].push(callBack);
     };
     this.trigger = function(event, param) {
-        for (var type in eventHandlers) {
+        for (let type in eventHandlers) {
             if (type != event) {
                 continue;
             }
-            for (var i = eventHandlers[type].length; i--;) {
-                var handler = eventHandlers[type][i];
+            for (let i = eventHandlers[type].length; i--;) {
+                let handler = eventHandlers[type][i];
                 handler(param);
             }
             break;
@@ -1343,7 +1346,7 @@ piletilevi.venuemap.VenueMap = function() {
         adjustZoomControls();
     };
     this.resize = function() {
-        var dupe = componentElement.cloneNode(false);
+        let dupe = componentElement.cloneNode(false);
         dupe.style.visibility = 'hidden';
         dupe.style.display = 'block';
         componentElement.parentNode.appendChild(dupe);
@@ -1381,8 +1384,8 @@ piletilevi.venuemap.VenueMap = function() {
             }
             return;
         }
-        var protocol = connectionSecure ? 'https' : 'http';
-        var requestDomain = shopDomain;
+        let protocol = connectionSecure ? 'https' : 'http';
+        let requestDomain = shopDomain;
         if (path.indexOf('seatingPlanOverrides') >= 0) {
             requestDomain = piletilevi.venuemap.SHOP_DOMAIN;
         }
@@ -1390,9 +1393,9 @@ piletilevi.venuemap.VenueMap = function() {
             // http would get redirected
             protocol = 'https';
         }
-        var url = protocol + '://' + requestDomain + path;
+        let url = protocol + '://' + requestDomain + path;
         if (withCacheWorkaround) {
-            var date = new Date;
+            let date = new Date;
             url += '?' + date.getTime();
         }
         piletilevi.venuemap.Utilities.sendXhr({
@@ -1456,7 +1459,7 @@ piletilevi.venuemap.VenueMap = function() {
         }
         extended = !extended;
         extensionHandler();
-        var extensionClass = 'piletilevi_venue_map_extended';
+        let extensionClass = 'piletilevi_venue_map_extended';
         if (extended) {
             piletilevi.venuemap.Utilities.addClass(componentElement, extensionClass);
         } else {
@@ -1476,10 +1479,10 @@ piletilevi.venuemap.VenueMap = function() {
 };
 
 piletilevi.venuemap.Controls = function(venueMap) {
-    var self = this;
-    var CLASS_ACTIVE = 'piletilevi_venue_map_control_active';
-    var buttonElements = {};
-    var handlers = {
+    const self = this;
+    let CLASS_ACTIVE = 'piletilevi_venue_map_control_active';
+    let buttonElements = {};
+    const handlers = {
         extend: function(event) {
             event.preventDefault();
             event.stopPropagation();
@@ -1502,12 +1505,12 @@ piletilevi.venuemap.Controls = function(venueMap) {
             venueMap.setZoomLevel(0);
         }
     };
-    var componentElement;
+    let componentElement;
 
-    var init = function() {
+    const init = function() {
         createDomStructure();
     };
-    var createDomStructure = function() {
+    const createDomStructure = function() {
         componentElement = document.createElement('div');
         componentElement.className = 'piletilevi_venue_map_controls';
         if (venueMap.getExtensionHandler()) {
@@ -1518,16 +1521,16 @@ piletilevi.venuemap.Controls = function(venueMap) {
         createButton('resetzoom');
         self.changeStates({extend: true});
     };
-    var createButton = function(type) {
-        var buttonElement = document.createElement('div');
+    const createButton = function(type) {
+        let buttonElement = document.createElement('div');
         buttonElement.className = 'piletilevi_venue_map_control piletilevi_venue_map_control_' + type;
         componentElement.appendChild(buttonElement);
         buttonElements[type] = buttonElement;
         return buttonElement;
     };
     this.changeStates = function(changes) {
-        for (var key in changes) {
-            var button = buttonElements[key];
+        for (let key in changes) {
+            let button = buttonElements[key];
             if (!button) {
                 continue;
             }
@@ -1550,24 +1553,24 @@ piletilevi.venuemap.Controls = function(venueMap) {
 };
 
 piletilevi.venuemap.SectionsMap = function(venueMap) {
-    var mapRegions = {};
+    let mapRegions = {};
     this.imageElement = false;
     this.mapElement = false;
     this.vectorDocument = false;
-    var componentElement;
-    var stretchElement;
-    var self = this;
-    var init = function() {
+    let componentElement;
+    let stretchElement;
+    const self = this;
+    const init = function() {
         componentElement = document.createElement('div');
         componentElement.className = 'piletilevi_venue_map_sections';
     };
     this.update = function() {
-        var enabledSectionsIndex = {};
-        var enabledSections = venueMap.getEnabledSections();
-        for (var i = enabledSections.length; i--;) {
+        let enabledSectionsIndex = {};
+        let enabledSections = venueMap.getEnabledSections();
+        for (let i = enabledSections.length; i--;) {
             enabledSectionsIndex[enabledSections[i]] = true;
         }
-        for (var key in mapRegions) {
+        for (let key in mapRegions) {
             mapRegions[key].setEnabled(key in enabledSectionsIndex);
             mapRegions[key].refreshStatus();
         }
@@ -1582,7 +1585,7 @@ piletilevi.venuemap.SectionsMap = function(venueMap) {
         if (self.imageElement) {
             componentElement.removeChild(self.imageElement);
         }
-        var element = document.createElement('img');
+        let element = document.createElement('img');
         element.setAttribute('src', imageSource);
         self.imageElement = element;
         componentElement.appendChild(element);
@@ -1595,22 +1598,22 @@ piletilevi.venuemap.SectionsMap = function(venueMap) {
             stretchElement = piletilevi.venuemap.Utilities.createStretchHackElement(self.mapElement.getAttribute('viewBox'));
             componentElement.appendChild(stretchElement);
             componentElement.appendChild(self.mapElement);
-            var vectorDocument = self.mapElement;
+            let vectorDocument = self.mapElement;
             self.vectorDocument = vectorDocument;
             parseMapElement();
             self.update();
         }
     };
-    var parseMapElement = function() {
+    const parseMapElement = function() {
         if (self.mapElement && self.vectorDocument) {
-            var vectorDocument = self.vectorDocument;
+            let vectorDocument = self.vectorDocument;
 
-            for (var j = 0; j < vectorDocument.childNodes.length; j++) {
+            for (let j = 0; j < vectorDocument.childNodes.length; j++) {
                 if (vectorDocument.childNodes[j].id) {
-                    var sectionId = vectorDocument.childNodes[j].id.split('section')[1];
-                    var sectionVector = vectorDocument.childNodes[j];
+                    let sectionId = vectorDocument.childNodes[j].id.split('section')[1];
+                    let sectionVector = vectorDocument.childNodes[j];
                     if (!mapRegions[sectionId]) {
-                        var regionObject = new piletilevi.venuemap.SectionsMapRegion(venueMap, self
+                        let regionObject = new piletilevi.venuemap.SectionsMapRegion(venueMap, self
                             , sectionId, sectionVector);
                         mapRegions[sectionId] = regionObject;
                     }
@@ -1629,12 +1632,12 @@ piletilevi.venuemap.SectionsMap = function(venueMap) {
 };
 
 piletilevi.venuemap.SectionsMapRegion = function(venueMap, sectionsMap, id, sectionVector) {
-    var self = this;
-    var enabled = false;
-    var activeLocked = false;
+    const self = this;
+    let enabled = false;
+    let activeLocked = false;
     this.id = false;
 
-    var init = function() {
+    const init = function() {
         self.id = id;
         sectionVector.addEventListener('click', self.click);
         sectionVector.addEventListener('mouseover', self.mouseOver);
@@ -1699,25 +1702,25 @@ piletilevi.venuemap.SectionsMapRegion = function(venueMap, sectionsMap, id, sect
 };
 
 piletilevi.venuemap.PlacesMap = function(venueMap) {
-    var sectionsThumbnailElement;
-    var legendElement;
-    var legendItems = [];
-    var self = this;
-    var componentElement, mainElement;
-    var canvas;
-    var displayed = false;
-    var controls;
-    var selectionRectangle;
-    var details = {};
-    var pendingCanvasDetails = [];
-    var blockingOverlayElement;
-    var RSM_NONE = 0;
-    var RSM_WAITING = 1;
-    var RSM_IN_PROGRESS = 2;
-    var rectangleSelectionMode = RSM_NONE;
-    var seatsBeforeRectSelection = {};
+    const self = this;
+    let sectionsThumbnailElement;
+    let legendElement;
+    let legendItems = [];
+    let componentElement, mainElement;
+    let canvas;
+    let displayed = false;
+    let controls;
+    let selectionRectangle;
+    let details = {};
+    let pendingCanvasDetails = [];
+    let blockingOverlayElement;
+    const RSM_NONE = 0;
+    const RSM_WAITING = 1;
+    const RSM_IN_PROGRESS = 2;
+    let rectangleSelectionMode = RSM_NONE;
+    let seatsBeforeRectSelection = {};
 
-    var init = function() {
+    const init = function() {
         createDomStructure();
         //temporary fix 0005272: Täissaaliplaani sektorite kattumine - kiire võimalik lahendus
         if (venueMap.getConfId() != 6964 || window.userAgent != 'Firefox') {
@@ -1727,7 +1730,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
             document.addEventListener('keydown', keydown);
         }
     };
-    var createDomStructure = function() {
+    const createDomStructure = function() {
         componentElement = document.createElement('div');
         componentElement.className = 'piletilevi_venue_map_places';
         componentElement.style.display = 'none';
@@ -1741,7 +1744,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
         sectionsThumbnailElement.className = 'places_map_sections_thumbnail';
         componentElement.appendChild(sectionsThumbnailElement);
 
-        var sectionsThumbnailOverflowElement = document.createElement('div');
+        let sectionsThumbnailOverflowElement = document.createElement('div');
         sectionsThumbnailOverflowElement.className = 'places_map_sections_thumbnail_overflow';
         sectionsThumbnailElement.appendChild(sectionsThumbnailOverflowElement);
         //}
@@ -1767,7 +1770,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
     this.getSectionsThumbnailElement = function() {
         return sectionsThumbnailElement;
     };
-    var keydown = function(event) {
+    const keydown = function(event) {
         if (event.keyCode != 17 || !canvas) // ctrl
         {
             return;
@@ -1783,31 +1786,31 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
         document.removeEventListener('keydown', keydown);
         document.addEventListener('keyup', keyup);
     };
-    var keyup = function(event) {
+    const keyup = function(event) {
         if (event.keyCode != 17) // ctrl
         {
             return;
         }
         endRectangleSelection();
     };
-    var mousedown = function(event) {
+    const mousedown = function(event) {
         mainElement.removeEventListener('mousedown', mousedown);
         startRectangleSelection(getCursorOffset(event));
     };
-    var mousemove = function(event) {
+    const mousemove = function(event) {
         selectionRectangle.setOtherPoint(getCursorOffset(event));
-        var region = selectionRectangle.getRegion();
+        let region = selectionRectangle.getRegion();
         canvas.selectSeatsInRegion(region, seatsBeforeRectSelection);
     };
-    var mouseup = function(event) {
+    const mouseup = function(event) {
         endRectangleSelection();
     };
-    var startRectangleSelection = function(cursorOffset) {
+    const startRectangleSelection = function(cursorOffset) {
         rectangleSelectionMode = RSM_IN_PROGRESS;
-        var selectedSeats = canvas.getSelectedSeats();
+        let selectedSeats = canvas.getSelectedSeats();
         seatsBeforeRectSelection = {};
-        for (var i = selectedSeats.length; i--;) {
-            var info = selectedSeats[i].getSeatInfo();
+        for (let i = selectedSeats.length; i--;) {
+            let info = selectedSeats[i].getSeatInfo();
             if (info) {
                 seatsBeforeRectSelection[info.id] = true;
             }
@@ -1817,7 +1820,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
         mainElement.addEventListener('mousemove', mousemove);
         mainElement.addEventListener('mouseup', mouseup);
     };
-    var endRectangleSelection = function() {
+    const endRectangleSelection = function() {
         if (venueMap.getZoomLevel() > 0) {
             canvas.enableDragging();
         }
@@ -1830,10 +1833,10 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
             selectionRectangle = null;
         }
         if (rectangleSelectionMode == RSM_IN_PROGRESS) {
-            var selectedSeatsIds = [];
-            var selectedSeats = canvas.getSelectedSeats();
-            for (var i = selectedSeats.length; i--;) {
-                var info = selectedSeats[i].getSeatInfo();
+            let selectedSeatsIds = [];
+            let selectedSeats = canvas.getSelectedSeats();
+            for (let i = selectedSeats.length; i--;) {
+                let info = selectedSeats[i].getSeatInfo();
                 if (info && !seatsBeforeRectSelection[info.id]) {
                     selectedSeatsIds.push(info.id);
                 }
@@ -1847,7 +1850,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
         // defer controls hiding and such, in case the key is still down and selection restarts
         window.setTimeout(finalizeRectangleSelectionEnding, 100);
     };
-    var finalizeRectangleSelectionEnding = function() {
+    const finalizeRectangleSelectionEnding = function() {
         if (rectangleSelectionMode != RSM_NONE) {
             // selection restarted immeditely
             return;
@@ -1858,14 +1861,14 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
             controls.setVisible(true);
         }
     };
-    var getCursorOffset = function(mouseEvent) {
-        var elementOffset = piletilevi.venuemap.Utilities.getPosition(mainElement);
+    const getCursorOffset = function(mouseEvent) {
+        let elementOffset = piletilevi.venuemap.Utilities.getPosition(mainElement);
         return {
             top: Math.max(0, mouseEvent.pageY - elementOffset.y),
             left: Math.max(0, mouseEvent.pageX - elementOffset.x)
         };
     };
-    var onWheel = function(event) {
+    const onWheel = function(event) {
         if (event.preventDefault) {
             event.preventDefault();
         }
@@ -1873,33 +1876,33 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
         if (rectangleSelectionMode != RSM_NONE || event.deltaY == 0) {
             return;
         }
-        var e = event;
-        var rect = mainElement.getBoundingClientRect();
-        var x = e.pageX - rect.left - window.pageXOffset;
-        var y = e.pageY - rect.top - window.pageYOffset;
-        var scrollLocation = canvas.getPointRelativeToContainer(x, y);
-        var scrolledUp = event.deltaY < 0;
-        var zoom = venueMap.getZoomLevel();
+        let e = event;
+        let rect = mainElement.getBoundingClientRect();
+        let x = e.pageX - rect.left - window.pageXOffset;
+        let y = e.pageY - rect.top - window.pageYOffset;
+        let scrollLocation = canvas.getPointRelativeToContainer(x, y);
+        let scrolledUp = event.deltaY < 0;
+        let zoom = venueMap.getZoomLevel();
         if (scrolledUp) {
             ++zoom;
         } else {
             --zoom;
         }
-        var maxZoomLevel = canvas ? canvas.getMaxZoomLevel() : 0;
+        let maxZoomLevel = canvas ? canvas.getMaxZoomLevel() : 0;
         if (zoom >= 0 && zoom <= maxZoomLevel) {
             venueMap.setZoomLevel(zoom, true, scrollLocation);
         }
     };
-    var priceFormatter = function(input) {
+    const priceFormatter = function(input) {
         return input;
     };
     this.adjustZoomControls = function() {
         if (!controls) {
             return;
         }
-        var maxZoom = canvas ? canvas.getMaxZoomLevel() : 0;
-        var currentZoom = venueMap.getZoomLevel();
-        var states = {
+        let maxZoom = canvas ? canvas.getMaxZoomLevel() : 0;
+        let currentZoom = venueMap.getZoomLevel();
+        let states = {
             zoomin: currentZoom < maxZoom,
             zoomout: currentZoom > 0,
             resetzoom: currentZoom > 0
@@ -1912,23 +1915,23 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
         }
         canvas = newCanvas;
         canvas.attachTo(self);
-        for (var key in details) {
+        for (let key in details) {
             canvas.updateSectionDetails(details[key]);
         }
         pendingCanvasDetails = [];
         canvas.setDisplayed(displayed);
     };
     this.updateSectionsDetails = function(sectionsDetails) {
-        var combinedPriceClasses = [];
-        for (var key in sectionsDetails) {
+        let combinedPriceClasses = [];
+        for (let key in sectionsDetails) {
             details[key] = sectionsDetails[key];
             updateCanvasDetails(sectionsDetails[key]);
-            var priceClasses = sectionsDetails[key].priceClasses || [];
+            let priceClasses = sectionsDetails[key].priceClasses || [];
             combinedPriceClasses = combinedPriceClasses.concat(priceClasses);
         }
-        var index = {};
-        for (var i = 0; i < combinedPriceClasses.length;) {
-            var priceClass = combinedPriceClasses[i];
+        let index = {};
+        for (let i = 0; i < combinedPriceClasses.length;) {
+            let priceClass = combinedPriceClasses[i];
             if (index[priceClass.id]) {
                 combinedPriceClasses.splice(i, 1);
                 continue;
@@ -1946,7 +1949,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
             return;
         }
         details[newDetails.id] = newDetails;
-        var priceClasses = newDetails.priceClasses || [];
+        let priceClasses = newDetails.priceClasses || [];
         updateLegend(priceClasses);
         updateCanvasDetails(newDetails);
         //canvas.setDisplayed(true);
@@ -1965,8 +1968,8 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
         }
     };
     this.getLegendHeight = function() {
-        var style = window.getComputedStyle(legendElement);
-        var margins = parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+        let style = window.getComputedStyle(legendElement);
+        let margins = parseFloat(style.marginTop) + parseFloat(style.marginBottom);
         return legendElement.offsetHeight + margins;
     };
     this.setDisplayed = function(newDisplayed) {
@@ -1989,29 +1992,29 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
         }
         canvas.selectSection(sectionId);
     };
-    var updateCanvasDetails = function(sectionDetails) {
+    const updateCanvasDetails = function(sectionDetails) {
         if (!canvas) {
             return;
         }
         canvas.updateSectionDetails(sectionDetails);
     };
-    var updateLegend = function(priceClasses) {
-        var legendItem;
+    const updateLegend = function(priceClasses) {
+        let legendItem;
         while (legendElement.firstChild) {
             legendElement.removeChild(legendElement.firstChild);
         }
-        var legendType = venueMap.getLegendType();
-        var displayed = legendType == 'price' || legendType == 'title';
+        let legendType = venueMap.getLegendType();
+        let displayed = legendType == 'price' || legendType == 'title';
         legendElement.style.display = displayed ? 'block' : 'none';
         if (!displayed) {
             return;
         }
 
-        var label = venueMap.getTranslation('booked');
+        let label = venueMap.getTranslation('booked');
         legendItem = new piletilevi.venuemap.PlaceMapLegendItem(label, venueMap.getSeatColor('inactive'), 'booked');
         legendItems.push(legendItem);
         legendElement.appendChild(legendItem.getComponentElement());
-        var sorter = legendType == 'price'
+        let sorter = legendType == 'price'
             ? function(a, b) {
                 return parseFloat(a.price) - parseFloat(b.price);
             }
@@ -2019,7 +2022,7 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
                 return a.title.localeCompare(b.title);
             };
         priceClasses.sort(sorter);
-        for (var i = 0; i < priceClasses.length; i++) {
+        for (let i = 0; i < priceClasses.length; i++) {
             if (priceClasses[i][legendType]) {
                 legendItem = new piletilevi.venuemap.PlaceMapLegendItem(priceFormatter(priceClasses[i][legendType]), priceClasses[i].color, '', venueMap.getCurrency());
                 legendItems.push(legendItem);
@@ -2034,13 +2037,13 @@ piletilevi.venuemap.PlacesMap = function(venueMap) {
 };
 
 piletilevi.venuemap.SelectionRectangle = function(anchorPoint) {
-    var self = this;
-    var otherPoint;
-    var style;
-    var region;
-    var componentElement;
+    const self = this;
+    let otherPoint;
+    let style;
+    let region;
+    let componentElement;
 
-    var init = function() {
+    const init = function() {
         componentElement = document.createElement('div');
         componentElement.className = 'piletilevi_venuemap_selection_rectangle';
         style = componentElement.style;
@@ -2064,8 +2067,8 @@ piletilevi.venuemap.SelectionRectangle = function(anchorPoint) {
         };
         applyRegionStyle();
     };
-    var applyRegionStyle = function() {
-        for (var key in region) {
+    const applyRegionStyle = function() {
+        for (let key in region) {
             style[key] = region[key] + 'px';
         }
     };
@@ -2079,32 +2082,32 @@ piletilevi.venuemap.SelectionRectangle = function(anchorPoint) {
 };
 
 piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabelElements) {
-    var self = this;
-    var placesIndex = {};
-    var componentElement;
-    var displayed = false;
-    var aspectRatio;
-    var svgDimensions = {
+    const self = this;
+    let placesIndex = {};
+    let componentElement;
+    let displayed = false;
+    let aspectRatio;
+    let svgDimensions = {
         width: 0,
         height: 0
     };
-    var containerElement;
-    var boundariesPadding = 0;
-    var sectionsBoundaries = {};
-    var lastZoomlevel = -1;
-    var sectionZoomSeatRadius = 8;
-    var seatNumbersRequirement = 7;
-    var sectionLabelsRequirement = 2.9;
-    var sectionLabelSize = 14;
-    var zoomFactor = 1.25;
-    var touchScalingPoint;
-    var containerDimensions;
-    var containerInnerDimensions;
-    var maxZoomLevel = 0;
-    var maxZoomWidth = 0;
-    var container;
+    let containerElement;
+    let boundariesPadding = 0;
+    let sectionsBoundaries = {};
+    let lastZoomlevel = -1;
+    let sectionZoomSeatRadius = 8;
+    let seatNumbersRequirement = 7;
+    let sectionLabelsRequirement = 2.9;
+    let sectionLabelSize = 14;
+    let zoomFactor = 1.25;
+    let touchScalingPoint;
+    let containerDimensions;
+    let containerInnerDimensions;
+    let maxZoomLevel = 0;
+    let maxZoomWidth = 0;
+    let container;
 
-    var init = function() {
+    const init = function() {
         sectionLabelElements = sectionLabelElements || {};
         componentElement = document.createElement('div');
         componentElement.className = 'piletilevi_venue_map_canvas';
@@ -2118,32 +2121,32 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
 
         svgElement.style.verticalAlign = 'middle';
         svgElement.style.position = 'relative';
-        var viewBox = svgElement.getAttribute('viewBox').split(' ');
+        let viewBox = svgElement.getAttribute('viewBox').split(' ');
         svgDimensions.width = +viewBox[2];
         svgDimensions.height = +viewBox[3];
         aspectRatio = svgDimensions.width / svgDimensions.height;
-        var elements = svgElement.querySelectorAll('.place');
+        let elements = svgElement.querySelectorAll('.place');
         if (!elements.length) {
             elements = svgElement.querySelectorAll('circle');
         }
-        for (var i = elements.length; i--;) {
-            var element = elements[i];
-            var id = element.id;
+        for (let i = elements.length; i--;) {
+            let element = elements[i];
+            let id = element.id;
             if (id.indexOf('place_') == 0) {
                 id = id.substring(6);
             }
             if (!id) {
                 continue;
             }
-            var textElement = element.querySelector('text');
+            let textElement = element.querySelector('text');
             if (!placesIndex[id]) {
-                var placeObject = new piletilevi.venuemap.PlacesMapPlace(venueMap, element, textElement);
+                let placeObject = new piletilevi.venuemap.PlacesMapPlace(venueMap, element, textElement);
                 placesIndex[id] = placeObject;
             }
         }
         componentElement.appendChild(svgElement);
 
-        var arrowTextElement;
+        let arrowTextElement;
         if (arrowTextElement = svgElement.getElementById('stagename')) {
             //temporary workaround, no merge needed to main branch
             if (venueMap.getConfId() == 6602) {
@@ -2178,35 +2181,35 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
             componentElement.parentNode.removeChild(componentElement);
         }
     };
-    var scaleStartCallback = function(info) {
-        var rect = containerElement.getBoundingClientRect();
-        var touchPosition = {
+    const scaleStartCallback = function(info) {
+        let rect = containerElement.getBoundingClientRect();
+        let touchPosition = {
             x: (info.startF0x + info.startF1x) / 2 - rect.left - window.pageXOffset,
             y: (info.startF0y + info.startF1y) / 2 - rect.top - window.pageYOffset
         };
         touchScalingPoint = self.getPointRelativeToContainer(touchPosition.x, touchPosition.y);
         return true;
     };
-    var scaleChangeCallback = function(info) {
-        var scaledPosition = getScaledMapPosition(info.currentWidth, info.currentHeight, touchScalingPoint);
+    const scaleChangeCallback = function(info) {
+        let scaledPosition = getScaledMapPosition(info.currentWidth, info.currentHeight, touchScalingPoint);
         componentElement.style.left = scaledPosition.x + 'px';
         componentElement.style.top = scaledPosition.y + 'px';
     };
-    var scaleEndCallback = function() {
+    const scaleEndCallback = function() {
         lastZoomlevel = calculateZoomLevelFromMapWidth(componentElement.offsetWidth);
         venueMap.setCurrentZoomLevel(lastZoomlevel);
         zoomAdjusted();
     };
-    var calculateZoomLevelFromMapWidth = function(zoomedWidth) {
-        var scale = zoomedWidth / containerDimensions.width;
-        var zoomLevel = Math.round(Math.log(scale) / Math.log(zoomFactor));
+    const calculateZoomLevelFromMapWidth = function(zoomedWidth) {
+        let scale = zoomedWidth / containerDimensions.width;
+        let zoomLevel = Math.round(Math.log(scale) / Math.log(zoomFactor));
         return zoomLevel;
     };
-    var calculateMaxZoomLevel = function() {
-        var maxSeatRadius = venueMap.getZoomLimit();
-        var diff = maxSeatRadius / piletilevi.venuemap.SEAT_CIRCLE_RADIUS;
+    const calculateMaxZoomLevel = function() {
+        let maxSeatRadius = venueMap.getZoomLimit();
+        let diff = maxSeatRadius / piletilevi.venuemap.SEAT_CIRCLE_RADIUS;
         maxZoomWidth = svgDimensions.width * diff;
-        var paddings = getPaddings();
+        let paddings = getPaddings();
         maxZoomWidth += paddings.left + paddings.right;
         maxZoomLevel = Math.max(0, calculateZoomLevelFromMapWidth(maxZoomWidth));
     };
@@ -2220,22 +2223,22 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
         if (sectionLabelElements[sectionDetails.id]) {
             self.setTextContent(sectionLabelElements[sectionDetails.id], sectionDetails.title);
         }
-        var priceClasses = sectionDetails.priceClasses || [];
-        var priceClassesIndex = {};
-        for (var i = priceClasses.length; i--;) {
+        let priceClasses = sectionDetails.priceClasses || [];
+        let priceClassesIndex = {};
+        for (let i = priceClasses.length; i--;) {
             priceClassesIndex[priceClasses[i].id] = priceClasses[i];
         }
-        var seatsSelectable = venueMap.isSeatSelectionEnabled() && sectionDetails.selectableSeats;
-        var seatsInfo = sectionDetails.seatsInfo || [];
-        for (var i = 0; i < seatsInfo.length; i++) {
-            var seatInfo = seatsInfo[i];
+        let seatsSelectable = venueMap.isSeatSelectionEnabled() && sectionDetails.selectableSeats;
+        let seatsInfo = sectionDetails.seatsInfo || [];
+        for (let i = 0; i < seatsInfo.length; i++) {
+            let seatInfo = seatsInfo[i];
             if (!placesIndex[seatInfo.id]) {
                 continue;
             }
-            var placeObject = placesIndex[seatInfo.id];
+            let placeObject = placesIndex[seatInfo.id];
             placeObject.setSeatInfo(seatInfo);
-            var seatPriceClass = priceClassesIndex[seatInfo.priceClass] || null;
-            var selectable = seatsSelectable && seatInfo;
+            let seatPriceClass = priceClassesIndex[seatInfo.priceClass] || null;
+            let selectable = seatsSelectable && seatInfo;
             placeObject.setPriceClass(seatPriceClass);
             placeObject.setSelected(venueMap.isSeatSelected(seatInfo.id));
             placeObject.setSelectable(selectable);
@@ -2258,18 +2261,18 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
         containerElement.style.width = '';
         containerElement.style.height = '';
 
-        var paddings = getPaddings();
-        var svgStyle = svgElement.style;
+        let paddings = getPaddings();
+        let svgStyle = svgElement.style;
         if (venueMap.getFixedHeight()) {
             containerElement.style.height = venueMap.getFixedHeight() - container.getLegendHeight() + 'px';
         } else {
-            var svgWidth, svgHeight;
+            let svgWidth, svgHeight;
             svgWidth = componentElement.offsetWidth - paddings.left - paddings.right;
             svgHeight = svgWidth / aspectRatio;
 
             svgStyle.width = svgWidth + 'px';
             svgStyle.height = svgHeight + 'px';
-            var highSvg = componentElement.offsetHeight > containerElement.offsetHeight;
+            let highSvg = componentElement.offsetHeight > containerElement.offsetHeight;
             if (highSvg) {
                 // container has limited height
                 svgHeight = containerElement.offsetHeight - paddings.top - paddings.bottom;
@@ -2294,7 +2297,7 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
         svgStyle.width = '';
         svgStyle.height = '';
         lastZoomlevel = -1;
-        var focalPoint = getCurrentRelativeFocalPoint();
+        let focalPoint = getCurrentRelativeFocalPoint();
         focalPoint.centered = true;
         calculateMaxZoomLevel();
         self.registerScalableElement({
@@ -2314,8 +2317,8 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
             container.adjustZoomControls();
         }
     };
-    var getPaddings = function() {
-        var style = window.getComputedStyle(componentElement);
+    const getPaddings = function() {
+        let style = window.getComputedStyle(componentElement);
         return {
             top: parseFloat(style.paddingTop),
             bottom: parseFloat(style.paddingBottom),
@@ -2325,32 +2328,32 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
     };
     this.adjustToZoom = function(withAnimation, newFocalPoint) {
         withAnimation = withAnimation || typeof withAnimation == 'undefined';
-        var zoomLevel = venueMap.getZoomLevel();
+        let zoomLevel = venueMap.getZoomLevel();
         if (zoomLevel == lastZoomlevel) {
             return;
         }
-        var zoomDiff = Math.abs(lastZoomlevel - zoomLevel);
+        let zoomDiff = Math.abs(lastZoomlevel - zoomLevel);
         if (zoomDiff > 1) {
             // for smoother resizing
             adjustNumberingVisibility(false);
         }
         lastZoomlevel = zoomLevel;
         adjustSectionLabelsVisibility(false);
-        var mapWidth = applyZoom(containerDimensions.width, zoomLevel);
-        var mapHeight = applyZoom(containerDimensions.height, zoomLevel);
+        let mapWidth = applyZoom(containerDimensions.width, zoomLevel);
+        let mapHeight = applyZoom(containerDimensions.height, zoomLevel);
 
-        var top = 0, left = 0;
+        let top = 0, left = 0;
         if (zoomLevel > 0) {
-            var focalPoint = newFocalPoint;
+            let focalPoint = newFocalPoint;
             if (!focalPoint) {
                 focalPoint = getCurrentRelativeFocalPoint();
             }
-            var scaledPosition = getScaledMapPosition(mapWidth, mapHeight, focalPoint);
+            let scaledPosition = getScaledMapPosition(mapWidth, mapHeight, focalPoint);
             top = scaledPosition.y;
             left = scaledPosition.x;
         }
         if (withAnimation) {
-            var animDuration = Math.min(zoomDiff * 150, 800);
+            let animDuration = Math.min(zoomDiff * 150, 800);
             piletilevi.venuemap.Utilities.animate(componentElement, {
                 top: top + 'px',
                 left: left + 'px',
@@ -2365,23 +2368,23 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
             zoomAdjusted();
         }
     };
-    var getScaledMapPosition = function(newWidth, newHeight, focalPoint) {
-        var top = 0, left = 0;
+    const getScaledMapPosition = function(newWidth, newHeight, focalPoint) {
+        let top = 0, left = 0;
         if (focalPoint.centered) {
-            var concreteFocalPoint = {
+            let concreteFocalPoint = {
                 x: newWidth * focalPoint.x,
                 y: newHeight * focalPoint.y
             };
-            var centerY = containerDimensions.height / 2;
+            let centerY = containerDimensions.height / 2;
             top = centerY - concreteFocalPoint.y;
-            var centerX = containerDimensions.width / 2;
+            let centerX = containerDimensions.width / 2;
             left = centerX - concreteFocalPoint.x;
         } else {
-            var originalX = componentElement.offsetWidth * focalPoint.x;
-            var newX = newWidth * focalPoint.x;
+            let originalX = componentElement.offsetWidth * focalPoint.x;
+            let newX = newWidth * focalPoint.x;
 
-            var originalY = componentElement.offsetHeight * focalPoint.y;
-            var newY = newHeight * focalPoint.y;
+            let originalY = componentElement.offsetHeight * focalPoint.y;
+            let newY = newHeight * focalPoint.y;
             top = componentElement.offsetTop - (newY - originalY);
             left = componentElement.offsetLeft - (newX - originalX);
         }
@@ -2393,13 +2396,13 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
         left = Math.round(left);
         return {x: left, y: top};
     };
-    var getCurrentRelativeFocalPoint = function() {
+    const getCurrentRelativeFocalPoint = function() {
         return self.getPointRelativeToContainer(
             containerDimensions.width / 2,
             containerDimensions.height / 2
         );
     };
-    var zoomAdjusted = function() {
+    const zoomAdjusted = function() {
         adjustDetailsDisplaying();
         if (lastZoomlevel > 0) {
             self.enableDragging();
@@ -2433,27 +2436,27 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
             venueMap.setZoomLevel(0);
             return;
         }
-        var boundary = sectionsBoundaries[sectionId] || null;
+        let boundary = sectionsBoundaries[sectionId] || null;
         if (!boundary) {
             return;
         }
-        var maxZoomLevel = 32;
-        var endWidth;
-        var endHeight;
-        var endZoom = 0;
-        var endDimensions;
-        var endSvgDimensions;
+        let maxZoomLevel = 32;
+        let endWidth;
+        let endHeight;
+        let endZoom = 0;
+        let endDimensions;
+        let endSvgDimensions;
 
-        for (var testZoom = 0; testZoom <= maxZoomLevel; ++testZoom) {
-            var zoomDimensions = {
+        for (let testZoom = 0; testZoom <= maxZoomLevel; ++testZoom) {
+            let zoomDimensions = {
                 width: applyZoom(containerInnerDimensions.width, testZoom),
                 height: applyZoom(containerInnerDimensions.height, testZoom)
             };
-            var zoomSvgDimensions = getNaturalSvgDimensions({
+            let zoomSvgDimensions = getNaturalSvgDimensions({
                 width: zoomDimensions.width,
                 height: zoomDimensions.height
             });
-            var svgZoomRatio = zoomSvgDimensions.width / svgDimensions.width;
+            let svgZoomRatio = zoomSvgDimensions.width / svgDimensions.width;
             endWidth = svgZoomRatio * boundary.width;
             endHeight = svgZoomRatio * boundary.height;
             if (endWidth > containerInnerDimensions.width
@@ -2463,14 +2466,14 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
             endZoom = testZoom;
             endDimensions = zoomDimensions;
             endSvgDimensions = zoomSvgDimensions;
-            var seatRadius = getSeatRadiusByMapWidth(zoomSvgDimensions.width);
+            let seatRadius = getSeatRadiusByMapWidth(zoomSvgDimensions.width);
             if (seatRadius > sectionZoomSeatRadius) {
                 break;
             }
         }
-        var nextFocalPoint = null;
+        let nextFocalPoint = null;
         if (endZoom > 0) {
-            var boundarySvgPoint = {
+            let boundarySvgPoint = {
                 x: (boundary.x + boundary.width / 2) / svgDimensions.width,
                 y: (boundary.y + boundary.height / 2) / svgDimensions.height
             };
@@ -2485,8 +2488,8 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
         venueMap.setZoomLevel(endZoom, true, nextFocalPoint);
     };
     this.getSelectedSeats = function() {
-        var result = [];
-        for (var key in placesIndex) {
+        let result = [];
+        for (let key in placesIndex) {
             if (placesIndex[key].isSelected()) {
                 result.push(placesIndex[key]);
             }
@@ -2495,32 +2498,32 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
     };
     this.selectSeatsInRegion = function(region, exclusions) {
         exclusions = exclusions || {};
-        var svgRect = svgElement.getBoundingClientRect();
-        var componentRect = componentElement.getBoundingClientRect();
-        var svgOffsetTop = svgRect.top - componentRect.top;
-        var svgOffsetLeft = svgRect.left - componentRect.left;
+        let svgRect = svgElement.getBoundingClientRect();
+        let componentRect = componentElement.getBoundingClientRect();
+        let svgOffsetTop = svgRect.top - componentRect.top;
+        let svgOffsetLeft = svgRect.left - componentRect.left;
 
-        var regionTop = region.top - componentElement.offsetTop;
-        var regionLeft = region.left - componentElement.offsetLeft;
-        var naturalDimensions = getNaturalSvgDimensions(svgRect);
-        var mapSizeDiff = naturalDimensions.width / svgDimensions.width;
+        let regionTop = region.top - componentElement.offsetTop;
+        let regionLeft = region.left - componentElement.offsetLeft;
+        let naturalDimensions = getNaturalSvgDimensions(svgRect);
+        let mapSizeDiff = naturalDimensions.width / svgDimensions.width;
         // since SVG has been stretched to fill whole container, but its aspect ratio preserved,
         // its contents have shifted from the element's position in DOM
-        var svgContentsOffsetTop = (svgRect.height - naturalDimensions.height) / 2;
-        var svgContentsOffsetLeft = (svgRect.width - naturalDimensions.width) / 2;
+        let svgContentsOffsetTop = (svgRect.height - naturalDimensions.height) / 2;
+        let svgContentsOffsetLeft = (svgRect.width - naturalDimensions.width) / 2;
         svgContentsOffsetTop += svgOffsetTop;
         svgContentsOffsetLeft += svgOffsetLeft;
 
-        for (var key in placesIndex) {
-            var place = placesIndex[key];
-            var info = place.getSeatInfo();
+        for (let key in placesIndex) {
+            let place = placesIndex[key];
+            let info = place.getSeatInfo();
             if (!place.canBeSelected() || exclusions[info.id]) {
                 continue;
             }
-            var element = place.getElement();
-            var x = element.getAttribute('cx') * mapSizeDiff + svgContentsOffsetLeft;
-            var y = element.getAttribute('cy') * mapSizeDiff + svgContentsOffsetTop;
-            var outside = x < regionLeft || x > regionLeft + region.width
+            let element = place.getElement();
+            let x = element.getAttribute('cx') * mapSizeDiff + svgContentsOffsetLeft;
+            let y = element.getAttribute('cy') * mapSizeDiff + svgContentsOffsetTop;
+            let outside = x < regionLeft || x > regionLeft + region.width
                 || y < regionTop || y > regionTop + region.height;
             if (place.isSelected() == !outside) {
                 continue;
@@ -2529,37 +2532,37 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
             place.refreshStatus();
         }
     };
-    var adjustDetailsDisplaying = function() {
-        var currentSvgDimensions = getNaturalSvgDimensions();
-        var currentSeatRadius = getSeatRadiusByMapWidth(currentSvgDimensions.width);
-        var showSeats = currentSeatRadius >= seatNumbersRequirement;
+    const adjustDetailsDisplaying = function() {
+        let currentSvgDimensions = getNaturalSvgDimensions();
+        let currentSeatRadius = getSeatRadiusByMapWidth(currentSvgDimensions.width);
+        let showSeats = currentSeatRadius >= seatNumbersRequirement;
         adjustNumberingVisibility(showSeats);
 
-        var showSections = venueMap.getSectionsMapType() == 'full_venue'
+        let showSections = venueMap.getSectionsMapType() == 'full_venue'
             && !showSeats && currentSeatRadius >= sectionLabelsRequirement;
         if (showSections) {
-            var ratio = currentSvgDimensions.width / svgDimensions.width;
-            var labelSize = sectionLabelSize / ratio;
-            for (var key in sectionLabelElements) {
-                var element = sectionLabelElements[key];
+            let ratio = currentSvgDimensions.width / svgDimensions.width;
+            let labelSize = sectionLabelSize / ratio;
+            for (let key in sectionLabelElements) {
+                let element = sectionLabelElements[key];
                 element.setAttribute('font-size', labelSize);
             }
         }
         adjustSectionLabelsVisibility(showSections);
     };
-    var getNaturalSvgDimensions = function(dimensions) {
+    const getNaturalSvgDimensions = function(dimensions) {
         // SVG has been stretched to fill whole container, this returns
         // dimensions as if only height or width had been stretched
         dimensions = dimensions || svgElement.getBoundingClientRect();
-        var result = {
+        let result = {
             width: dimensions.width,
             height: dimensions.height
         };
-        var dimensionsByRatio = {
+        let dimensionsByRatio = {
             width: result.height * aspectRatio,
             height: result.width / aspectRatio
         };
-        var heightReliable = result.width / dimensionsByRatio.width
+        let heightReliable = result.width / dimensionsByRatio.width
             > result.height / dimensionsByRatio.height;
         if (heightReliable) {
             result.width = dimensionsByRatio.width;
@@ -2568,25 +2571,25 @@ piletilevi.venuemap.PlacesMapCanvas = function(venueMap, svgElement, sectionLabe
         }
         return result;
     };
-    var getSeatRadiusByMapWidth = function(width) {
-        var diff = width / svgDimensions.width;
+    const getSeatRadiusByMapWidth = function(width) {
+        let diff = width / svgDimensions.width;
         return Math.round(piletilevi.venuemap.SEAT_CIRCLE_RADIUS * diff);
     };
-    var adjustNumberingVisibility = function(visible) {
+    const adjustNumberingVisibility = function(visible) {
         if (visible) {
             piletilevi.venuemap.Utilities.addClass(svgElement, 'with_seat_numbers');
         } else {
             piletilevi.venuemap.Utilities.removeClass(svgElement, 'with_seat_numbers');
         }
     };
-    var adjustSectionLabelsVisibility = function(visible) {
+    const adjustSectionLabelsVisibility = function(visible) {
         if (visible) {
             piletilevi.venuemap.Utilities.addClass(svgElement, 'with_section_labels');
         } else {
             piletilevi.venuemap.Utilities.removeClass(svgElement, 'with_section_labels');
         }
     };
-    var applyZoom = function(value, zoomLevel) {
+    const applyZoom = function(value, zoomLevel) {
         return value * Math.pow(zoomFactor, zoomLevel);
     };
     init();
@@ -2734,8 +2737,8 @@ piletilevi.venuemap.PlaceMapLegendItem = function(text, color, extraClass, suffi
     this.suffixElement = false;
     this.text = false;
     this.color = false;
-    var componentElement;
-    var self = this;
+    let componentElement;
+    const self = this;
 
     this.init = function() {
         this.text = text;
@@ -2759,7 +2762,7 @@ piletilevi.venuemap.PlaceMapLegendItem = function(text, color, extraClass, suffi
         this.refreshContents();
     };
     this.refreshContents = function() {
-        var titleText = this.text;
+        let titleText = this.text;
         this.setTextContent(this.titleElement, titleText);
         if (suffix) {
             this.setTextContent(this.suffixElement, suffix);
@@ -2770,7 +2773,7 @@ piletilevi.venuemap.PlaceMapLegendItem = function(text, color, extraClass, suffi
         while (element.firstChild) {
             element.removeChild(element.firstChild);
         }
-        var textNode = document.createTextNode(text);
+        let textNode = document.createTextNode(text);
         element.appendChild(textNode);
     };
     this.getComponentElement = function() {
@@ -2779,15 +2782,15 @@ piletilevi.venuemap.PlaceMapLegendItem = function(text, color, extraClass, suffi
     this.init();
 };
 piletilevi.venuemap.PlacesMapStageLabel = function(venueMap, textElement) {
-    var self = this;
-    var init = function() {
-        var type = self.getText();
+    const self = this;
+    const init = function() {
+        let type = self.getText();
         if (type) {
             self.setText(venueMap.getTranslation('stage-' + type));
         }
         if (venueMap.isPlacesMapFlipped()) {
-            var x = textElement.getAttribute('x');
-            var y = textElement.getAttribute('y');
+            let x = textElement.getAttribute('x');
+            let y = textElement.getAttribute('y');
             textElement.setAttribute('transform', 'rotate(180 ' + x + ' ' + y + ')');
         }
     };
@@ -2798,7 +2801,7 @@ piletilevi.venuemap.PlacesMapStageLabel = function(venueMap, textElement) {
             while (textElement.firstChild) {
                 textElement.removeChild(textElement.firstChild);
             }
-            var node = document.createTextNode(newText);
+            let node = document.createTextNode(newText);
             textElement.appendChild(node);
         }
     };
@@ -2809,36 +2812,36 @@ piletilevi.venuemap.PlacesMapStageLabel = function(venueMap, textElement) {
 };
 
 piletilevi.venuemap.PlaceTooltip = function(venueMap) {
-    var self = this;
-    var componentElement;
-    var sectionElement;
-    var sectionTitleElement;
-    var rowRowElement;
-    var rowElement;
-    var placeRowElement;
-    var placeElement;
-    var priceElement;
-    var statusElement;
-    var priceRowElement;
-    var statusRowElement;
-    var popupOffset = 0;
+    const self = this;
+    let componentElement;
+    let sectionElement;
+    let sectionTitleElement;
+    let rowRowElement;
+    let rowElement;
+    let placeRowElement;
+    let placeElement;
+    let priceElement;
+    let statusElement;
+    let priceRowElement;
+    let statusRowElement;
+    let popupOffset = 0;
 
-    var createDomElements = function() {
+    const createDomElements = function() {
         componentElement = document.createElement('div');
         componentElement.className = 'place_tooltip';
         componentElement.style.display = 'none';
         document.body.appendChild(componentElement);
 
-        var contentElement = document.createElement('div');
+        let contentElement = document.createElement('div');
         contentElement.className = 'place_tooltip_content';
         componentElement.appendChild(contentElement);
 
-        var tableElement = document.createElement('table');
+        let tableElement = document.createElement('table');
         contentElement.appendChild(tableElement);
-        var tBodyElement = document.createElement('tbody');
+        let tBodyElement = document.createElement('tbody');
         tableElement.appendChild(tBodyElement);
 
-        var labelElement;
+        let labelElement;
         sectionElement = document.createElement('tr');
         tBodyElement.appendChild(sectionElement);
         labelElement = document.createElement('td');
@@ -2913,16 +2916,16 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
             createDomElements();
         }
         self.clear();
-        var statuses = {
+        let statuses = {
             0: 'booked',
             1: 'available',
             2: 'selected',
             3: 'not_sold'
         };
-        var statusCode = statuses[status] || statuses[0];
-        var sectionTitle = '';
+        let statusCode = statuses[status] || statuses[0];
+        let sectionTitle = '';
         if (venueMap.getSectionsMapType() == 'full_venue') {
-            var section = venueMap.getSectionBySeatId(seat.id);
+            let section = venueMap.getSectionBySeatId(seat.id);
             sectionTitle = section ? section.title : '';
         }
         if (sectionTitle) {
@@ -2940,7 +2943,7 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
             }
         }
         if (venueMap.isSeatSelectionEnabled()) {
-            var text = venueMap.getTranslation(statusCode);
+            let text = venueMap.getTranslation(statusCode);
             statusElement.appendChild(document.createTextNode(text));
             statusRowElement.style.display = '';
         }
@@ -2950,21 +2953,21 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
             priceRowElement.style.display = '';
         }
         if (window.innerHeight) {
-            var viewPortWidth = window.innerWidth;
-            var viewPortHeight = window.innerHeight;
+            let viewPortWidth = window.innerWidth;
+            let viewPortHeight = window.innerHeight;
         } else {
-            var viewPortWidth = document.documentElement.offsetWidth;
-            var viewPortHeight = document.documentElement.offsetHeight;
+            let viewPortWidth = document.documentElement.offsetWidth;
+            let viewPortHeight = document.documentElement.offsetHeight;
         }
         componentElement.style.left = 0 + 'px';
         componentElement.style.top = 0 + 'px';
         componentElement.style.visibility = 'hidden';
         componentElement.style.display = 'block';
-        var popupWidth = componentElement.offsetWidth;
-        var popupHeight = componentElement.offsetHeight;
-        var leftPosition = x + popupOffset;
+        let popupWidth = componentElement.offsetWidth;
+        let popupHeight = componentElement.offsetHeight;
+        let leftPosition = x + popupOffset;
         leftPosition -= popupWidth / 2;
-        var topPosition = y - popupHeight - popupOffset;
+        let topPosition = y - popupHeight - popupOffset;
         if (leftPosition + popupWidth + popupOffset >= viewPortWidth) {
             leftPosition = x - popupOffset - popupWidth;
         }
@@ -2992,39 +2995,39 @@ piletilevi.venuemap.PlaceTooltip = function(venueMap) {
 
 piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
     this.createCanvas = function(options) {
-        var data = JSON.parse(JSON.stringify(options.data));
-        var relevantSections = options.relevantSections || [];
-        var svgElement = piletilevi.venuemap.Utilities.createSvgNode('svg', {
+        let data = JSON.parse(JSON.stringify(options.data));
+        let relevantSections = options.relevantSections || [];
+        let svgElement = piletilevi.venuemap.Utilities.createSvgNode('svg', {
             viewBox: '0 0 ' + data.width + ' ' + data.height,
             width: '100%',
             height: '100%',
         });
-        var node;
-        var sectionsSeats = {};
-        var rowEdges = {};
-        var rowEdgeStruct = function() {
+        let node;
+        let sectionsSeats = {};
+        let rowEdges = {};
+        let rowEdgeStruct = function() {
             this.firstSeat = null;
             this.lastSeat = null;
         };
-        var relevantSeats = [];
-        var relevantSectionsIndex = {};
-        for (var i = relevantSections.length; i--;) {
+        let relevantSeats = [];
+        let relevantSectionsIndex = {};
+        for (let i = relevantSections.length; i--;) {
             relevantSectionsIndex[relevantSections[i]] = true;
         }
-        for (var i = 0; i < data.seats.length; ++i) {
-            var seat = data.seats[i];
-            var section = seat.section;
+        for (let i = 0; i < data.seats.length; ++i) {
+            let seat = data.seats[i];
+            let section = seat.section;
             if (!relevantSectionsIndex[section]) {
                 continue;
             }
             if (!sectionsSeats[section]) {
                 sectionsSeats[section] = [];
             }
-            var rowKey = section + '_' + seat.row;
+            let rowKey = section + '_' + seat.row;
             if (!rowEdges[rowKey]) {
                 rowEdges[rowKey] = new rowEdgeStruct();
             }
-            var rowEdge = rowEdges[rowKey];
+            let rowEdge = rowEdges[rowKey];
             if (!rowEdge.firstSeat || +rowEdge.firstSeat.place > +seat.place) {
                 rowEdge.firstSeat = seat;
             }
@@ -3035,21 +3038,21 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
             relevantSeats.push(seat);
         }
         // trim the map
-        var mapRegion = calculateSeatsRegion(relevantSeats);
-        var paddingX = 0;
-        var paddingY = 0;
-        var maxAspectRatio = 2.25;
-        var minAspectRatio = 0.75;
+        let mapRegion = calculateSeatsRegion(relevantSeats);
+        let paddingX = 0;
+        let paddingY = 0;
+        let maxAspectRatio = 2.25;
+        let minAspectRatio = 0.75;
         if (mapRegion.width / mapRegion.height > maxAspectRatio) {
             // too short
-            var newHeight = mapRegion.width / maxAspectRatio;
+            let newHeight = mapRegion.width / maxAspectRatio;
             paddingY = (newHeight - mapRegion.height) / 2;
         } else if (mapRegion.width / mapRegion.height < minAspectRatio) {
             // too slim
-            var newWidth = mapRegion.height * minAspectRatio;
+            let newWidth = mapRegion.height * minAspectRatio;
             paddingX = (newWidth - mapRegion.width) / 2;
         }
-        var paddingForRowLabels = piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 4.5;
+        let paddingForRowLabels = piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 4.5;
         if (paddingForRowLabels > paddingX || paddingForRowLabels > paddingY) {
             paddingX += paddingForRowLabels;
             paddingY += paddingForRowLabels;
@@ -3060,13 +3063,13 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
         mapRegion.height += paddingY * 2;
 
         if (options.withStage && data.stageType) {
-            var textSize = piletilevi.venuemap.Utilities.getSvgTextBBox(venueMap.getTranslation('stage-' + data.stageType), {
+            let textSize = piletilevi.venuemap.Utilities.getSvgTextBBox(venueMap.getTranslation('stage-' + data.stageType), {
                 'font-family': 'Arial',
                 'font-size': piletilevi.venuemap.STAGE_TEXT_SIZE,
                 'font-weight': 'bold',
             });
-            var textX = data.stageX - textSize.width / 2;
-            var textY = data.stageY - textSize.height / 2;
+            let textX = data.stageX - textSize.width / 2;
+            let textY = data.stageY - textSize.height / 2;
             if (textX < mapRegion.x) {
                 mapRegion.width += mapRegion.x - textX;
                 mapRegion.x = textX;
@@ -3085,8 +3088,8 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
         svgElement.setAttribute('viewBox', '0 0 ' + mapRegion.width + ' ' + mapRegion.height);
         data.stageX -= mapRegion.x;
         data.stageY -= mapRegion.y;
-        for (var i = relevantSeats.length; i--;) {
-            var seat = relevantSeats[i];
+        for (let i = relevantSeats.length; i--;) {
+            let seat = relevantSeats[i];
             seat.x -= mapRegion.x;
             seat.y -= mapRegion.y;
         }
@@ -3103,36 +3106,36 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
                 'font-weight': 'bold',
                 'dy': '0.3em',
             });
-            var textNode = document.createTextNode(data.stageType);
+            let textNode = document.createTextNode(data.stageType);
             node.appendChild(textNode);
             svgElement.appendChild(node);
         }
-        for (var key in rowEdges) {
-            var edge = rowEdges[key];
+        for (let key in rowEdges) {
+            let edge = rowEdges[key];
             if (!edge.firstSeat || !edge.lastSeat) {
                 continue;
             }
             svgElement.appendChild(createRowNumberNode(edge.firstSeat, edge.lastSeat));
             svgElement.appendChild(createRowNumberNode(edge.lastSeat, edge.firstSeat));
         }
-        for (var i = 0; i < relevantSeats.length; ++i) {
-            var seat = relevantSeats[i];
-            var section = seat.section;
-            var groupNode = piletilevi.venuemap.Utilities.createSvgNode('g', {
+        for (let i = 0; i < relevantSeats.length; ++i) {
+            let seat = relevantSeats[i];
+            let section = seat.section;
+            let groupNode = piletilevi.venuemap.Utilities.createSvgNode('g', {
                 'class': 'place',
                 id: 'place_' + seat.code,
                 cx: seat.x,
                 cy: seat.y,
             });
             svgElement.appendChild(groupNode);
-            var node = piletilevi.venuemap.Utilities.createSvgNode('circle', {
+            let node = piletilevi.venuemap.Utilities.createSvgNode('circle', {
                 cx: seat.x,
                 cy: seat.y,
                 r: piletilevi.venuemap.SEAT_CIRCLE_RADIUS
             });
             groupNode.appendChild(node);
             if (seat.place) {
-                var attributes = {
+                let attributes = {
                     'class': 'place_detail seat_text',
                     x: seat.x,
                     y: seat.y,
@@ -3147,17 +3150,17 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
                         + ' ' + seat.y + ')';
                 }
                 node = piletilevi.venuemap.Utilities.createSvgNode('text', attributes);
-                var textNode = document.createTextNode(seat.place);
+                let textNode = document.createTextNode(seat.place);
                 node.appendChild(textNode);
                 groupNode.appendChild(node);
             }
         }
-        var boundaries = {};
-        var sectionLabelElements = {};
-        for (var sectionId in sectionsSeats) {
-            var sectionRegion = calculateSeatsRegion(sectionsSeats[sectionId]);
+        let boundaries = {};
+        let sectionLabelElements = {};
+        for (let sectionId in sectionsSeats) {
+            let sectionRegion = calculateSeatsRegion(sectionsSeats[sectionId]);
             if (piletilevi.venuemap.DEBUG_FULL_PLACESMAP_SECTIONS) {
-                var node = piletilevi.venuemap.Utilities.createSvgNode('rect', {
+                let node = piletilevi.venuemap.Utilities.createSvgNode('rect', {
                     x: sectionRegion.x,
                     y: sectionRegion.y,
                     width: sectionRegion.width,
@@ -3167,7 +3170,7 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
                 });
                 svgElement.appendChild(node);
             }
-            var node = piletilevi.venuemap.Utilities.createSvgNode('text', {
+            let node = piletilevi.venuemap.Utilities.createSvgNode('text', {
                 'class': 'section_label',
                 x: sectionRegion.x + sectionRegion.width / 2,
                 y: sectionRegion.y + sectionRegion.height / 2,
@@ -3184,23 +3187,23 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 
         venueMap.displayMapInPlaces = (data.displayMapInPlaces == '1');
 
-        var canvas = new piletilevi.venuemap.PlacesMapCanvas(venueMap, svgElement, sectionLabelElements);
+        let canvas = new piletilevi.venuemap.PlacesMapCanvas(venueMap, svgElement, sectionLabelElements);
         canvas.setSectionsBoundaries(boundaries);
         return canvas;
     };
-    var calculateSeatsRegion = function(seats) {
-        var topLeft = {
+    const calculateSeatsRegion = function(seats) {
+        let topLeft = {
             x: -1,
             y: -1,
         };
-        var bottomRight = {
+        let bottomRight = {
             x: -1,
             y: -1,
         };
-        for (var i = 0; i < seats.length; ++i) {
-            var seat = seats[i];
-            var x = +seat.x;
-            var y = +seat.y;
+        for (let i = 0; i < seats.length; ++i) {
+            let seat = seats[i];
+            let x = +seat.x;
+            let y = +seat.y;
             if (topLeft.x < 0 || x < topLeft.x) {
                 topLeft.x = x;
             }
@@ -3214,8 +3217,8 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
                 bottomRight.y = y;
             }
         }
-        var seatRadius = piletilevi.venuemap.SEAT_CIRCLE_RADIUS;
-        var result = {
+        let seatRadius = piletilevi.venuemap.SEAT_CIRCLE_RADIUS;
+        let result = {
             x: topLeft.x - seatRadius,
             y: topLeft.y - seatRadius,
             width: bottomRight.x - topLeft.x + seatRadius * 2,
@@ -3223,18 +3226,18 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
         };
         return result;
     };
-    var createRowNumberNode = function(seat1, seat2) {
-        var alignedLeft = seat1.x <= seat2.x;
-        var position = seat1.x;
+    const createRowNumberNode = function(seat1, seat2) {
+        let alignedLeft = seat1.x <= seat2.x;
+        let position = seat1.x;
         if (alignedLeft) {
             position -= piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 2;
         } else {
             position += piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 2;
         }
-        var calculateAngle = function(x1, y1, x2, y2) {
+        let calculateAngle = function(x1, y1, x2, y2) {
             return Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
         };
-        var angle = Math.round(
+        let angle = Math.round(
             alignedLeft
                 ? calculateAngle(
                 seat1.x,
@@ -3247,14 +3250,14 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
                 seat1.x,
                 seat1.y
                 ));
-        var transform = 'rotate(' + angle + ',' + seat1.x + ',' + seat1.y + ')';
-        var flipped = venueMap.isPlacesMapFlipped();
+        let transform = 'rotate(' + angle + ',' + seat1.x + ',' + seat1.y + ')';
+        let flipped = venueMap.isPlacesMapFlipped();
         if (flipped) {
             transform += ', rotate(180 ' + position + ' ' + seat1.y + ')';
         }
-        var anchor = alignedLeft && !flipped || !alignedLeft && flipped
+        let anchor = alignedLeft && !flipped || !alignedLeft && flipped
             ? 'end' : 'start';
-        var node = piletilevi.venuemap.Utilities.createSvgNode('text', {
+        let node = piletilevi.venuemap.Utilities.createSvgNode('text', {
             'class': 'place_detail',
             x: position,
             y: seat1.y,
@@ -3266,7 +3269,7 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
             'font-size': 10,
             'fill': '#999999'
         });
-        var textNode = document.createTextNode(seat1.row);
+        let textNode = document.createTextNode(seat1.row);
         node.appendChild(textNode);
         return node;
     };
