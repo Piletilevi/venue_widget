@@ -44,7 +44,9 @@
 	-webkit-box-sizing: border-box;
 	box-sizing: border-box;
 }
-
+.piletilevi_venue_map_canvas .place {
+    cursor: pointer;
+}
 .piletilevi_venue_map_places_main {
 	min-height: 180px;
 	min-width: 100%;
