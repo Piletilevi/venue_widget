@@ -3064,7 +3064,6 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
 
         if (options.withStage && data.stageType) {
             let textSize = piletilevi.venuemap.Utilities.getSvgTextBBox(venueMap.getTranslation('stage-' + data.stageType), {
-                'font-family': 'Arial',
                 'font-size': piletilevi.venuemap.STAGE_TEXT_SIZE,
                 'font-weight': 'bold',
             });
@@ -3101,7 +3100,6 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
                 x: data.stageX,
                 y: data.stageY,
                 fill: '#999999',
-                'font-family': 'Arial',
                 'font-size': piletilevi.venuemap.STAGE_TEXT_SIZE,
                 'font-weight': 'bold',
                 'dy': '0.3em',
@@ -3142,7 +3140,6 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
                     dy: '0.35em', // center align vertically
                     'stroke-width': 0,
                     'text-anchor': 'middle',  // center align horizontally
-                    'font-family': 'Verdana',
                     'font-size': 6.9,
                 };
                 if (venueMap.isPlacesMapFlipped()) {
@@ -3176,7 +3173,6 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
                 y: sectionRegion.y + sectionRegion.height / 2,
                 dy: '-0.35em', // center align vertically
                 'text-anchor': 'middle',  // center align horizontally
-                'font-family': 'Verdana',
                 'font-size': 14,
                 'fill': '#000000'
             });
@@ -3265,7 +3261,6 @@ piletilevi.venuemap.VenuePlacesMapCanvasFactory = function(venueMap) {
             'transform': transform,
             'stroke-width': 0,
             'text-anchor': anchor,  // center align horizontally
-            'font-family': 'Verdana',
             'font-size': 10,
             'fill': '#999999'
         });
