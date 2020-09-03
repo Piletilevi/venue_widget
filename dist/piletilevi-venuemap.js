@@ -2609,7 +2609,6 @@ piletilevi.venuemap.PlacesMapPlace = function(venueMap, placeElement, textElemen
     const STATUS_TAKEN = 0;
     const STATUS_AVAILABLE = 1;
     const STATUS_SELECTED = 2;
-    const STATUS_NONE = 3;
 
     const init = function() {
         inactiveNumbered = venueMap.areInactiveSeatsNumbered();
