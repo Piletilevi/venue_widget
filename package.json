@@ -1,13 +1,10 @@
 {
   "name": "piletilevi-venuemap",
-  "description": "",
-  "main": "index.js",
+  "description": "Venue map",
+  "main": "",
   "version": "10.21.0",
-  "author": "artweb.ee",
-  "license": "ISC",
+  "author": "Piletilevi AS",
+  "license": "",
   "repository": "Piletilevi/venue_widget",
-  "homepage": "http://artweb.ee",
-  "keywords": [
-    "piletilevi"
-  ]
+  "homepage": "http://www.piletilevi.ee",
 }
