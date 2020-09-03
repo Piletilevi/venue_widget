@@ -2,9 +2,9 @@
   "name": "piletilevi-venuemap",
   "description": "Venue map",
   "main": "",
-  "version": "10.21.0",
+  "version": "10.22.0",
   "author": "Piletilevi AS",
   "license": "",
   "repository": "Piletilevi/venue_widget",
-  "homepage": "http://www.piletilevi.ee",
+  "homepage": "http://www.piletilevi.ee"
 }
