@@ -59,7 +59,7 @@ export default function(venueMap) {
             let newWidth = mapRegion.height * minAspectRatio;
             paddingX = (newWidth - mapRegion.width) / 2;
         }
-        let paddingForRowLabels = Piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 4.5;
+        let paddingForRowLabels = Constants.SEAT_CIRCLE_RADIUS * 4.5;
         if (paddingForRowLabels > paddingX || paddingForRowLabels > paddingY) {
             paddingX += paddingForRowLabels;
             paddingY += paddingForRowLabels;
@@ -71,7 +71,7 @@ export default function(venueMap) {
 
         if (options.withStage && data.stageType) {
             let textSize = Utilities.getSvgTextBBox(venueMap.getTranslation('stage-' + data.stageType), {
-                'font-size': Piletilevi.venuemap.STAGE_TEXT_SIZE,
+                'font-size': Constants.STAGE_TEXT_SIZE,
                 'font-weight': 'bold',
             });
             let textX = data.stageX - textSize.width / 2;
@@ -107,7 +107,7 @@ export default function(venueMap) {
                 x: data.stageX,
                 y: data.stageY,
                 fill: '#999999',
-                'font-size': Piletilevi.venuemap.STAGE_TEXT_SIZE,
+                'font-size': Constants.STAGE_TEXT_SIZE,
                 'font-weight': 'bold',
                 'dy': '0.3em',
             });
@@ -135,7 +135,7 @@ export default function(venueMap) {
             let node = Utilities.createSvgNode('circle', {
                 cx: seat.x,
                 cy: seat.y,
-                r: Piletilevi.venuemap.SEAT_CIRCLE_RADIUS
+                r: Constants.SEAT_CIRCLE_RADIUS
             });
             groupNode.appendChild(node);
             if (seat.place) {
@@ -162,7 +162,7 @@ export default function(venueMap) {
         let sectionLabelElements = {};
         for (let sectionId in sectionsSeats) {
             let sectionRegion = calculateSeatsRegion(sectionsSeats[sectionId]);
-            if (Piletilevi.venuemap.DEBUG_FULL_PLACESMAP_SECTIONS) {
+            if (Constants.DEBUG_FULL_PLACESMAP_SECTIONS) {
                 let node = Utilities.createSvgNode('rect', {
                     x: sectionRegion.x,
                     y: sectionRegion.y,
@@ -189,7 +189,7 @@ export default function(venueMap) {
 
         venueMap.displayMapInPlaces = (data.displayMapInPlaces === 1);
 
-        let canvas = new Piletilevi.venuemap.PlacesMapCanvas(venueMap, svgElement, sectionLabelElements);
+        let canvas = new PlacesMapCanvas(venueMap, svgElement, sectionLabelElements);
         canvas.setSectionsBoundaries(boundaries);
         return canvas;
     };
@@ -219,7 +219,7 @@ export default function(venueMap) {
                 bottomRight.y = y;
             }
         }
-        let seatRadius = Piletilevi.venuemap.SEAT_CIRCLE_RADIUS;
+        let seatRadius = Constants.SEAT_CIRCLE_RADIUS;
         return {
             x: topLeft.x - seatRadius,
             y: topLeft.y - seatRadius,
@@ -231,9 +231,9 @@ export default function(venueMap) {
         let alignedLeft = seat1.x <= seat2.x;
         let position = seat1.x;
         if (alignedLeft) {
-            position -= Piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 2;
+            position -= Constants.SEAT_CIRCLE_RADIUS * 2;
         } else {
-            position += Piletilevi.venuemap.SEAT_CIRCLE_RADIUS * 2;
+            position += Constants.SEAT_CIRCLE_RADIUS * 2;
         }
         let calculateAngle = function(x1, y1, x2, y2) {
             return Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;

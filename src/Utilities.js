@@ -94,8 +94,8 @@ export default new function() {
         return result;
     };
     this.getSvgTextBBox = function(text, attributes) {
-        let svgElement = Piletilevi.venuemap.Utilities.createSvgNode('svg');
-        let node = Piletilevi.venuemap.Utilities.createSvgNode('text', attributes);
+        let svgElement = Utilities.createSvgNode('svg');
+        let node = Utilities.createSvgNode('text', attributes);
 
         let textNode = document.createTextNode(text);
         node.appendChild(textNode);

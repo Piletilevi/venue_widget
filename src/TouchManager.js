@@ -1,4 +1,5 @@
-export default function() {
+export default new TouchManager();
+const TouchManager = function() {
     const self = this;
     let handlers = {};
     let eventsSet;

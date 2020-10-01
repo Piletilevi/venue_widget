@@ -1,3 +1,4 @@
+import touchManager from 'TouchManager'
 export default function() {
     let draggableElement;
     let parentElement;
