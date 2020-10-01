@@ -1,4 +1,3 @@
-export default new TouchManager();
 const TouchManager = function() {
     const self = this;
     let handlers = {};
@@ -238,3 +237,4 @@ const TouchManager = function() {
     };
     init();
 }
+export default new TouchManager();

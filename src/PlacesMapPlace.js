@@ -1,6 +1,4 @@
-import TouchManager from "./TouchManager";
-
-let touchManager = new TouchManager();
+import touchManager from "./TouchManager";
 export default function(venueMap, placeElement) {
     const self = this;
     const STATUS_TAKEN = 0;

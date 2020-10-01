@@ -1,6 +1,9 @@
 import VenuePlacesMapCanvasFactory from "./VenuePlacesMapCanvasFactory";
 import PlaceTooltip from "./PlaceToolTip";
 import Utilities from "./Utilities";
+import SectionsMap from "./SectionsMap";
+import PlacesMap from "./PlacesMap";
+import Constants from "./Constants";
 
 export default function() {
     const self = this;

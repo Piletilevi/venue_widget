@@ -1,5 +1,7 @@
 import PlacesMapPlace from "./PlacesMapPlace";
+import DragTicketsPositioner from "./DragTicketsPositioner"
 import PlacesMapStageLabel from "./PlacesMapStageLabel";
+import Constants from "./Constants";
 import Utilities from "./Utilities";
 import ScalableComponent from "./ScalableComponent";
 import DraggableComponent from "./DraggableComponent";
@@ -342,9 +344,6 @@ export default function PlacesMapCanvas(venueMap, svgElement, sectionLabelElemen
     };
     this.getComponentElement = function() {
         return componentElement;
-    };
-    this.getContainerElement = function() {
-        return containerElement;
     };
     this.selectSection = function(sectionId) {
         if (!sectionId) {

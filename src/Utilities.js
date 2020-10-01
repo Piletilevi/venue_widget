@@ -1,3 +1,5 @@
+import Utilities from './Utilities';
+
 export default new function() {
     let self = this;
     let animations = [];
@@ -22,7 +24,9 @@ export default new function() {
                 element.style[supportedTransition] = transitions.join(', ');
             }
             for (let key in properties) {
-                element.style[key] = properties[key];
+                if (properties.hasOwnProperty(key)) {
+                    element.style[key] = properties[key];
+                }
             }
             if (supportedTransition) {
                 element.addEventListener(transitionsAndEvents[supportedTransition], transitionend);
@@ -82,14 +86,13 @@ export default new function() {
         xhr.open('GET', options.url, true);
         xhr.send(null);
     };
-    this.calculateAngle = function(x1, y1, x2, y2) {
-        return Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
-    };
     this.createSvgNode = function(name, attributes) {
         let result = document.createElementNS('http://www.w3.org/2000/svg', name);
         attributes = attributes || {};
         for (let i in attributes) {
-            result.setAttributeNS(null, i, attributes[i]);
+            if (attributes.hasOwnProperty(i)) {
+                result.setAttributeNS(null, i, attributes[i]);
+            }
         }
         return result;
     };
@@ -135,28 +138,14 @@ export default new function() {
         return 'transform' in document.body.style;
     };
     this.getPosition = function(obj) {
-        let curleft = curtop = 0;
+        let curleft = 0, curtop = 0;
         if (obj.offsetParent) {
             do {
                 curleft += obj.offsetLeft;
                 curtop += obj.offsetTop;
-            } while (obj = obj.offsetParent);
+            } while ((obj = obj.offsetParent));
         }
         return {'x': curleft, 'y': curtop};
-    };
-    this.getPageScroll = function() {
-        let xScroll, yScroll;
-        if (window.pageYOffset) {
-            yScroll = window.pageYOffset;
-            xScroll = window.pageXOffset;
-        } else if (document.documentElement && document.documentElement.scrollTop) {
-            yScroll = document.documentElement.scrollTop;
-            xScroll = document.documentElement.scrollLeft;
-        } else if (document.body) {// all other Explorers
-            yScroll = document.body.scrollTop;
-            xScroll = document.body.scrollLeft;
-        }
-        return {'x': xScroll, 'y': yScroll};
     };
     this.createStretchHackElement = function(viewBox) {
         let result = document.createElement('img');

@@ -72,7 +72,7 @@
 }
 
 .piletilevi_venue_map_control {
-    font-family: Arial;
+    font-family: Arial, sans-serif;
     font-size: 27px;
     width: 30px;
     height: 30px;
@@ -258,12 +258,10 @@
 }
 
 [data-draggable-state='draggable'] {
-    cursor: -webkit-grab;
     cursor: grab;
 }
 
 [data-draggable-state='dragging'] {
-    cursor: -webkit-grabbing;
     cursor: grabbing;
 }
 

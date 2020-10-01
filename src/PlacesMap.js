@@ -1,7 +1,7 @@
 import Controls from "./Controls";
 import Utilities from "./Utilities";
 import SelectionRectangle from "./SelectionRectangle";
-import PlaceMapLegendItem from "PlaceMapLegendItem"
+import PlaceMapLegendItem from "./PlaceMapLegendItem"
 
 export default function(venueMap) {
     const self = this;

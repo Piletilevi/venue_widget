@@ -59,9 +59,6 @@ export default function(venueMap, sectionsMap, id, sectionVector) {
     this.setEnabled = function(input) {
         enabled = !!input;
     };
-    this.isEnabled = function() {
-        return enabled;
-    };
     this.click = function() {
         venueMap.trigger('sectionSelected', id);
     };

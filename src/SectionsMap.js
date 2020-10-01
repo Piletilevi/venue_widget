@@ -1,4 +1,5 @@
 import Utilities from "./Utilities";
+import SectionsMapRegion from "./SectionsMapRegion";
 
 export default function(venueMap) {
     let mapRegions = {};

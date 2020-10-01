@@ -1,3 +1,5 @@
+import touchManager from './TouchManager';
+
 export default function() {
     let scaledElement;
     let gestureElement;
