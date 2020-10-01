@@ -1,3 +1,4 @@
+import Constants from './Constants';
 import Utilities from './Utilities';
 
 export default function(venueMap) {
