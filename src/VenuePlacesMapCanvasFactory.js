@@ -1,4 +1,5 @@
 import Constants from './Constants';
+import PlacesMapCanvas from './PlacesMapCanvas';
 import Utilities from './Utilities';
 
 export default function(venueMap) {
