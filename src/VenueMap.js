@@ -632,8 +632,8 @@ export default function() {
     this.suggestSeats = function(sectionId, nearSeat) {
         const seatsSuggester = new SeatsSuggester();
         const details = sectionsDetails[sectionId];
-        const suggestedSeats = seatsSuggester.findNewSeats(nearSeat, Object.values(selectedSeatsIndex), details);
-        
+        const suggestedSeats = seatsSuggester.suggestNewSeats(nearSeat, Object.values(selectedSeatsIndex), details);
+
         let unmarkSeats = previousSuggestedSeatsIndex;
         previousSuggestedSeatsIndex = {};
 

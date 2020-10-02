@@ -55,7 +55,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     };
     const pointerStart = function(event) {
         event.preventDefault();
-        if (seatInfo) {
+        if (seatInfo && seatInfo.status === STATUS_AVAILABLE) {
             venueMap.suggestSeats(sectionId, seatInfo);
         }
     };
@@ -77,6 +77,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
         if (seatInfo) {
             if (venueMap.isSeatSuggestingEnabled()) {
                 touchManager.addEventListener(placeElement, 'start', pointerStart);
+                placeElement.addEventListener('mouseenter', pointerStart);
             }
 
             placeElement.addEventListener('mousemove', mouseMove);
@@ -84,6 +85,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
         } else {
             if (venueMap.isSeatSuggestingEnabled()) {
                 touchManager.removeEventListener(placeElement, 'start', pointerStart);
+                placeElement.removeEventListener('mouseenter', pointerStart);
             }
 
             placeElement.removeEventListener('mousemove', mouseMove);

@@ -3,9 +3,10 @@ export default function SeatsSuggester() {
     let stickToIndex;
     const STATUS_AVAILABLE = 1;
 
-    this.findNewSeats = function(nearSeat, selectedSeats, details) {
-        let checkedIndexes = null;
+    this.suggestNewSeats = function(nearSeat, selectedSeats, details) {
+        let suggestedIndexes = null;
         const amount = selectedSeats.length;
+
         //are some places selected at all
         if (!amount) {
             return false;
@@ -17,27 +18,31 @@ export default function SeatsSuggester() {
         }
 
         const row = gatherRowSeats(details.seatsInfo, nearSeat);
+
         //if row has been found
         if (!row) {
             return false;
         }
 
-        checkedIndexes = checkFromStart(nearSeatIndex, row, amount);
-        if (!stickToIndex) {
-            checkedIndexes = checkFromEnd(nearSeatIndex, row, amount);
+        suggestedIndexes = checkFromRowStart(nearSeatIndex, row, amount);
+        if (stickToIndex === false) {
+            let potentialIndexes = checkFromRowEnd(nearSeatIndex, row, amount);
+            if (stickToIndex !== false) {
+                suggestedIndexes = potentialIndexes;
+            }
         }
         const result = [];
-        checkedIndexes.map(function(item, index) {
+        suggestedIndexes.map(function(index) {
             result.push(row[index]);
         });
-
         return result;
     };
-    const checkFromStart = function(nearSeatIndex, row, amount) {
+    const checkFromRowStart = function(nearSeatIndex, row, amount) {
+        stickToIndex = false;
         const checkedIndexes = [];
         //take row boundaries into account
-        let startIndex = Math.max(nearSeatIndex - amount, 0);
-        //start from "left" go to right searching for free places
+        let startIndex = Math.max(nearSeatIndex - amount + 1, 0);
+        //start from "start of row", move to end searching for free places
         for (let seatIndex = startIndex; seatIndex < nearSeatIndex + amount; seatIndex++) {
             //previous place doesnt exist, we should stick to it
             if (typeof row[seatIndex - 1] === 'undefined') {
@@ -67,11 +72,12 @@ export default function SeatsSuggester() {
         return checkedIndexes;
     };
 
-    const checkFromEnd = function(nearSeatIndex, row, amount) {
+    const checkFromRowEnd = function(nearSeatIndex, row, amount) {
+        stickToIndex = false;
         const checkedIndexes = [];
         //take row boundaries into account
-        let startIndex = Math.min(nearSeatIndex + amount, row.length - 1);
-        //start from "left" go to right searching for free places
+        let startIndex = Math.min(nearSeatIndex + amount - 1, row.length - 1);
+        //start from "end of row", move to start, searching for free places
         for (let seatIndex = startIndex; seatIndex >= 0; seatIndex--) {
             //previous place doesnt exist, we should stick to it
             if (typeof row[seatIndex + 1] === 'undefined') {
