@@ -2,7 +2,7 @@ import Constants from './Constants';
 import PlacesMapCanvas from './PlacesMapCanvas';
 import Utilities from './Utilities';
 
-export default function(venueMap) {
+export default function PlacesMapCanvasFactory(venueMap) {
     this.createCanvas = function(options) {
         let data = JSON.parse(JSON.stringify(options.data));
         let relevantSections = options.relevantSections || [];

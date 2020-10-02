@@ -13,6 +13,7 @@ export default new function() {
     let transitionSupportChecked = false;
 
     const anim = function(element, properties, duration, easeMode, onComplete) {
+        this.element = null;
         let init = function() {
             this.element = element;
             self.checkTransitionSupport();
@@ -49,7 +50,7 @@ export default new function() {
         this.cancel = function() {
             element.removeEventListener(transitionsAndEvents[supportedTransition], transitionend);
         };
-        init();
+        init.call(this);
     };
     this.checkTransitionSupport = function() {
         if (transitionSupportChecked) {

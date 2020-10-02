@@ -1,4 +1,4 @@
-export default function() {
+export default function SeatsSuggester() {
     let nearSeatIndex;
     let stickToIndex;
     const STATUS_AVAILABLE = 1;

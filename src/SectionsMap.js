@@ -1,7 +1,7 @@
 import Utilities from "./Utilities";
 import SectionsMapRegion from "./SectionsMapRegion";
 
-export default function(venueMap) {
+export default function SectionsMap(venueMap) {
     let mapRegions = {};
     this.imageElement = false;
     this.mapElement = false;

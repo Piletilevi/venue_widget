@@ -2,8 +2,9 @@ import Controls from "./Controls";
 import Utilities from "./Utilities";
 import SelectionRectangle from "./SelectionRectangle";
 import PlaceMapLegendItem from "./PlaceMapLegendItem"
+import PlacesMapCanvasFactory from "./PlacesMapCanvasFactory";
 
-export default function(venueMap) {
+export default function PlacesMap(venueMap) {
     const self = this;
     let sectionsThumbnailElement;
     let legendElement;
@@ -207,11 +208,13 @@ export default function(venueMap) {
         };
         controls.changeStates(states);
     };
-    this.changeCanvas = function(newCanvas) {
+    this.drawNewMap = function(data) {
         if (canvas) {
             canvas.remove();
         }
-        canvas = newCanvas;
+        let canvasFactory = new PlacesMapCanvasFactory(venueMap);
+
+        canvas = canvasFactory.createCanvas(data);
         canvas.attachTo(self);
         for (let key in details) {
             canvas.updateSectionDetails(details[key]);
@@ -280,7 +283,6 @@ export default function(venueMap) {
             canvas.setDisplayed(true);
         }
         componentElement.style.display = displayed ? '' : 'none';
-
     };
     this.getComponentElement = function() {
         return componentElement;
@@ -330,5 +332,11 @@ export default function(venueMap) {
     this.getMainElement = function() {
         return mainElement;
     };
+    this.markSuggestedSeats = function(seats) {
+        canvas.markSuggestedSeats(seats);
+    }
+    this.unmarkSuggestedSeats = function(seats) {
+        canvas.unmarkSuggestedSeats(seats);
+    }
     init();
 };

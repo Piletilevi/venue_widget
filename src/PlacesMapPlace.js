@@ -1,5 +1,6 @@
 import touchManager from "./TouchManager";
-export default function(venueMap, placeElement) {
+
+export default function PlacesMapPlace(venueMap, placeElement) {
     const self = this;
     const STATUS_TAKEN = 0;
     const STATUS_AVAILABLE = 1;
@@ -26,7 +27,9 @@ export default function(venueMap, placeElement) {
         const x = Math.max(0, event.pageX);
         const y = Math.max(0, event.pageY - 2);
         venueMap.getPlaceToolTip().display(seatInfo, status, x, y);
-        self.highlight();
+        if (manuallySelectable) {
+            self.highlight();
+        }
     };
     const mouseOut = function() {
         venueMap.getPlaceToolTip().hide();
@@ -53,7 +56,7 @@ export default function(venueMap, placeElement) {
     const pointerStart = function(event) {
         event.preventDefault();
         if (seatInfo) {
-            venueMap.dragSeats(sectionId, seatInfo);
+            venueMap.suggestSeats(sectionId, seatInfo);
         }
     };
     this.refreshStatus = function() {
@@ -72,14 +75,14 @@ export default function(venueMap, placeElement) {
         }
         setColor(seatColor);
         if (seatInfo) {
-            if (venueMap.isSeatDraggingEnabled()) {
+            if (venueMap.isSeatSuggestingEnabled()) {
                 touchManager.addEventListener(placeElement, 'start', pointerStart);
             }
 
             placeElement.addEventListener('mousemove', mouseMove);
             placeElement.addEventListener('mouseout', mouseOut);
         } else {
-            if (venueMap.isSeatDraggingEnabled()) {
+            if (venueMap.isSeatSuggestingEnabled()) {
                 touchManager.removeEventListener(placeElement, 'start', pointerStart);
             }
 
@@ -150,9 +153,7 @@ export default function(venueMap, placeElement) {
         return placeElement;
     };
     this.highlight = function() {
-        if (manuallySelectable) {
-            setColor(venueMap.getSeatColor('hover'));
-        }
+        setColor(venueMap.getSeatColor('hover'));
     };
     init();
 };

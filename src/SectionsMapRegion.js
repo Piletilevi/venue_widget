@@ -1,4 +1,4 @@
-export default function(venueMap, sectionsMap, id, sectionVector) {
+export default function SectionsMapRegion(venueMap, sectionsMap, id, sectionVector) {
     const self = this;
     let enabled = false;
     let activeLocked = false;

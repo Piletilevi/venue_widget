@@ -1,9 +1,9 @@
-import VenuePlacesMapCanvasFactory from "./VenuePlacesMapCanvasFactory";
 import PlaceTooltip from "./PlaceToolTip";
 import Utilities from "./Utilities";
 import SectionsMap from "./SectionsMap";
 import PlacesMap from "./PlacesMap";
 import Constants from "./Constants";
+import SeatsSuggester from "piletilevi-venuemap/src/SeatsSuggester";
 
 export default function() {
     const self = this;
@@ -12,13 +12,12 @@ export default function() {
     let confId = '';
     let seatSelectionEnabled = false;
     let seatsStatusDisplayed = false;
-    let seatDraggingEnabled = false;
+    let seatSuggestingEnabled = false;
     let sectionsMapType = 'vector';
     let currency = '';
     let sectionsMapImageUrl = '';
     let sections = [];
     let enabledSections = [];
-    let selectedSeats = [];
     let selectedSeatsIndex = {};
     let eventHandlers = {};
     let sectionsDetails = {};
@@ -41,7 +40,6 @@ export default function() {
     let extensionHandler;
     let seatsSections = {};
     let requestCache = {};
-    let canvasFactory;
     let extended = false;
     let massSelectable = false;
     let placesMapFlipped = false;
@@ -54,6 +52,7 @@ export default function() {
     let placesMapAvailableSections = {};
     let fullMapGenerated = false;
     let fixedHeight = 0;
+    let previousSuggestedSeatsIndex = {};
     this.displayMapInPlaces = false;
 
     const seatColors = {
@@ -70,7 +69,6 @@ export default function() {
         componentElement.style['-ms-user-select'] = 'none';
         componentElement.style['-webkit-user-select'] = 'none';
         componentElement.style.userSelect = 'none';
-        canvasFactory = new VenuePlacesMapCanvasFactory(self);
         self.hide();
         window.addEventListener('resize', self.resize);
     };
@@ -275,11 +273,10 @@ export default function() {
                         }
                         placesMap.setDisplayed(true);
                         self.display();
-                        let canvas = canvasFactory.createCanvas({
+                        placesMap.drawNewMap({
                             data: placesMapData,
                             relevantSections: [activeSection]
                         });
-                        placesMap.changeCanvas(canvas);
                     },
                     function() {
                         self.hide();
@@ -316,12 +313,11 @@ export default function() {
                 function() {
                     placesMap.setDisplayed(true);
                     self.display();
-                    let canvas = canvasFactory.createCanvas({
+                    placesMap.drawNewMap({
                         data: placesMapData,
                         relevantSections: enabledSections,
                         withStage: true
                     });
-                    placesMap.changeCanvas(canvas);
                     fullMapGenerated = true;
                 },
                 function() {
@@ -393,11 +389,11 @@ export default function() {
     this.setSeatSelectionEnabled = function(newSeatSelectionEnabled) {
         seatSelectionEnabled = newSeatSelectionEnabled;
     };
-    this.setSeatDraggingEnabled = function(newSeatDraggingEnabled) {
-        seatDraggingEnabled = newSeatDraggingEnabled;
+    this.setSeatSuggestingEnabled = function(newSeatSuggestingEnabled) {
+        seatSuggestingEnabled = newSeatSuggestingEnabled;
     };
-    this.isSeatDraggingEnabled = function() {
-        return seatDraggingEnabled;
+    this.isSeatSuggestingEnabled = function() {
+        return seatSuggestingEnabled;
     };
     this.isSeatSelectionEnabled = function() {
         return seatSelectionEnabled;
@@ -419,9 +415,8 @@ export default function() {
         return sectionsDetails[id] || null;
     };
     this.setSelectedSeats = function(newSelectedSeats) {
-        selectedSeats = newSelectedSeats;
-        for (let i = selectedSeats.length; i--;) {
-            selectedSeatsIndex[selectedSeats[i]] = true;
+        for (let i = newSelectedSeats.length; i--;) {
+            selectedSeatsIndex[newSelectedSeats[i]] = true;
         }
     };
     this.unSetSelectedSeats = function(unSelectedSeats) {
@@ -632,6 +627,28 @@ export default function() {
         componentElement = null;
         if (placeToolTip) {
             placeToolTip.dispose();
+        }
+    };
+    this.suggestSeats = function(sectionId, nearSeat) {
+        const seatsSuggester = new SeatsSuggester();
+        const details = sectionsDetails[sectionId];
+        const suggestedSeats = seatsSuggester.findNewSeats(nearSeat, Object.values(selectedSeatsIndex), details);
+        
+        let unmarkSeats = previousSuggestedSeatsIndex;
+        previousSuggestedSeatsIndex = {};
+
+        if (suggestedSeats) {
+            for (let seat of suggestedSeats) {
+                previousSuggestedSeatsIndex[seat.id] = seat.id;
+                if (typeof unmarkSeats[seat.id] !== 'undefined') {
+                    delete unmarkSeats[seat.id];
+                }
+            }
+
+            placesMap.markSuggestedSeats(suggestedSeats);
+        }
+        if (unmarkSeats) {
+            placesMap.unmarkSuggestedSeats(Object.values(unmarkSeats));
         }
     };
 
