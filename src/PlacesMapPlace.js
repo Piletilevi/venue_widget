@@ -1,4 +1,4 @@
-import touchManager from "./TouchManager";
+import touchManager from './TouchManager';
 
 export default function PlacesMapPlace(venueMap, placeElement) {
     const self = this;
@@ -133,6 +133,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
         if (typeof seatInfo['status'] !== 'undefined') {
             status = seatInfo['status'];
         }
+        placeElement.setAttribute('data-seat-id', seatInfo.id);
     };
     this.setSectionId = function(newSectionId) {
         sectionId = newSectionId;

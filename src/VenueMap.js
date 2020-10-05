@@ -1,9 +1,9 @@
-import PlaceTooltip from "./PlaceToolTip";
-import Utilities from "./Utilities";
-import SectionsMap from "./SectionsMap";
-import PlacesMap from "./PlacesMap";
-import Constants from "./Constants";
-import SeatsSuggester from "piletilevi-venuemap/src/SeatsSuggester";
+import PlaceTooltip from './PlaceToolTip';
+import Utilities from './Utilities';
+import SectionsMap from './SectionsMap';
+import PlacesMap from './PlacesMap';
+import Constants from './Constants';
+import SeatsSuggester from 'piletilevi-venuemap/src/SeatsSuggester';
 
 export default function() {
     const self = this;
@@ -52,7 +52,7 @@ export default function() {
     let placesMapAvailableSections = {};
     let fullMapGenerated = false;
     let fixedHeight = 0;
-    let previousSuggestedSeatsIndex = {};
+    let previousSuggestedSeatsIndex = null;
     this.displayMapInPlaces = false;
 
     const seatColors = {
@@ -421,11 +421,11 @@ export default function() {
     };
     this.unSetSelectedSeats = function(unSelectedSeats) {
         for (let i = unSelectedSeats.length; i--;) {
-            selectedSeatsIndex[unSelectedSeats[i]] = false;
+            delete selectedSeatsIndex[unSelectedSeats[i]];
         }
     };
     this.unSelectSeat = function(seatId) {
-        selectedSeatsIndex[seatId] = false;
+        delete selectedSeatsIndex[seatId];
     };
     this.setSeatColors = function(newColors) {
         seatColors.hover = newColors.hover || Constants.DEFAULT_SEAT_HOVER_COLOR;
@@ -633,8 +633,10 @@ export default function() {
         const seatsSuggester = new SeatsSuggester();
         const details = sectionsDetails[sectionId];
         const suggestedSeats = seatsSuggester.suggestNewSeats(nearSeat, Object.values(selectedSeatsIndex), details);
-
-        let unmarkSeats = previousSuggestedSeatsIndex;
+        let unmarkSeats = {};
+        if (previousSuggestedSeatsIndex){
+            unmarkSeats = previousSuggestedSeatsIndex;
+        }
         previousSuggestedSeatsIndex = {};
 
         if (suggestedSeats) {
@@ -651,6 +653,11 @@ export default function() {
             placesMap.unmarkSuggestedSeats(Object.values(unmarkSeats));
         }
     };
-
+    const clearAllSuggestedSeats = function() {
+        if (previousSuggestedSeatsIndex) {
+            placesMap.unmarkSuggestedSeats(Object.values(previousSuggestedSeatsIndex));
+            previousSuggestedSeatsIndex = false;
+        }
+    };
     init();
 };
