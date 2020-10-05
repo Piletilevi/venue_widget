@@ -52,7 +52,7 @@ export default function() {
     let placesMapAvailableSections = {};
     let fullMapGenerated = false;
     let fixedHeight = 0;
-    let previousSuggestedSeatsIndex = null;
+    let previousSuggestedSeatsIndex = {};
     this.displayMapInPlaces = false;
 
     const seatColors = {
@@ -633,12 +633,7 @@ export default function() {
         const seatsSuggester = new SeatsSuggester();
         const details = sectionsDetails[sectionId];
         const suggestedSeats = seatsSuggester.suggestNewSeats(nearSeat, Object.values(selectedSeatsIndex), details);
-        let unmarkSeats = {};
-        if (previousSuggestedSeatsIndex){
-            unmarkSeats = previousSuggestedSeatsIndex;
-        }
-        previousSuggestedSeatsIndex = {};
-
+        let unmarkSeats = previousSuggestedSeatsIndex;
         if (suggestedSeats) {
             for (let seat of suggestedSeats) {
                 previousSuggestedSeatsIndex[seat.id] = seat.id;
@@ -651,12 +646,6 @@ export default function() {
         }
         if (unmarkSeats) {
             placesMap.unmarkSuggestedSeats(Object.values(unmarkSeats));
-        }
-    };
-    const clearAllSuggestedSeats = function() {
-        if (previousSuggestedSeatsIndex) {
-            placesMap.unmarkSuggestedSeats(Object.values(previousSuggestedSeatsIndex));
-            previousSuggestedSeatsIndex = false;
         }
     };
     init();
