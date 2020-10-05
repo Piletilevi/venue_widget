@@ -28,7 +28,9 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     const mouseMove = function(event) {
         const x = Math.max(0, event.pageX);
         const y = Math.max(0, event.pageY - 2);
-        venueMap.getPlaceToolTip().display(seatInfo, status, x, y);
+        if (status !== STATUS_BUFFERED){
+            venueMap.getPlaceToolTip().display(seatInfo, status, x, y);
+        }
         if (manuallySelectable) {
             self.highlight();
         }
