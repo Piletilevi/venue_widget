@@ -7,21 +7,11 @@
     max-width: 50%;
     pointer-events: none;
     opacity: 0;
+    transition: opacity 0.2s ease-in-out 0.1s;
 }
 
 .place_tooltip_display {
-    display: block;
-    animation: place_tooltip_display_anim 0.3s ease-in-out 0.1s normal forwards;
-}
-
-@keyframes place_tooltip_display_anim {
-    0% {
-        opacity: 0;
-    }
-
-    100% {
-        opacity: 1;
-    }
+    opacity: 1;
 }
 
 .place_tooltip_content {

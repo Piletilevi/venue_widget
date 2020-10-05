@@ -113,6 +113,7 @@ export default function(venueMap) {
         updateContents(seat, status);
         if (!displayed) {
             displayed = true;
+            componentElement.style.display = 'block';
             componentElement.classList.add('place_tooltip_display');
         }
         updatePosition(x, y);
@@ -122,6 +123,11 @@ export default function(venueMap) {
             displayed = false;
             if (componentElement) {
                 componentElement.classList.remove('place_tooltip_display');
+                componentElement.addEventListener('animationend', () => {
+                    if (!displayed) {
+                        componentElement.style.display = 'none';
+                    }
+                });
             }
         }
     };
