@@ -66,10 +66,10 @@ export default function SeatsSuggester() {
 
             //if we found needed chain of free seats from this direction then go out
             if (checkedIndexes.length === amount) {
-                break;
+                return checkedIndexes;
             }
         }
-        return checkedIndexes;
+        return [];
     };
 
     const checkFromRowEnd = function(nearSeatIndex, row, amount) {
@@ -101,10 +101,10 @@ export default function SeatsSuggester() {
 
             //if we found needed chain of free seats from this direction then go out
             if (checkedIndexes.length === amount) {
-                break;
+                return checkedIndexes;
             }
         }
-        return checkedIndexes;
+        return [];
     };
     const gatherRowSeats = function(seatsInfo, nearSeat) {
         const row = [];
