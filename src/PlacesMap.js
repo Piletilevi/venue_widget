@@ -334,8 +334,8 @@ export default function PlacesMap(venueMap) {
     this.getMainElement = function() {
         return mainElement;
     };
-    this.markSuggestedSeats = function(seats) {
-        canvas.markSuggestedSeats(seats);
+    this.markSuggestedSeats = function(seats, offsetPlaces) {
+        canvas.markSuggestedSeats(seats,offsetPlaces);
     }
     this.unmarkSuggestedSeats = function(seats) {
         canvas.unmarkSuggestedSeats(seats);

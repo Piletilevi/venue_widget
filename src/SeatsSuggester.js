@@ -3,9 +3,9 @@ export default function SeatsSuggester() {
     let stickToIndex;
     const STATUS_AVAILABLE = 1;
 
-    this.suggestNewSeats = function(nearSeat, selectedSeats, details) {
+    this.suggestNewSeats = function(nearSeat, selectedSeats, details, offsetPlaces) {
         let suggestedIndexes = null;
-        const amount = selectedSeats.length;
+        const amount = selectedSeats.length + offsetPlaces * 2;
 
         //are some places selected at all
         if (!amount) {

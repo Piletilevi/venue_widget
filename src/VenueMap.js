@@ -53,6 +53,8 @@ export default function() {
     let fullMapGenerated = false;
     let fixedHeight = 0;
     let previousSuggestedSeatsIndex = {};
+    let offsetPlaces = 0;
+
     this.displayMapInPlaces = false;
 
     const seatColors = {
@@ -344,6 +346,9 @@ export default function() {
         displayed = false;
         self.trigger('visibilityChange', displayed);
     };
+    this.setOffsetPlaces = function(newOffsetPlaces) {
+        offsetPlaces = newOffsetPlaces;
+    };
     this.setConfId = function(newConfId) {
         confId = newConfId;
     };
@@ -633,23 +638,25 @@ export default function() {
         }
     };
     this.suggestSeats = function(sectionId, nearSeat) {
-        const seatsSuggester = new SeatsSuggester();
-        const details = sectionsDetails[sectionId];
-        const suggestedSeats = seatsSuggester.suggestNewSeats(nearSeat, Object.values(selectedSeatsIndex), details);
-        let unmarkSeats = previousSuggestedSeatsIndex;
-        previousSuggestedSeatsIndex = {};
-        if (suggestedSeats) {
-            for (let seat of suggestedSeats) {
-                previousSuggestedSeatsIndex[seat.id] = seat.id;
-                if (typeof unmarkSeats[seat.id] !== 'undefined') {
-                    delete unmarkSeats[seat.id];
+        if (seatSuggestingEnabled) {
+            const seatsSuggester = new SeatsSuggester();
+            const details = sectionsDetails[sectionId];
+            const suggestedSeats = seatsSuggester.suggestNewSeats(nearSeat, Object.values(selectedSeatsIndex), details, offsetPlaces);
+            let unmarkSeats = previousSuggestedSeatsIndex;
+            previousSuggestedSeatsIndex = {};
+            if (suggestedSeats) {
+                for (let seat of suggestedSeats) {
+                    previousSuggestedSeatsIndex[seat.id] = seat.id;
+                    if (typeof unmarkSeats[seat.id] !== 'undefined') {
+                        delete unmarkSeats[seat.id];
+                    }
                 }
-            }
 
-            placesMap.markSuggestedSeats(suggestedSeats);
-        }
-        if (unmarkSeats) {
-            placesMap.unmarkSuggestedSeats(Object.values(unmarkSeats));
+                placesMap.markSuggestedSeats(suggestedSeats, offsetPlaces);
+            }
+            if (unmarkSeats) {
+                placesMap.unmarkSuggestedSeats(Object.values(unmarkSeats));
+            }
         }
     };
     init();

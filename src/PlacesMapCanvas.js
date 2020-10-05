@@ -507,9 +507,13 @@ export default function PlacesMapCanvas(venueMap, svgElement, sectionLabelElemen
     const applyZoom = function(value, zoomLevel) {
         return value * Math.pow(zoomFactor, zoomLevel);
     };
-    this.markSuggestedSeats = function(seats) {
-        seats.map(function(seat) {
-            placesIndex[seat.id].highlight();
+    this.markSuggestedSeats = function(seats, offsetPlaces) {
+        seats.map(function(seat, key) {
+            if (key < offsetPlaces || key >= seats.length - offsetPlaces){
+                placesIndex[seat.id].renderBuffered();
+            } else {
+                placesIndex[seat.id].highlight();
+            }
         });
     }
     this.unmarkSuggestedSeats = function(seatIds) {
