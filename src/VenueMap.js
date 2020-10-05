@@ -639,23 +639,26 @@ export default function() {
     };
     this.suggestSeats = function(sectionId, nearSeat) {
         if (seatSuggestingEnabled) {
-            const seatsSuggester = new SeatsSuggester();
-            const details = sectionsDetails[sectionId];
-            const suggestedSeats = seatsSuggester.suggestNewSeats(nearSeat, Object.values(selectedSeatsIndex), details, offsetPlaces);
-            let unmarkSeats = previousSuggestedSeatsIndex;
-            previousSuggestedSeatsIndex = {};
-            if (suggestedSeats) {
-                for (let seat of suggestedSeats) {
-                    previousSuggestedSeatsIndex[seat.id] = seat.id;
-                    if (typeof unmarkSeats[seat.id] !== 'undefined') {
-                        delete unmarkSeats[seat.id];
+            let selectedSeatsList = Object.values(selectedSeatsIndex);
+            if (selectedSeatsList.length > 0) {
+                const seatsSuggester = new SeatsSuggester();
+                const details = sectionsDetails[sectionId];
+                const suggestedSeats = seatsSuggester.suggestNewSeats(nearSeat, selectedSeatsList, details, offsetPlaces);
+                let unmarkSeats = previousSuggestedSeatsIndex;
+                previousSuggestedSeatsIndex = {};
+                if (suggestedSeats) {
+                    for (let seat of suggestedSeats) {
+                        previousSuggestedSeatsIndex[seat.id] = seat.id;
+                        if (typeof unmarkSeats[seat.id] !== 'undefined') {
+                            delete unmarkSeats[seat.id];
+                        }
                     }
-                }
 
-                placesMap.markSuggestedSeats(suggestedSeats, offsetPlaces);
-            }
-            if (unmarkSeats) {
-                placesMap.unmarkSuggestedSeats(Object.values(unmarkSeats));
+                    placesMap.markSuggestedSeats(suggestedSeats, offsetPlaces);
+                }
+                if (unmarkSeats) {
+                    placesMap.unmarkSuggestedSeats(Object.values(unmarkSeats));
+                }
             }
         }
     };
