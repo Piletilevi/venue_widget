@@ -81,7 +81,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
             }
 
             placeElement.addEventListener('mousemove', mouseMove);
-            placeElement.addEventListener('mouseout', mouseOut);
+            placeElement.addEventListener('mouseleave', mouseOut);
         } else {
             if (venueMap.isSeatSuggestingEnabled()) {
                 touchManager.removeEventListener(placeElement, 'start', pointerStart);
@@ -89,7 +89,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
             }
 
             placeElement.removeEventListener('mousemove', mouseMove);
-            placeElement.removeEventListener('mouseout', mouseOut);
+            placeElement.removeEventListener('mouseleave', mouseOut);
         }
         if (seatInfo && manuallySelectable && (status === STATUS_AVAILABLE || status === STATUS_SELECTED)) {
             touchManager.addEventListener(placeElement, 'end', pointerEnd);

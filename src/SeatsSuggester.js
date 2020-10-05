@@ -39,7 +39,7 @@ export default function SeatsSuggester() {
     };
     const checkFromRowStart = function(nearSeatIndex, row, amount) {
         stickToIndex = false;
-        const checkedIndexes = [];
+        let checkedIndexes = [];
         //take row boundaries into account
         let startIndex = Math.max(nearSeatIndex - amount + 1, 0);
         //start from "start of row", move to end searching for free places
@@ -55,8 +55,9 @@ export default function SeatsSuggester() {
             //now check all forward seats to find whether they are all free for taking
             do {
                 //if place is not free or doesnt exist
-                //then go out and check next chain of seats
+                //then reset indexes chaing and move to next seat
                 if (typeof row[seatIndex] === 'undefined' || row[seatIndex].status !== STATUS_AVAILABLE) {
+                    checkedIndexes = [];
                     stickToIndex = false;
                     break;
                 }
@@ -69,12 +70,12 @@ export default function SeatsSuggester() {
                 return checkedIndexes;
             }
         }
-        return [];
+        return checkedIndexes;
     };
 
     const checkFromRowEnd = function(nearSeatIndex, row, amount) {
         stickToIndex = false;
-        const checkedIndexes = [];
+        let checkedIndexes = [];
         //take row boundaries into account
         let startIndex = Math.min(nearSeatIndex + amount - 1, row.length - 1);
         //start from "end of row", move to start, searching for free places
@@ -90,8 +91,9 @@ export default function SeatsSuggester() {
             //now check all forward seats to find whether they are all free for taking
             do {
                 //if place is not free or doesnt exist
-                //then go out and check next chain of seats
+                //then reset indexes chaing and move to next seat
                 if (typeof row[seatIndex] === 'undefined' || row[seatIndex].status !== STATUS_AVAILABLE) {
+                    checkedIndexes = [];
                     stickToIndex = false;
                     break;
                 }
@@ -104,7 +106,7 @@ export default function SeatsSuggester() {
                 return checkedIndexes;
             }
         }
-        return [];
+        return checkedIndexes;
     };
     const gatherRowSeats = function(seatsInfo, nearSeat) {
         const row = [];
@@ -120,4 +122,4 @@ export default function SeatsSuggester() {
         }
         return row;
     };
-};
+}

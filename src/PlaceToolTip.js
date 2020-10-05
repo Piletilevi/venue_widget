@@ -1,3 +1,5 @@
+import './place_tooltip.css';
+
 export default function(venueMap) {
     const self = this;
     let componentElement;
@@ -12,11 +14,17 @@ export default function(venueMap) {
     let priceRowElement;
     let statusRowElement;
     let popupOffset = 0;
+    let displayed = false;
+    let statuses = {
+        0: 'booked',
+        1: 'available',
+        2: 'selected',
+        3: 'not_sold'
+    };
 
     const createDomElements = function() {
         componentElement = document.createElement('div');
         componentElement.className = 'place_tooltip';
-        componentElement.style.display = 'none';
         document.body.appendChild(componentElement);
 
         let contentElement = document.createElement('div');
@@ -102,13 +110,31 @@ export default function(venueMap) {
         if (!componentElement) {
             createDomElements();
         }
+        updateContents(seat, status);
+        if (!displayed) {
+            displayed = true;
+            componentElement.classList.add('place_tooltip_display');
+        }
+        updatePosition(x, y);
+    };
+    this.hide = function() {
+        if (displayed) {
+            displayed = false;
+            if (componentElement) {
+                componentElement.classList.remove('place_tooltip_display');
+            }
+        }
+    };
+    this.dispose = function() {
+        window.removeEventListener('resize', self.resize);
+
+        if (componentElement && componentElement.parentNode) {
+            componentElement.parentNode.removeChild(componentElement);
+        }
+        componentElement = null;
+    };
+    const updateContents = function(seat, status) {
         self.clear();
-        let statuses = {
-            0: 'booked',
-            1: 'available',
-            2: 'selected',
-            3: 'not_sold'
-        };
         let statusCode = statuses[status] || statuses[0];
         let sectionTitle = '';
         if (venueMap.getSectionsMapType() === 'full_venue') {
@@ -139,6 +165,8 @@ export default function(venueMap) {
             priceElement.appendChild(document.createTextNode(seat.price));
             priceRowElement.style.display = '';
         }
+    };
+    const updatePosition = function(x, y) {
         let viewPortWidth;
         if (window.innerHeight) {
             viewPortWidth = window.innerWidth;
@@ -147,8 +175,6 @@ export default function(venueMap) {
         }
         componentElement.style.left = 0 + 'px';
         componentElement.style.top = 0 + 'px';
-        componentElement.style.visibility = 'hidden';
-        componentElement.style.display = 'block';
         let popupWidth = componentElement.offsetWidth;
         let popupHeight = componentElement.offsetHeight;
         let leftPosition = x + popupOffset;
@@ -162,19 +188,5 @@ export default function(venueMap) {
         }
         componentElement.style.left = leftPosition + 'px';
         componentElement.style.top = topPosition + 'px';
-        componentElement.style.visibility = 'visible';
-    };
-    this.hide = function() {
-        if (componentElement) {
-            componentElement.style.display = 'none';
-        }
-    };
-    this.dispose = function() {
-        window.removeEventListener('resize', self.resize);
-
-        if (componentElement && componentElement.parentNode) {
-            componentElement.parentNode.removeChild(componentElement);
-        }
-        componentElement = null;
     };
 };
