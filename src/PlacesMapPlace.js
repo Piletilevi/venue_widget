@@ -1,3 +1,4 @@
+import './css/seat.css';
 import touchManager from './TouchManager';
 
 export default function PlacesMapPlace(venueMap, placeElement) {
@@ -5,6 +6,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     const STATUS_TAKEN = 0;
     const STATUS_AVAILABLE = 1;
     const STATUS_SELECTED = 2;
+    const STATUS_BUFFERED = 3;
 
     this.id = false;
     let seatInfo;
@@ -60,20 +62,30 @@ export default function PlacesMapPlace(venueMap, placeElement) {
         }
     };
     this.refreshStatus = function() {
-        let seatColor;
-        withText = true;
-        if (status === STATUS_SELECTED) {
-            seatColor = venueMap.getSeatColor('active');
-        } else if (priceClass && (status === STATUS_AVAILABLE || !seatsStatusDisplayed)) {
-            seatColor = priceClass.color;
+        if (status === STATUS_BUFFERED) {
+            self.renderBuffered();
         } else {
-            seatColor = venueMap.getSeatColor('inactive');
-            withText = inactiveNumbered;
+            let seatColor;
+            let textColor;
+
+            withText = true;
+            textColor = '#ffffff';
+            if (status === STATUS_SELECTED) {
+                seatColor = venueMap.getSeatColor('active');
+            } else if (priceClass && (status === STATUS_AVAILABLE || !seatsStatusDisplayed)) {
+                seatColor = priceClass.color;
+            } else {
+                seatColor = venueMap.getSeatColor('inactive');
+                withText = inactiveNumbered;
+                textColor = '#000000';
+            }
+            if (textElement) {
+                textElement.style.display = withText ? '' : 'none';
+            }
+            setSeatColor(seatColor);
+            setTextColor(textColor);
         }
-        if (textElement) {
-            textElement.style.display = withText ? '' : 'none';
-        }
-        setColor(seatColor);
+
         if (seatInfo) {
             if (venueMap.isSeatSuggestingEnabled()) {
                 touchManager.addEventListener(placeElement, 'start', pointerStart);
@@ -97,20 +109,23 @@ export default function PlacesMapPlace(venueMap, placeElement) {
             touchManager.removeEventListener(placeElement, 'end', pointerEnd);
         }
     };
-    const setColor = function(seatColor) {
+    const setSeatColor = function(seatColor) {
         if (placeElement) {
             if (manuallySelectable) {
                 placeElement.setAttribute('style', 'cursor:pointer;fill:' + seatColor);
             } else {
                 placeElement.setAttribute('style', 'fill:' + seatColor);
             }
-            if (textElement && withText) {
-                if (seatColor === venueMap.getSeatColor('inactive')) {
-                    textElement.setAttribute('fill', '#000000');
-                } else {
-                    textElement.setAttribute('fill', '#ffffff');
-                }
-            }
+        }
+    };
+    const setSeatBorderColor = function(seatBorderColor) {
+        if (placeElement) {
+            placeElement.setAttribute('stroke', seatBorderColor);
+        }
+    };
+    const setTextColor = function(textColor) {
+        if (textElement && withText) {
+            textElement.setAttribute('fill', textColor);
         }
     };
     this.canBeSelected = function() {
@@ -156,7 +171,13 @@ export default function PlacesMapPlace(venueMap, placeElement) {
         return placeElement;
     };
     this.highlight = function() {
-        setColor(venueMap.getSeatColor('hover'));
+        setSeatColor(venueMap.getSeatColor('hover'));
+    };
+    this.renderBuffered = function() {
+        let seatColor = venueMap.getSeatColor('buffered');
+        let seatBorderColor = venueMap.getSeatColor('bufferedBorder');
+        setSeatColor(seatColor);
+        setSeatBorderColor(seatBorderColor);
     };
     init();
 };

@@ -1,0 +1,12 @@
+.piletilevi_venue_map_canvas .place {
+    cursor: pointer;
+    stroke-width: 1;
+}
+
+.piletilevi_venue_map .place_detail {
+    display: none;
+}
+
+.piletilevi_venue_map .with_seat_numbers .place_detail {
+    display: inline;
+}

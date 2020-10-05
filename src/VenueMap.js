@@ -58,9 +58,10 @@ export default function() {
     const seatColors = {
         'hover': Constants.DEFAULT_SEAT_HOVER_COLOR,
         'active': Constants.DEFAULT_SEAT_ACTIVE_COLOR,
-        'inactive': Constants.DEFAULT_SEAT_INACTIVE_COLOR
+        'inactive': Constants.DEFAULT_SEAT_INACTIVE_COLOR,
+        'buffered': Constants.DEFAULT_SEAT_BUFFERED_COLOR,
+        'bufferedBorder': Constants.DEFAULT_SEAT_BUFFERED_BORDER_COLOR,
     };
-
     const init = function() {
         componentElement = document.createElement('div');
         componentElement.className = 'piletilevi_venue_map';
@@ -431,6 +432,8 @@ export default function() {
         seatColors.hover = newColors.hover || Constants.DEFAULT_SEAT_HOVER_COLOR;
         seatColors.active = newColors.active || Constants.DEFAULT_SEAT_ACTIVE_COLOR;
         seatColors.inactive = newColors.inactive || Constants.DEFAULT_SEAT_INACTIVE_COLOR;
+        seatColors.buffered = newColors.buffered || Constants.DEFAULT_SEAT_BUFFERED_COLOR;
+        seatColors.bufferedBorder = newColors.bufferedBorder || Constants.DEFAULT_SEAT_BUFFERED_BORDER_COLOR;
     };
     this.getSeatColor = function(state) {
         return seatColors[state];
@@ -634,6 +637,7 @@ export default function() {
         const details = sectionsDetails[sectionId];
         const suggestedSeats = seatsSuggester.suggestNewSeats(nearSeat, Object.values(selectedSeatsIndex), details);
         let unmarkSeats = previousSuggestedSeatsIndex;
+        previousSuggestedSeatsIndex = {};
         if (suggestedSeats) {
             for (let seat of suggestedSeats) {
                 previousSuggestedSeatsIndex[seat.id] = seat.id;

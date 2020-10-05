@@ -1,4 +1,4 @@
-export default function(text, color, extraClass, suffix) {
+export default function PlaceMapLegentItem(text, color, extraClass, suffix) {
     this.colorElement = false;
     this.titleElement = false;
     this.suffixElement = false;

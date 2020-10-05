@@ -1,4 +1,4 @@
-import './place_tooltip.css';
+import './css/tooltip.css';
 
 export default function(venueMap) {
     const self = this;

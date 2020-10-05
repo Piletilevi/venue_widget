@@ -1,3 +1,5 @@
+import './css/legend.css';
+
 import Controls from "./Controls";
 import Utilities from "./Utilities";
 import SelectionRectangle from "./SelectionRectangle";

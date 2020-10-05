@@ -1,0 +1,162 @@
+.piletilevi_venue_map {
+    position: relative;
+}
+
+.piletilevi_venue_map_sections > svg {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.piletilevi_venuemap_selection_rectangle {
+    background: rgba(10, 45, 237, 0.08);
+    border: 1px solid rgba(10, 45, 237, 0.2);
+    box-sizing: border-box;
+}
+
+.piletilevi_venue_map .section_label {
+    display: none;
+    text-shadow: 1px 1px #ffffff;
+    pointer-events: none;
+}
+
+.piletilevi_venue_map .with_section_labels .section_label {
+    display: inline;
+}
+
+.piletilevi_venue_map_canvas {
+    display: block;
+    text-align: center;
+    white-space: nowrap;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
+
+.piletilevi_venue_map_places_main {
+    min-height: 180px;
+    min-width: 100%;
+}
+
+.piletilevi_venue_map_places_with_controls .piletilevi_venue_map_canvas {
+    padding-left: 39px;
+    padding-right: 39px;
+}
+
+.piletilevi_venue_map_canvas svg {
+    display: inline;
+    vertical-align: top;
+}
+
+.piletilevi_venue_map_controls {
+    position: absolute;
+    right: 3px;
+    bottom: 30px;
+    box-shadow: 0 0 3px #c5c5c5;
+}
+
+.piletilevi_venue_map_control {
+    font-family: Arial, sans-serif;
+    font-size: 27px;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-top: 1px solid #e6e6e6;
+    padding: 0;
+    outline: none;
+    display: block;
+    line-height: 0;
+    font-weight: bold;
+    background: #ffffff;
+    color: #c5c5c5;
+    text-align: center;
+    overflow: hidden;
+}
+
+.piletilevi_venue_map_control.piletilevi_venue_map_control_active {
+    color: #000000;
+    cursor: pointer;
+}
+
+.piletilevi_venue_map_control:first-child {
+    border-top: 0;
+}
+
+.piletilevi_venue_map_control:before {
+    display: inline-block;
+    content: '';
+    height: 100%;
+    width: 1px;
+    margin-left: -1px;
+    vertical-align: middle;
+}
+
+.piletilevi_venue_map_control:after {
+    display: inline-block;
+    content: '';
+    vertical-align: middle;
+}
+
+.piletilevi_venue_map_control_extend:after {
+    height: 10px;
+    width: 14px;
+    border: 2px solid #c5c5c5;
+}
+
+.piletilevi_venue_map_control_extend.piletilevi_venue_map_control_active:after {
+    border-color: #000000;
+}
+
+.piletilevi_venue_map_extended .piletilevi_venue_map_control_extend:after {
+    height: 5px;
+}
+
+.piletilevi_venue_map_control_zoomin:after {
+    content: '+';
+}
+
+.piletilevi_venue_map_control_zoomout:after {
+    content: '-';
+}
+
+.piletilevi_venue_map_control_resetzoom:after {
+    content: '×';
+}
+
+
+[data-draggable-state='draggable'] {
+    cursor: grab;
+}
+
+[data-draggable-state='dragging'] {
+    cursor: grabbing;
+}
+
+.piletilevi_venue_map_places {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.places_map_sections_thumbnail {
+    width: 30%;
+    max-height: 15em;
+    position: relative;
+}
+
+.piletilevi_venue_map_places:not(.piletilevi_venue_map_places_with_map) .places_map_sections_thumbnail {
+    display: none;
+}
+
+.places_map_sections_thumbnail_overflow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+}
