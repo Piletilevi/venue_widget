@@ -1,22 +1,34 @@
+import Constants from './Constants';
+
 export default function SeatsSuggester() {
     let nearSeatIndex;
     let stickToIndex;
-    const STATUS_AVAILABLE = 1;
 
-    this.suggestNewSeats = function(nearSeat, selectedSeats, details, offsetPlaces) {
+    this.suggestNewSeats = function(nearSeat, customerSeats, details, offsetPlaces) {
         let suggestedIndexes = null;
-        const amount = selectedSeats.length + offsetPlaces * 2;
-
-        //are some places selected at all
-        if (!amount) {
-            return false;
-        }
 
         //do we have seats in section?
         if (typeof details.seatsInfo === 'undefined') {
             return false;
         }
+        let selectedSeats = [];
+        //leave only selected places from customerSeats, without buffer-places
+        for (let seatId of customerSeats) {
+            for (let seat of details.seatsInfo) {
+                if (seat.id === seatId) {
+                    if (seat.status === Constants.STATUS_SELECTED) {
+                        selectedSeats.push(seatId);
+                    }
+                }
+            }
+        }
 
+        //are some places selected at all
+        if (!selectedSeats.length) {
+            return false;
+        }
+
+        const amount = selectedSeats.length + offsetPlaces * 2;
         const row = gatherRowSeats(details.seatsInfo, nearSeat);
 
         //if row has been found
@@ -47,7 +59,7 @@ export default function SeatsSuggester() {
             //previous place doesnt exist, we should stick to it
             if (typeof row[seatIndex - 1] === 'undefined') {
                 stickToIndex = seatIndex;
-            } else if (row[seatIndex - 1].status !== STATUS_AVAILABLE) {
+            } else if (row[seatIndex - 1].status !== Constants.STATUS_AVAILABLE) {
                 stickToIndex = seatIndex;
             }
 
@@ -56,7 +68,7 @@ export default function SeatsSuggester() {
             do {
                 //if place is not free or doesnt exist
                 //then reset indexes chaing and move to next seat
-                if (typeof row[seatIndex] === 'undefined' || row[seatIndex].status !== STATUS_AVAILABLE) {
+                if (typeof row[seatIndex] === 'undefined' || row[seatIndex].status !== Constants.STATUS_AVAILABLE) {
                     checkedIndexes = [];
                     stickToIndex = false;
                     break;
@@ -83,7 +95,7 @@ export default function SeatsSuggester() {
             //previous place doesnt exist, we should stick to it
             if (typeof row[seatIndex + 1] === 'undefined') {
                 stickToIndex = seatIndex;
-            } else if (row[seatIndex + 1].status !== STATUS_AVAILABLE) {
+            } else if (row[seatIndex + 1].status !== Constants.STATUS_AVAILABLE) {
                 stickToIndex = seatIndex;
             }
 
@@ -92,7 +104,7 @@ export default function SeatsSuggester() {
             do {
                 //if place is not free or doesnt exist
                 //then reset indexes chaing and move to next seat
-                if (typeof row[seatIndex] === 'undefined' || row[seatIndex].status !== STATUS_AVAILABLE) {
+                if (typeof row[seatIndex] === 'undefined' || row[seatIndex].status !== Constants.STATUS_AVAILABLE) {
                     checkedIndexes = [];
                     stickToIndex = false;
                     break;

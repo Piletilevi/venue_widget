@@ -3,7 +3,7 @@ import Utilities from './Utilities';
 import SectionsMap from './SectionsMap';
 import PlacesMap from './PlacesMap';
 import Constants from './Constants';
-import SeatsSuggester from 'piletilevi-venuemap/src/SeatsSuggester';
+import SeatsSuggester from './SeatsSuggester';
 
 export default function() {
     const self = this;
@@ -18,7 +18,7 @@ export default function() {
     let sectionsMapImageUrl = '';
     let sections = [];
     let enabledSections = [];
-    let selectedSeatsIndex = {};
+    let customerSeatsIndex = {};
     let eventHandlers = {};
     let sectionsDetails = {};
     let sectionsMap;
@@ -420,18 +420,18 @@ export default function() {
     this.getSectionDetails = function(id) {
         return sectionsDetails[id] || null;
     };
-    this.setSelectedSeats = function(newSelectedSeats) {
-        for (let i = newSelectedSeats.length; i--;) {
-            selectedSeatsIndex[newSelectedSeats[i]] = true;
+    this.setCustomerSeats = function(seats) {
+        for (let i = seats.length; i--;) {
+            customerSeatsIndex[seats[i]] = true;
         }
     };
-    this.unSetSelectedSeats = function(unSelectedSeats) {
-        for (let i = unSelectedSeats.length; i--;) {
-            delete selectedSeatsIndex[unSelectedSeats[i]];
+    this.unSetCustomerSeats = function(seats) {
+        for (let i = seats.length; i--;) {
+            delete customerSeatsIndex[seats[i]];
         }
     };
-    this.unSelectSeat = function(seatId) {
-        delete selectedSeatsIndex[seatId];
+    this.unSetCustomerSeat = function(seatId) {
+        delete customerSeatsIndex[seatId];
     };
     this.setSeatColors = function(newColors) {
         seatColors.hover = newColors.hover || Constants.DEFAULT_SEAT_HOVER_COLOR;
@@ -444,7 +444,7 @@ export default function() {
         return seatColors[state];
     };
     this.isSeatSelected = function(seatId) {
-        return selectedSeatsIndex[seatId] || false;
+        return customerSeatsIndex[seatId] || false;
     };
     this.getSectionBySeatId = function(seatId) {
         return seatsSections[seatId] || null;
@@ -639,11 +639,11 @@ export default function() {
     };
     this.suggestSeats = function(sectionId, nearSeat) {
         if (seatSuggestingEnabled) {
-            let selectedSeatsList = Object.values(selectedSeatsIndex);
-            if (selectedSeatsList.length > 0) {
+            let customerSeatsList = Object.keys(customerSeatsIndex).map(seatId => parseInt(seatId, 10));
+            if (customerSeatsList.length > 0) {
                 const seatsSuggester = new SeatsSuggester();
                 const details = sectionsDetails[sectionId];
-                const suggestedSeats = seatsSuggester.suggestNewSeats(nearSeat, selectedSeatsList, details, offsetPlaces);
+                const suggestedSeats = seatsSuggester.suggestNewSeats(nearSeat, customerSeatsList, details, offsetPlaces);
                 let unmarkSeats = previousSuggestedSeatsIndex;
                 previousSuggestedSeatsIndex = {};
                 if (suggestedSeats) {
@@ -658,6 +658,20 @@ export default function() {
                 }
                 if (unmarkSeats) {
                     placesMap.unmarkSuggestedSeats(Object.values(unmarkSeats));
+                }
+            }
+        }
+    };
+    this.seatClicked = function(sectionId, seatId) {
+        if (seatSuggestingEnabled) {
+            let customerSeatsList = Object.keys(customerSeatsIndex).map(seatId => parseInt(seatId, 10));
+            if (previousSuggestedSeatsIndex && customerSeatsList.length > 0) {
+                let suggestedSeatsList = Object.keys(previousSuggestedSeatsIndex).map(seatId => parseInt(seatId, 10));
+                const selectedSeats = suggestedSeatsList.filter(function(seatId, key, seats) {
+                    return (key >= offsetPlaces) && (key < seats.length - offsetPlaces);
+                });
+                if (selectedSeats.length) {
+                    ticketsManager.sendStatusRequest(selectedSeats, sectionId);
                 }
             }
         }

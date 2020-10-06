@@ -1,12 +1,9 @@
 import './css/seat.css';
 import touchManager from './TouchManager';
+import Constants from './Constants';
 
 export default function PlacesMapPlace(venueMap, placeElement) {
     const self = this;
-    const STATUS_TAKEN = 0;
-    const STATUS_AVAILABLE = 1;
-    const STATUS_SELECTED = 2;
-    const STATUS_BUFFERED = 3;
 
     this.id = false;
     let seatInfo;
@@ -16,7 +13,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     let inactiveNumbered = false;
     let withText = true;
     let priceClass;
-    let status = STATUS_TAKEN;
+    let status = Constants.STATUS_TAKEN;
     let textElement;
 
     const init = function() {
@@ -28,7 +25,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     const mouseMove = function(event) {
         const x = Math.max(0, event.pageX);
         const y = Math.max(0, event.pageY - 2);
-        if (status !== STATUS_BUFFERED){
+        if (status !== Constants.STATUS_BUFFERED){
             venueMap.getPlaceToolTip().display(seatInfo, status, x, y);
         }
         if (manuallySelectable) {
@@ -44,27 +41,28 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     const pointerEnd = function(event) {
         event.preventDefault();
         if (manuallySelectable && seatInfo) {
-            if (status === STATUS_AVAILABLE) {
-                status = STATUS_SELECTED;
+            if (status === Constants.STATUS_AVAILABLE) {
+                status = Constants.STATUS_SELECTED;
                 self.refreshStatus();
                 venueMap.trigger('seatsSelected', [seatInfo.id]);
                 venueMap.trigger('seatSelected', seatInfo.id);
-            } else if (status === STATUS_SELECTED) {
-                status = STATUS_AVAILABLE;
+            } else if (status === Constants.STATUS_SELECTED) {
+                status = Constants.STATUS_AVAILABLE;
                 self.refreshStatus();
                 venueMap.trigger('seatsDeselected', [seatInfo.id]);
                 venueMap.trigger('seatUnSelected', seatInfo.id);
             }
         }
+        venueMap.seatClicked(sectionId, seatInfo.id);
     };
     const pointerStart = function(event) {
         event.preventDefault();
-        if (seatInfo && seatInfo.status === STATUS_AVAILABLE) {
+        if (seatInfo && seatInfo.status === Constants.STATUS_AVAILABLE) {
             venueMap.suggestSeats(sectionId, seatInfo);
         }
     };
     this.refreshStatus = function() {
-        if (status === STATUS_BUFFERED) {
+        if (status === Constants.STATUS_BUFFERED) {
             self.renderBuffered();
         } else {
             let seatColor;
@@ -72,9 +70,9 @@ export default function PlacesMapPlace(venueMap, placeElement) {
 
             withText = true;
             textColor = '#ffffff';
-            if (status === STATUS_SELECTED) {
+            if (status === Constants.STATUS_SELECTED) {
                 seatColor = venueMap.getSeatColor('active');
-            } else if (priceClass && (status === STATUS_AVAILABLE || !seatsStatusDisplayed)) {
+            } else if (priceClass && (status === Constants.STATUS_AVAILABLE || !seatsStatusDisplayed)) {
                 seatColor = priceClass.color;
             } else {
                 seatColor = venueMap.getSeatColor('inactive');
@@ -105,7 +103,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
             placeElement.removeEventListener('mousemove', mouseMove);
             placeElement.removeEventListener('mouseleave', mouseOut);
         }
-        if (seatInfo && manuallySelectable && (status === STATUS_AVAILABLE || status === STATUS_SELECTED)) {
+        if (seatInfo && (status === Constants.STATUS_AVAILABLE || status === Constants.STATUS_SELECTED)) {
             touchManager.addEventListener(placeElement, 'end', pointerEnd);
         } else {
             touchManager.removeEventListener(placeElement, 'end', pointerEnd);
@@ -131,7 +129,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
         }
     };
     this.canBeSelected = function() {
-        return manuallySelectable && seatInfo && (status === STATUS_AVAILABLE || status === STATUS_SELECTED);
+        return manuallySelectable && seatInfo && (status === Constants.STATUS_AVAILABLE || status === Constants.STATUS_SELECTED);
     };
     this.allowManuallySelectable = function(newSelectable) {
         manuallySelectable = !!newSelectable;
@@ -160,14 +158,14 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     };
     this.setSelected = function(newSelected) {
         switch (status) {
-            case STATUS_AVAILABLE:
-            case STATUS_SELECTED:
-                status = newSelected ? STATUS_SELECTED : STATUS_AVAILABLE;
+            case Constants.STATUS_AVAILABLE:
+            case Constants.STATUS_SELECTED:
+                status = newSelected ? Constants.STATUS_SELECTED : Constants.STATUS_AVAILABLE;
                 break;
         }
     };
     this.isSelected = function() {
-        return status === STATUS_SELECTED;
+        return status === Constants.STATUS_SELECTED;
     };
     this.getElement = function() {
         return placeElement;
