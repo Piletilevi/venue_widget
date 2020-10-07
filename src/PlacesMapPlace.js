@@ -25,7 +25,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     const mouseMove = function(event) {
         const x = Math.max(0, event.pageX);
         const y = Math.max(0, event.pageY - 2);
-        if (status !== Constants.STATUS_BUFFERED){
+        if (status !== Constants.STATUS_BUFFERED) {
             venueMap.getPlaceToolTip().display(seatInfo, status, x, y);
         }
         if (manuallySelectable) {
@@ -62,7 +62,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
         }
     };
     this.refreshStatus = function() {
-        if (status === Constants.STATUS_BUFFERED) {
+        if ((status === Constants.STATUS_BUFFERED) && seatsStatusDisplayed) {
             self.renderBuffered();
         } else {
             let seatColor;
