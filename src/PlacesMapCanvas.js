@@ -1,9 +1,9 @@
-import PlacesMapPlace from "./PlacesMapPlace";
-import PlacesMapStageLabel from "./PlacesMapStageLabel";
-import Constants from "./Constants";
-import Utilities from "./Utilities";
-import ScalableComponent from "./ScalableComponent";
-import DraggableComponent from "./DraggableComponent";
+import PlacesMapPlace from './PlacesMapPlace';
+import PlacesMapStageLabel from './PlacesMapStageLabel';
+import Constants from './Constants';
+import Utilities from './Utilities';
+import ScalableComponent from './ScalableComponent';
+import DraggableComponent from './DraggableComponent';
 
 export default function PlacesMapCanvas(venueMap, svgElement, sectionLabelElements) {
     const self = this;
@@ -509,18 +509,18 @@ export default function PlacesMapCanvas(venueMap, svgElement, sectionLabelElemen
     };
     this.markSuggestedSeats = function(seats, offsetPlaces) {
         seats.map(function(seat, key) {
-            if (key < offsetPlaces || key >= seats.length - offsetPlaces){
+            if (key < offsetPlaces || key >= seats.length - offsetPlaces) {
                 placesIndex[seat.id].renderBuffered();
             } else {
                 placesIndex[seat.id].highlight();
             }
         });
-    }
+    };
     this.unmarkSuggestedSeats = function(seatIds) {
         seatIds.map(function(seatId) {
             placesIndex[seatId].refreshStatus();
         });
-    }
+    };
     init();
 };
 ScalableComponent.call(PlacesMapCanvas.prototype);

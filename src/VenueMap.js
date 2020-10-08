@@ -260,7 +260,7 @@ export default function() {
 
                 placesMap.setDisplayed(true);
 
-                let sectionDetails = self.getSectionDetails(activeSection);
+                let sectionDetails = getSectionDetails(activeSection);
                 placesMap.updateSectionDetails(sectionDetails);
                 if (activeSection === previousSection) {
                     return;
@@ -417,7 +417,7 @@ export default function() {
             seatsSections[seat.id] = details;
         }
     };
-    this.getSectionDetails = function(id) {
+    const getSectionDetails = function(id) {
         return sectionsDetails[id] || null;
     };
     this.setCustomerSeats = function(seats) {
@@ -642,7 +642,7 @@ export default function() {
             let customerSeatsList = Object.keys(customerSeatsIndex).map(seatId => parseInt(seatId, 10));
             if (customerSeatsList.length > 0) {
                 const seatsSuggester = new SeatsSuggester();
-                const details = sectionsDetails[sectionId];
+                const details = getSectionDetails(sectionId);
                 const suggestedSeats = seatsSuggester.suggestNewSeats(nearSeat, customerSeatsList, details, offsetPlaces);
                 let unmarkSeats = previousSuggestedSeatsIndex;
                 previousSuggestedSeatsIndex = {};
