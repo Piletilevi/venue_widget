@@ -5,7 +5,7 @@ export default function SeatsSuggester() {
     let stickToIndex;
 
     this.suggestNewSeats = function(nearSeat, customerSeats, details, offsetPlaces) {
-        let suggestedIndexes = null;
+        let suggestedIndexes = [];
 
         //do we have seats in section?
         if (typeof details.seatsInfo === 'undefined') {
@@ -35,12 +35,20 @@ export default function SeatsSuggester() {
         if (!row) {
             return false;
         }
-
-        suggestedIndexes = checkFromRowStart(nearSeatIndex, row, amount);
-        if (stickToIndex === false) {
+        //try sticking to row start side
+        let potentialIndexes = checkFromRowStart(nearSeatIndex, row, amount);
+        if (stickToIndex !== false) {
+            suggestedIndexes = potentialIndexes;
+        } else {
+            //now try sticking to row end side
             let potentialIndexes = checkFromRowEnd(nearSeatIndex, row, amount);
             if (stickToIndex !== false) {
                 suggestedIndexes = potentialIndexes;
+            } else {
+                nearSeatIndex = nearSeatIndex - Math.floor(amount / 2);
+                nearSeatIndex = Math.min(nearSeatIndex, row.length - 1);
+                nearSeatIndex = Math.max(nearSeatIndex, 0);
+                suggestedIndexes = checkFromRowEnd(nearSeatIndex, row, amount);
             }
         }
         const result = [];

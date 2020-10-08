@@ -227,10 +227,20 @@ export default function() {
         componentElement.appendChild(sectionsMapElement);
     };
     this.updateSeat = function(seat) {
+        //check if seat is selected, remove it from selected
         if (seat.status !== Constants.STATUS_SELECTED) {
-            self.unSetCustomerSeats([seat.seat]);
+            self.unSetCustomerSeats([seat.id]);
         }
-        if (placesMap){
+        //update seat in sections seats list
+        let sectionId = sectionsIdsBySeats[seat.id];
+        let section = getSection(sectionId);
+        for (let i = section.seatsInfo.length; i--;) {
+            if (section.seatsInfo[i].id === seat.id) {
+                section.seatsInfo[i] = seat;
+            }
+        }
+        //re-render seat really
+        if (placesMap) {
             placesMap.updateSeat(seat);
         }
     };
@@ -435,6 +445,12 @@ export default function() {
     this.unSetCustomerSeats = function(seats) {
         for (let i = seats.length; i--;) {
             delete customerSeatsIndex[seats[i]];
+        }
+        //suggestedSeats should be removed as well, they no longer correspond to customer's selected seats
+        if (previousSuggestedSeatsIndex){
+            let unmarkSeats = Object.keys(previousSuggestedSeatsIndex);
+            placesMap.unmarkSuggestedSeats(Object.values(unmarkSeats));
+            previousSuggestedSeatsIndex = false;
         }
     };
     this.unSetCustomerSeat = function(seatId) {
