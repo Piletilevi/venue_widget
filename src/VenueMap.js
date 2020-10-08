@@ -20,11 +20,11 @@ export default function() {
     let enabledSections = [];
     let customerSeatsIndex = {};
     let eventHandlers = {};
-    let sectionsDetails = {};
+    let sectionsList = {};
     let sectionsMap;
     let placesMap;
-    let previousSection;
-    let activeSection;
+    let previousSectionId;
+    let activeSectionId;
     let componentElement;
     let zoomLevel = 0;
     let translations = [];
@@ -38,7 +38,7 @@ export default function() {
     let lastLoadedPlacesSuccessful = false;
     let withControls = false;
     let extensionHandler;
-    let seatsSections = {};
+    let sectionsIdsBySeats = {};
     let requestCache = {};
     let extended = false;
     let massSelectable = false;
@@ -77,7 +77,7 @@ export default function() {
     };
     const adjustToZoom = function(withAnimation, focalPoint) {
         adjustZoomControls();
-        if (activeSection || sectionsMapType === 'full_venue') {
+        if (activeSectionId || sectionsMapType === 'full_venue') {
             placesMap.adjustToZoom(withAnimation, focalPoint);
         } else if (sectionsMap) {
             //sectionsMap.position(); // broken
@@ -159,7 +159,6 @@ export default function() {
             placesMapAvailableSections[seat.section] = true;
         }
     };
-
     const loadVenueMap = function(onSuccess, onFail) {
         if (lastLoadedVenueConf === confId) {
             if (lastLoadedVenueSuccessful) {
@@ -227,6 +226,14 @@ export default function() {
         let sectionsMapElement = sectionsMap.getComponentElement();
         componentElement.appendChild(sectionsMapElement);
     };
+    this.updateSeat = function(seat) {
+        if (seat.status !== Constants.STATUS_SELECTED) {
+            self.unSetCustomerSeats([seat.seat]);
+        }
+        if (placesMap){
+            placesMap.updateSeat(seat);
+        }
+    };
     this.update = function() {
         if (loadingOverrides) {
             // temporary solution 0004087
@@ -242,14 +249,14 @@ export default function() {
         }
         if (sectionsMapType !== 'full_venue') {
             let regions = sectionsMap.getMapRegions();
-            if (activeSection) {
+            if (activeSectionId) {
                 if (self.displayMapInPlaces) {
                     sectionsMap.display();
                     moveSectionsMapToPlaces();
-                    if (typeof regions[activeSection] !== 'undefined') {
-                        regions[activeSection].markActivePermanently();
+                    if (typeof regions[activeSectionId] !== 'undefined') {
+                        regions[activeSectionId].markActivePermanently();
                         for (let sectionId in regions) {
-                            if (sectionId !== activeSection) {
+                            if (sectionId !== activeSectionId) {
                                 regions[sectionId].markInactivePermanently();
                             }
                         }
@@ -260,17 +267,17 @@ export default function() {
 
                 placesMap.setDisplayed(true);
 
-                let sectionDetails = getSectionDetails(activeSection);
-                placesMap.updateSectionDetails(sectionDetails);
-                if (activeSection === previousSection) {
+                let section = getSection(activeSectionId);
+                placesMap.updateSection(section);
+                if (activeSectionId === previousSectionId) {
                     return;
                 }
-                previousSection = activeSection;
+                previousSectionId = activeSectionId;
                 self.hide();
                 self.setCurrentZoomLevel(0);
                 loadVenuePlacesMap(
                     function() {
-                        if (!placesMapAvailableSections[activeSection]) {
+                        if (!placesMapAvailableSections[activeSectionId]) {
                             self.hide();
                             return;
                         }
@@ -278,7 +285,7 @@ export default function() {
                         self.display();
                         placesMap.drawNewMap({
                             data: placesMapData,
-                            relevantSections: [activeSection]
+                            relevantSections: [activeSectionId]
                         });
                     },
                     function() {
@@ -294,7 +301,7 @@ export default function() {
                     }
                 }
                 self.setCurrentZoomLevel(0);
-                previousSection = 0;
+                previousSectionId = 0;
                 placesMap.setDisplayed(false);
                 sectionsMap.update();
                 sectionsMap.display();
@@ -308,7 +315,7 @@ export default function() {
                 );
             }
         } else {
-            placesMap.updateSectionsDetails(sectionsDetails);
+            placesMap.updateSectionsList(sectionsList);
             if (fullMapGenerated) {
                 return;
             }
@@ -411,14 +418,14 @@ export default function() {
         return seatsStatusDisplayed;
     };
     this.addSectionDetails = function(details) {
-        sectionsDetails[details.id] = details;
+        sectionsList[details.id] = details;
         for (let i = details.seatsInfo.length; i--;) {
             let seat = details.seatsInfo[i];
-            seatsSections[seat.id] = details;
+            sectionsIdsBySeats[seat.id] = details.id;
         }
     };
-    const getSectionDetails = function(id) {
-        return sectionsDetails[id] || null;
+    const getSection = function(id) {
+        return sectionsList[id] || null;
     };
     this.setCustomerSeats = function(seats) {
         for (let i = seats.length; i--;) {
@@ -447,7 +454,11 @@ export default function() {
         return customerSeatsIndex[seatId] || false;
     };
     this.getSectionBySeatId = function(seatId) {
-        return seatsSections[seatId] || null;
+        const sectionId = sectionsIdsBySeats[seatId] || null;
+        if (sectionId) {
+            return sectionsList[sectionId];
+        }
+        return null;
     };
     this.addHandler = function(eventName, callBack) {
         if (typeof eventHandlers[eventName] == 'undefined') {
@@ -468,7 +479,7 @@ export default function() {
         }
     };
     this.setSelectedSection = function(sectionId) {
-        activeSection = sectionId;
+        activeSectionId = sectionId;
         if (placesMap && sectionsMapType === 'full_venue') {
             placesMap.selectSection(sectionId);
         }
@@ -486,7 +497,7 @@ export default function() {
         return shopDomain;
     };
     this.getSelectedSection = function() {
-        return activeSection;
+        return activeSectionId;
     };
     this.getComponentElement = function() {
         return componentElement;
@@ -642,7 +653,7 @@ export default function() {
             let customerSeatsList = Object.keys(customerSeatsIndex).map(seatId => parseInt(seatId, 10));
             if (customerSeatsList.length > 0) {
                 const seatsSuggester = new SeatsSuggester();
-                const details = getSectionDetails(sectionId);
+                const details = getSection(sectionId);
                 const suggestedSeats = seatsSuggester.suggestNewSeats(nearSeat, customerSeatsList, details, offsetPlaces);
                 let unmarkSeats = previousSuggestedSeatsIndex;
                 previousSuggestedSeatsIndex = {};

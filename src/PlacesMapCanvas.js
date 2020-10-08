@@ -50,9 +50,6 @@ export default function PlacesMapCanvas(venueMap, svgElement, sectionLabelElemen
         svgDimensions.height = +viewBox[3];
         aspectRatio = svgDimensions.width / svgDimensions.height;
         let elements = svgElement.querySelectorAll('.place');
-        if (!elements.length) {
-            elements = svgElement.querySelectorAll('circle');
-        }
         for (let i = elements.length; i--;) {
             let element = elements[i];
             let id = element.id;
@@ -130,7 +127,15 @@ export default function PlacesMapCanvas(venueMap, svgElement, sectionLabelElemen
     this.getMaxZoomLevel = function() {
         return maxZoomLevel;
     };
-    this.updateSectionDetails = function(sectionDetails) {
+    this.updateSeat = function(seatInfo) {
+        if (!placesIndex[seatInfo.id]) {
+            return;
+        }
+        let placeObject = placesIndex[seatInfo.id];
+        placeObject.setSeatInfo(seatInfo);
+        placeObject.refreshStatus();
+    }
+    this.updateSection = function(sectionDetails) {
         if (!sectionDetails) {
             return;
         }

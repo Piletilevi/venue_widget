@@ -1,10 +1,10 @@
 import './css/legend.css';
 
-import Controls from "./Controls";
-import Utilities from "./Utilities";
-import SelectionRectangle from "./SelectionRectangle";
-import PlaceMapLegendItem from "./PlaceMapLegendItem"
-import PlacesMapCanvasFactory from "./PlacesMapCanvasFactory";
+import Controls from './Controls';
+import Utilities from './Utilities';
+import SelectionRectangle from './SelectionRectangle';
+import PlaceMapLegendItem from './PlaceMapLegendItem';
+import PlacesMapCanvasFactory from './PlacesMapCanvasFactory';
 
 export default function PlacesMap(venueMap) {
     const self = this;
@@ -219,13 +219,14 @@ export default function PlacesMap(venueMap) {
         canvas = canvasFactory.createCanvas(data);
         canvas.attachTo(self);
         for (let key in details) {
-            canvas.updateSectionDetails(details[key]);
+            canvas.updateSection(details[key]);
         }
         pendingCanvasDetails = [];
         canvas.setDisplayed(displayed);
     };
-    this.updateSectionsDetails = function(sectionsDetails) {
+    this.updateSectionsList = function(sectionsDetails) {
         let combinedPriceClasses = [];
+
         for (let key in sectionsDetails) {
             if (sectionsDetails.hasOwnProperty(key)) {
                 details[key] = sectionsDetails[key];
@@ -246,7 +247,7 @@ export default function PlacesMap(venueMap) {
         }
         updateLegend(combinedPriceClasses);
     };
-    this.updateSectionDetails = function(newDetails) {
+    this.updateSection = function(newDetails) {
         if (venueMap.displayMapInPlaces) {
             componentElement.classList.add('piletilevi_venue_map_places_with_map');
         }
@@ -299,7 +300,13 @@ export default function PlacesMap(venueMap) {
         if (!canvas) {
             return;
         }
-        canvas.updateSectionDetails(sectionDetails);
+        canvas.updateSection(sectionDetails);
+    };
+    this.updateSeat = function(seat) {
+        if (!canvas) {
+            return;
+        }
+        canvas.updateSeat(seat);
     };
     const updateLegend = function(priceClasses) {
         let legendItem;
@@ -335,10 +342,10 @@ export default function PlacesMap(venueMap) {
         return mainElement;
     };
     this.markSuggestedSeats = function(seats, offsetPlaces) {
-        canvas.markSuggestedSeats(seats,offsetPlaces);
-    }
+        canvas.markSuggestedSeats(seats, offsetPlaces);
+    };
     this.unmarkSuggestedSeats = function(seats) {
         canvas.unmarkSuggestedSeats(seats);
-    }
+    };
     init();
 };
