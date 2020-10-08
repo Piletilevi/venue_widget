@@ -4,7 +4,7 @@ export default function SeatsSuggester() {
     let nearSeatIndex;
     let stickToIndex;
 
-    this.suggestNewSeats = function(nearSeat, customerSeats, details, offsetPlaces) {
+    this.suggestNewSeats = function(nearSeat, customerSeats, details, offsetAmount) {
         let suggestedIndexes = [];
 
         //do we have seats in section?
@@ -28,7 +28,6 @@ export default function SeatsSuggester() {
             return false;
         }
 
-        const amount = selectedSeats.length + offsetPlaces * 2;
         const row = gatherRowSeats(details.seatsInfo, nearSeat);
 
         //if row has been found
@@ -36,19 +35,19 @@ export default function SeatsSuggester() {
             return false;
         }
         //try sticking to row start side
-        let potentialIndexes = checkFromRowStart(nearSeatIndex, row, amount);
+        let potentialIndexes = checkFromRowStart(nearSeatIndex, row, selectedSeats.length, offsetAmount);
         if (stickToIndex !== false) {
             suggestedIndexes = potentialIndexes;
         } else {
             //now try sticking to row end side
-            let potentialIndexes = checkFromRowEnd(nearSeatIndex, row, amount);
+            let potentialIndexes = checkFromRowEnd(nearSeatIndex, row, selectedSeats.length, offsetAmount);
             if (stickToIndex !== false) {
                 suggestedIndexes = potentialIndexes;
             } else {
-                nearSeatIndex = nearSeatIndex + Math.floor(amount / 2);
+                nearSeatIndex = nearSeatIndex + Math.floor((selectedSeats.length + offsetAmount * 2) / 2);
                 nearSeatIndex = Math.min(nearSeatIndex, row.length - 1);
                 nearSeatIndex = Math.max(nearSeatIndex, 0);
-                suggestedIndexes = checkFromRowStart(nearSeatIndex, row, amount);
+                suggestedIndexes = checkFromRowStart(nearSeatIndex, row, selectedSeats.length, offsetAmount);
             }
         }
         const result = [];
@@ -57,7 +56,9 @@ export default function SeatsSuggester() {
         });
         return result;
     };
-    const checkFromRowStart = function(nearSeatIndex, row, amount) {
+    const checkFromRowStart = function(nearSeatIndex, row, selectedSeatsAmount, offsetAmount) {
+        const amount = selectedSeatsAmount + offsetAmount * 2;
+
         stickToIndex = false;
         let checkedIndexes = [];
         //take row boundaries into account
@@ -72,6 +73,8 @@ export default function SeatsSuggester() {
             }
 
             let checkAmount = amount;
+            let startOffsetAmount = offsetAmount;
+            let endOffsetAmount = offsetAmount;
             //now check all forward seats to find whether they are all free for taking
             do {
                 //if place is not free or doesnt exist
@@ -93,7 +96,9 @@ export default function SeatsSuggester() {
         return checkedIndexes;
     };
 
-    const checkFromRowEnd = function(nearSeatIndex, row, amount) {
+    const checkFromRowEnd = function(nearSeatIndex, row, selectedSeatsAmount, offsetPlacesAmount) {
+        const amount = selectedSeatsAmount + offsetPlacesAmount * 2;
+
         stickToIndex = false;
         let checkedIndexes = [];
         //take row boundaries into account
