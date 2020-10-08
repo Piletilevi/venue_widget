@@ -73,19 +73,30 @@ export default function SeatsSuggester() {
             }
 
             let checkAmount = amount;
-            let startOffsetAmount = offsetAmount;
-            let endOffsetAmount = offsetAmount;
             //now check all forward seats to find whether they are all free for taking
             do {
                 //if place is not free or doesnt exist
                 //then reset indexes chaing and move to next seat
-                if (typeof row[seatIndex] === 'undefined' || row[seatIndex].status !== Constants.STATUS_AVAILABLE) {
+                let breakNeeded = true;
+                if (typeof row[seatIndex] !== 'undefined') {
+                    if (row[seatIndex].status === Constants.STATUS_AVAILABLE) {
+                        breakNeeded = false;
+                    }
+                    if (row[seatIndex].status === Constants.STATUS_BUFFERED) {
+                        if (checkedIndexes.length < offsetAmount || checkedIndexes.length >= amount - offsetAmount) {
+                            breakNeeded = false;
+                        }
+                    }
+                }
+                if (breakNeeded) {
                     checkedIndexes = [];
                     stickToIndex = false;
                     break;
+                } else {
+                    checkedIndexes.push(seatIndex);
+                    seatIndex++;
                 }
-                checkedIndexes.push(seatIndex);
-                seatIndex++;
+
             } while (--checkAmount);
 
             //if we found needed chain of free seats from this direction then go out
@@ -96,8 +107,8 @@ export default function SeatsSuggester() {
         return checkedIndexes;
     };
 
-    const checkFromRowEnd = function(nearSeatIndex, row, selectedSeatsAmount, offsetPlacesAmount) {
-        const amount = selectedSeatsAmount + offsetPlacesAmount * 2;
+    const checkFromRowEnd = function(nearSeatIndex, row, selectedSeatsAmount, offsetAmount) {
+        const amount = selectedSeatsAmount + offsetAmount * 2;
 
         stickToIndex = false;
         let checkedIndexes = [];
@@ -117,13 +128,26 @@ export default function SeatsSuggester() {
             do {
                 //if place is not free or doesnt exist
                 //then reset indexes chaing and move to next seat
-                if (typeof row[seatIndex] === 'undefined' || row[seatIndex].status !== Constants.STATUS_AVAILABLE) {
+                let breakNeeded = true;
+                if (typeof row[seatIndex] !== 'undefined') {
+                    if (row[seatIndex].status === Constants.STATUS_AVAILABLE) {
+                        breakNeeded = false;
+                    }
+                    if (row[seatIndex].status === Constants.STATUS_BUFFERED) {
+                        if (checkedIndexes.length < offsetAmount || checkedIndexes.length >= amount - offsetAmount) {
+                            breakNeeded = false;
+                        }
+                    }
+                }
+                if (breakNeeded) {
                     checkedIndexes = [];
                     stickToIndex = false;
                     break;
+                } else {
+                    checkedIndexes.push(seatIndex);
+                    seatIndex--;
                 }
-                checkedIndexes.push(seatIndex);
-                seatIndex--;
+
             } while (--checkAmount);
 
             //if we found needed chain of free seats from this direction then go out

@@ -163,6 +163,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
                 status = newSelected ? Constants.STATUS_SELECTED : Constants.STATUS_AVAILABLE;
                 break;
         }
+
     };
     this.isSelected = function() {
         return status === Constants.STATUS_SELECTED;
