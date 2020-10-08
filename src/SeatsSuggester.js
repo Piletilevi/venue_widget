@@ -45,10 +45,10 @@ export default function SeatsSuggester() {
             if (stickToIndex !== false) {
                 suggestedIndexes = potentialIndexes;
             } else {
-                nearSeatIndex = nearSeatIndex - Math.floor(amount / 2);
+                nearSeatIndex = nearSeatIndex + Math.floor(amount / 2);
                 nearSeatIndex = Math.min(nearSeatIndex, row.length - 1);
                 nearSeatIndex = Math.max(nearSeatIndex, 0);
-                suggestedIndexes = checkFromRowEnd(nearSeatIndex, row, amount);
+                suggestedIndexes = checkFromRowStart(nearSeatIndex, row, amount);
             }
         }
         const result = [];
