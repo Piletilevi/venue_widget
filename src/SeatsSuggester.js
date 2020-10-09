@@ -34,7 +34,7 @@ export default function SeatsSuggester() {
         if (!row) {
             return false;
         }
-        //try sticking to row start side
+        // try sticking to row start side
         let potentialIndexes = checkFromRowStart(nearSeatIndex, row, selectedSeats.length, offsetAmount);
         if (stickToIndex !== false) {
             suggestedIndexes = potentialIndexes;
@@ -68,21 +68,24 @@ export default function SeatsSuggester() {
             //previous place doesnt exist, we should stick to it
             if (typeof row[seatIndex - 1] === 'undefined') {
                 stickToIndex = seatIndex;
+            } else if ((seatIndex - 1 < offsetAmount) && row[seatIndex - 1].status === Constants.STATUS_BUFFERED) {
+                stickToIndex = seatIndex - 1;
             } else if (row[seatIndex - 1].status !== Constants.STATUS_AVAILABLE) {
                 stickToIndex = seatIndex;
             }
 
             let checkAmount = amount;
+            let chainIndex = seatIndex;
             //now check all forward seats to find whether they are all free for taking
             do {
                 //if place is not free or doesnt exist
                 //then reset indexes chaing and move to next seat
                 let breakNeeded = true;
-                if (typeof row[seatIndex] !== 'undefined') {
-                    if (row[seatIndex].status === Constants.STATUS_AVAILABLE) {
+                if (typeof row[chainIndex] !== 'undefined') {
+                    if (row[chainIndex].status === Constants.STATUS_AVAILABLE) {
                         breakNeeded = false;
                     }
-                    if (row[seatIndex].status === Constants.STATUS_BUFFERED) {
+                    if (row[chainIndex].status === Constants.STATUS_BUFFERED) {
                         if (checkedIndexes.length < offsetAmount || checkedIndexes.length >= amount - offsetAmount) {
                             breakNeeded = false;
                         }
@@ -93,10 +96,9 @@ export default function SeatsSuggester() {
                     stickToIndex = false;
                     break;
                 } else {
-                    checkedIndexes.push(seatIndex);
-                    seatIndex++;
+                    checkedIndexes.push(chainIndex);
+                    chainIndex++;
                 }
-
             } while (--checkAmount);
 
             //if we found needed chain of free seats from this direction then go out
@@ -115,25 +117,28 @@ export default function SeatsSuggester() {
         //take row boundaries into account
         let startIndex = Math.min(nearSeatIndex + amount - 1, row.length - 1);
         //start from "end of row", move to start, searching for free places
-        for (let seatIndex = startIndex; seatIndex >= 0; seatIndex--) {
+        for (let seatIndex = startIndex; seatIndex >= nearSeatIndex - amount; seatIndex--) {
             //previous place doesnt exist, we should stick to it
             if (typeof row[seatIndex + 1] === 'undefined') {
                 stickToIndex = seatIndex;
+            } else if ((seatIndex + 1 >= offsetAmount + selectedSeatsAmount) && row[seatIndex + 1].status === Constants.STATUS_BUFFERED) {
+                stickToIndex = seatIndex + 1;
             } else if (row[seatIndex + 1].status !== Constants.STATUS_AVAILABLE) {
                 stickToIndex = seatIndex;
             }
 
             let checkAmount = amount;
+            let chainIndex = seatIndex;
             //now check all forward seats to find whether they are all free for taking
             do {
                 //if place is not free or doesnt exist
                 //then reset indexes chaing and move to next seat
                 let breakNeeded = true;
-                if (typeof row[seatIndex] !== 'undefined') {
-                    if (row[seatIndex].status === Constants.STATUS_AVAILABLE) {
+                if (typeof row[chainIndex] !== 'undefined') {
+                    if (row[chainIndex].status === Constants.STATUS_AVAILABLE) {
                         breakNeeded = false;
                     }
-                    if (row[seatIndex].status === Constants.STATUS_BUFFERED) {
+                    if (row[chainIndex].status === Constants.STATUS_BUFFERED) {
                         if (checkedIndexes.length < offsetAmount || checkedIndexes.length >= amount - offsetAmount) {
                             breakNeeded = false;
                         }
@@ -144,10 +149,9 @@ export default function SeatsSuggester() {
                     stickToIndex = false;
                     break;
                 } else {
-                    checkedIndexes.push(seatIndex);
-                    seatIndex--;
+                    checkedIndexes.push(chainIndex);
+                    chainIndex--;
                 }
-
             } while (--checkAmount);
 
             //if we found needed chain of free seats from this direction then go out
