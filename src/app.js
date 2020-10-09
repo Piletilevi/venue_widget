@@ -7,3 +7,4 @@ export default function piletilevi() {
 }
 piletilevi.venuemap = {};
 piletilevi.venuemap.VenueMap = VenueMap;
+window.piletilevi = piletilevi;

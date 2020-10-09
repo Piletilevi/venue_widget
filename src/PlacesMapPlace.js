@@ -1,6 +1,7 @@
 import './css/seat.css';
 import touchManager from './TouchManager';
 import Constants from './Constants';
+import Utilities from './Utilities';
 
 export default function PlacesMapPlace(venueMap, placeElement) {
     const self = this;
@@ -15,6 +16,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     let priceClass;
     let status = Constants.STATUS_TAKEN;
     let textElement;
+    let bufferedPlacePath;
 
     const init = function() {
         textElement = placeElement.querySelector('text');
@@ -84,6 +86,8 @@ export default function PlacesMapPlace(venueMap, placeElement) {
             }
             setSeatColor(seatColor);
             setTextColor(textColor);
+            setSeatBorderColor(false);
+            enableBufferedPlacePath(false);
         }
 
         if (seatInfo) {
@@ -120,7 +124,11 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     };
     const setSeatBorderColor = function(seatBorderColor) {
         if (placeElement) {
-            placeElement.setAttribute('stroke', seatBorderColor);
+            if (seatBorderColor) {
+                placeElement.setAttribute('stroke', seatBorderColor);
+            } else {
+                placeElement.removeAttribute('stroke');
+            }
         }
     };
     const setTextColor = function(textColor) {
@@ -173,12 +181,32 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     };
     this.highlight = function() {
         setSeatColor(venueMap.getSeatColor('hover'));
+        setSeatBorderColor(false);
+        enableBufferedPlacePath(false);
     };
     this.renderBuffered = function() {
-        let seatColor = venueMap.getSeatColor('buffered');
-        let seatBorderColor = venueMap.getSeatColor('bufferedBorder');
+        const seatColor = venueMap.getSeatColor('buffered');
+        const seatBorderColor = venueMap.getSeatColor('bufferedBorder');
         setSeatColor(seatColor);
         setSeatBorderColor(seatBorderColor);
+        enableBufferedPlacePath(true);
+    };
+    const enableBufferedPlacePath = function(enabled) {
+        if (enabled) {
+            const o = Constants.SEAT_CIRCLE_PADDING;
+            const l = Constants.SEAT_CIRCLE_RADIUS - o * 2;
+            const seatBorderColor = venueMap.getSeatColor('bufferedBorder');
+
+            if (!bufferedPlacePath) {
+                bufferedPlacePath = Utilities.createSvgNode('path', {
+                    d: 'M ' + o + ' ' + o + ', ' + (o + l) + ' ' + (o + l) + ' Z' + ' M ' + o + ' ' + (o + l) + ', ' + (o + l) + ' ' + o + ' Z',
+                    stroke: seatBorderColor
+                });
+            }
+            placeElement.appendChild(bufferedPlacePath);
+        } else if (bufferedPlacePath && bufferedPlacePath.parentNode === placeElement) {
+            placeElement.removeChild(bufferedPlacePath);
+        }
     };
     init();
 };
