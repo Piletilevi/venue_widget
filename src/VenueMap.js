@@ -698,7 +698,7 @@ export default function() {
                     return (key >= offsetPlaces) && (key < seats.length - offsetPlaces);
                 });
                 if (selectedSeats.length) {
-                    ticketsManager.sendStatusRequest(selectedSeats, sectionId);
+                    self.trigger('moveOfferedSeats', selectedSeats);
                 }
             }
         }
