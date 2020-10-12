@@ -39,6 +39,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
         if (manuallySelectable) {
             self.refreshStatus();
         }
+        venueMap.removeSuggestedSeats();
     };
     const pointerEnd = function(event) {
         event.preventDefault();

@@ -446,13 +446,16 @@ export default function() {
         for (let i = seats.length; i--;) {
             delete customerSeatsIndex[seats[i]];
         }
+        self.removeSuggestedSeats();
+    };
+    this.removeSuggestedSeats = function(){
         //suggestedSeats should be removed as well, they no longer correspond to customer's selected seats
         if (previousSuggestedSeatsIndex){
             let unmarkSeats = Object.keys(previousSuggestedSeatsIndex);
             placesMap.unmarkSuggestedSeats(Object.values(unmarkSeats));
             previousSuggestedSeatsIndex = false;
         }
-    };
+    }
     this.unSetCustomerSeat = function(seatId) {
         delete customerSeatsIndex[seatId];
     };
