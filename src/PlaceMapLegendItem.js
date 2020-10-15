@@ -1,49 +1,41 @@
-export default function PlaceMapLegentItem(text, color, extraClass, suffix) {
-    this.colorElement = false;
-    this.titleElement = false;
-    this.suffixElement = false;
-    this.text = false;
-    this.color = false;
+export default function PlaceMapLegendItem(text, color, extraClass, suffix, imageSrc) {
+    let colorElement;
+    let titleElement;
+    let suffixElement;
     let componentElement;
 
-    this.init = function() {
-        this.text = text;
-        this.color = color;
+    const init = function() {
         componentElement = document.createElement('span');
         componentElement.className = 'places_map_legend_item';
         if (extraClass) {
             componentElement.className += ' places_map_legend_item_' + extraClass;
         }
-        this.colorElement = document.createElement('span');
-        this.colorElement.className = 'places_map_legend_color';
-        componentElement.appendChild(this.colorElement);
-        this.titleElement = document.createElement('span');
-        this.titleElement.className = 'places_map_legend_title';
-        componentElement.appendChild(this.titleElement);
+        colorElement = document.createElement('span');
+        colorElement.className = 'places_map_legend_color';
+        componentElement.appendChild(colorElement);
+        titleElement = document.createElement('span');
+        titleElement.className = 'places_map_legend_title';
+        componentElement.appendChild(titleElement);
         if (suffix) {
-            this.suffixElement = document.createElement('span');
-            this.suffixElement.className = 'places_map_legend_suffix';
-            componentElement.appendChild(this.suffixElement);
+            suffixElement = document.createElement('span');
+            suffixElement.className = 'places_map_legend_suffix';
+            componentElement.appendChild(suffixElement);
         }
-        this.refreshContents();
+        refreshContents();
     };
-    this.refreshContents = function() {
-        let titleText = this.text;
-        this.setTextContent(this.titleElement, titleText);
+    const refreshContents = function() {
+        titleElement.innerHTML = text;
         if (suffix) {
-            this.setTextContent(this.suffixElement, suffix);
+            suffixElement.innerHTML = suffix;
         }
-        this.colorElement.style.backgroundColor = this.color;
-    };
-    this.setTextContent = function(element, text) {
-        while (element.firstChild) {
-            element.removeChild(element.firstChild);
+        if (color) {
+            colorElement.style.backgroundColor = color;
+        } else if (imageSrc) {
+            colorElement.style.backgroundImage = 'url(' + imageSrc + ')';
         }
-        let textNode = document.createTextNode(text);
-        element.appendChild(textNode);
     };
     this.getComponentElement = function() {
         return componentElement;
     };
-    this.init();
+    init();
 };

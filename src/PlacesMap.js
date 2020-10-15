@@ -5,6 +5,7 @@ import Utilities from './Utilities';
 import SelectionRectangle from './SelectionRectangle';
 import PlaceMapLegendItem from './PlaceMapLegendItem';
 import PlacesMapCanvasFactory from './PlacesMapCanvasFactory';
+import svgText from './images/buffer.svg';
 
 export default function PlacesMap(venueMap) {
     const self = this;
@@ -320,9 +321,13 @@ export default function PlacesMap(venueMap) {
             return;
         }
 
-        let label = venueMap.getTranslation('booked');
-        legendItem = new PlaceMapLegendItem(label, venueMap.getSeatColor('inactive'), 'booked');
+        legendItem = new PlaceMapLegendItem(venueMap.getTranslation('booked'), venueMap.getSeatColor('inactive'), 'booked');
         legendElement.appendChild(legendItem.getComponentElement());
+
+        if (venueMap.getOffsetPlaces() > 0) {
+            legendItem = new PlaceMapLegendItem(venueMap.getTranslation('buffer'), null, 'buffer', null, svgText);
+            legendElement.appendChild(legendItem.getComponentElement());
+        }
         let sorter = legendType === 'price'
             ? function(a, b) {
                 return parseFloat(a.price) - parseFloat(b.price);
@@ -342,10 +347,14 @@ export default function PlacesMap(venueMap) {
         return mainElement;
     };
     this.markSuggestedSeats = function(seats, offsetPlaces) {
-        canvas.markSuggestedSeats(seats, offsetPlaces);
+        if (canvas) {
+            canvas.markSuggestedSeats(seats, offsetPlaces);
+        }
     };
     this.unmarkSuggestedSeats = function(seats) {
-        canvas.unmarkSuggestedSeats(seats);
+        if (canvas) {
+            canvas.unmarkSuggestedSeats(seats);
+        }
     };
     init();
 };

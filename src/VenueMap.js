@@ -366,6 +366,9 @@ export default function() {
     this.setOffsetPlaces = function(newOffsetPlaces) {
         offsetPlaces = newOffsetPlaces;
     };
+    this.getOffsetPlaces = function() {
+        return offsetPlaces;
+    };
     this.setConfId = function(newConfId) {
         confId = newConfId;
     };
@@ -444,18 +447,19 @@ export default function() {
     };
     this.unSetCustomerSeats = function(seats) {
         for (let i = seats.length; i--;) {
-            delete customerSeatsIndex[seats[i]];
+            if (typeof customerSeatsIndex[seats[i]] !== undefined) {
+                delete customerSeatsIndex[seats[i]];
+            }
         }
         self.removeSuggestedSeats();
     };
-    this.removeSuggestedSeats = function(){
+    this.removeSuggestedSeats = function() {
         //suggestedSeats should be removed as well, they no longer correspond to customer's selected seats
-        if (previousSuggestedSeatsIndex){
-            let unmarkSeats = Object.keys(previousSuggestedSeatsIndex);
-            placesMap.unmarkSuggestedSeats(Object.values(unmarkSeats));
+        if (previousSuggestedSeatsIndex) {
+            placesMap.unmarkSuggestedSeats(Object.keys(previousSuggestedSeatsIndex));
             previousSuggestedSeatsIndex = false;
         }
-    }
+    };
     this.unSetCustomerSeat = function(seatId) {
         delete customerSeatsIndex[seatId];
     };
@@ -687,7 +691,7 @@ export default function() {
                     placesMap.markSuggestedSeats(suggestedSeats, offsetPlaces);
                 }
                 if (unmarkSeats) {
-                    placesMap.unmarkSuggestedSeats(Object.values(unmarkSeats));
+                    placesMap.unmarkSuggestedSeats(Object.keys(unmarkSeats));
                 }
             }
         }
