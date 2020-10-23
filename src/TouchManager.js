@@ -228,13 +228,8 @@ const TouchManager = function() {
         }
     };
     this.setTouchAction = function(element, action) {
-        if (eventsSet === 'mspointer') {
-            // IE10
-            element.style.msTouchAction = action;
-        } else {
-            element.style.touchAction = action;
-        }
+        element.style.touchAction = action;
     };
     init();
-}
+};
 export default new TouchManager();

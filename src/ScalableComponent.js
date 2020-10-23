@@ -91,10 +91,7 @@ export default function() {
     };
     const initScalableElement = function() {
         removeScalableElement();
-        //	0005505: Täissaaliplaani kiirus
-        if (window.userAgent !== 'Firefox') {
-            touchManager.setTouchAction(gestureElement, 'none'); // disable browser-related touch manipulation
-        }
+        touchManager.setTouchAction(gestureElement, 'none'); // disable browser-related touch manipulation
         touchManager.addEventListener(gestureElement, 'start', startHandler, true);
     };
     const removeScalableElement = function() {

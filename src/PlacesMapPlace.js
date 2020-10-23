@@ -24,25 +24,40 @@ export default function PlacesMapPlace(venueMap, placeElement) {
         inactiveNumbered = venueMap.areInactiveSeatsNumbered();
         self.refreshStatus();
     };
-    const mouseMove = function(event) {
-        const x = Math.max(0, event.pageX);
-        const y = Math.max(0, event.pageY - 2);
+    const pointerEnter = function(event) {
+        event.preventDefault();
+        if (event.pointerType === 'mouse') {
+            if (seatInfo && seatInfo.status === Constants.STATUS_AVAILABLE) {
+                venueMap.suggestSeats(sectionId, seatInfo);
+            }
+        }
+    };
+    const pointerLeave = function(event) {
+        event.preventDefault();
+        venueMap.getPlaceToolTip().hide();
+        if (event.pointerType === 'mouse') {
+            venueMap.removeSuggestedSeats();
+        }
+        if (manuallySelectable) {
+            self.refreshStatus();
+        }
+    };
+
+    const pointerMove = function(event) {
         if (status !== Constants.STATUS_BUFFERED) {
+            const x = Math.max(0, event.pageX);
+            const y = Math.max(0, event.pageY - 2);
+
             venueMap.getPlaceToolTip().display(seatInfo, status, x, y);
         }
         if (manuallySelectable) {
             self.highlight();
         }
     };
-    const mouseOut = function() {
-        venueMap.getPlaceToolTip().hide();
-        if (manuallySelectable) {
-            self.refreshStatus();
-        }
-        venueMap.removeSuggestedSeats();
-    };
+
     const pointerEnd = function(event) {
         event.preventDefault();
+
         if (manuallySelectable && seatInfo) {
             if (status === Constants.STATUS_AVAILABLE) {
                 status = Constants.STATUS_SELECTED;
@@ -56,13 +71,12 @@ export default function PlacesMapPlace(venueMap, placeElement) {
                 venueMap.trigger('seatUnSelected', seatInfo.id);
             }
         }
-        venueMap.seatClicked(sectionId, seatInfo.id);
-    };
-    const pointerStart = function(event) {
-        event.preventDefault();
-        if (seatInfo && seatInfo.status === Constants.STATUS_AVAILABLE) {
-            venueMap.suggestSeats(sectionId, seatInfo);
+        if (event.pointerType !== 'mouse') {
+            if (seatInfo && seatInfo.status === Constants.STATUS_AVAILABLE) {
+                venueMap.suggestSeats(sectionId, seatInfo);
+            }
         }
+        venueMap.seatClicked(sectionId, seatInfo.id);
     };
     this.refreshStatus = function() {
         if ((status === Constants.STATUS_BUFFERED) && seatsStatusDisplayed) {
@@ -93,20 +107,18 @@ export default function PlacesMapPlace(venueMap, placeElement) {
 
         if (seatInfo) {
             if (venueMap.isSeatSuggestingEnabled()) {
-                touchManager.addEventListener(placeElement, 'start', pointerStart);
-                placeElement.addEventListener('mouseenter', pointerStart);
+                placeElement.addEventListener('pointerenter', pointerEnter);
+                placeElement.addEventListener('pointerleave', pointerLeave);
             }
 
-            placeElement.addEventListener('mousemove', mouseMove);
-            placeElement.addEventListener('mouseleave', mouseOut);
+            placeElement.addEventListener('pointermove', pointerMove);
         } else {
             if (venueMap.isSeatSuggestingEnabled()) {
-                touchManager.removeEventListener(placeElement, 'start', pointerStart);
-                placeElement.removeEventListener('mouseenter', pointerStart);
+                placeElement.removeEventListener('pointerenter', pointerEnter);
+                placeElement.removeEventListener('pointerleave', pointerLeave);
             }
 
-            placeElement.removeEventListener('mousemove', mouseMove);
-            placeElement.removeEventListener('mouseleave', mouseOut);
+            placeElement.removeEventListener('pointermove', pointerMove);
         }
         if (seatInfo && (status === Constants.STATUS_AVAILABLE || status === Constants.STATUS_SELECTED)) {
             touchManager.addEventListener(placeElement, 'end', pointerEnd);

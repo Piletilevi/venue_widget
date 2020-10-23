@@ -657,8 +657,10 @@ export default function() {
         extensionHandler();
         let extensionClass = 'piletilevi_venue_map_extended';
         if (extended) {
+            self.trigger('mapExtended');
             Utilities.addClass(componentElement, extensionClass);
         } else {
+            self.trigger('mapShrinked');
             Utilities.removeClass(componentElement, extensionClass);
         }
     };
