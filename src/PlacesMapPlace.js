@@ -32,6 +32,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
             }
         }
     };
+
     const pointerLeave = function(event) {
         event.preventDefault();
         venueMap.getPlaceToolTip().hide();
@@ -108,16 +109,14 @@ export default function PlacesMapPlace(venueMap, placeElement) {
         if (seatInfo) {
             if (venueMap.isSeatSuggestingEnabled()) {
                 placeElement.addEventListener('pointerenter', pointerEnter);
-                placeElement.addEventListener('pointerleave', pointerLeave);
             }
-
+            placeElement.addEventListener('pointerleave', pointerLeave);
             placeElement.addEventListener('pointermove', pointerMove);
         } else {
             if (venueMap.isSeatSuggestingEnabled()) {
                 placeElement.removeEventListener('pointerenter', pointerEnter);
-                placeElement.removeEventListener('pointerleave', pointerLeave);
             }
-
+            placeElement.removeEventListener('pointerleave', pointerLeave);
             placeElement.removeEventListener('pointermove', pointerMove);
         }
         if (seatInfo && (status === Constants.STATUS_AVAILABLE || status === Constants.STATUS_SELECTED)) {
