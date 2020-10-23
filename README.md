@@ -2,4 +2,4 @@
 
 ## Installation
 
-    npm install Piletilevi/venue_widget
+npm install piletilevi/venue_widget --save

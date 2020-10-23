@@ -1,0 +1,49 @@
+.places_map_legend {
+    padding-bottom: 1.5em;
+    margin: -0.15em;
+}
+
+.piletilevi_venue_map_places_with_map .places_map_legend {
+    width: 70%;
+}
+
+.places_map_legend_item {
+    min-width: 5.95em;
+    box-sizing: border-box;
+    color: #000000;
+    display: inline-block;
+    vertical-align: top;
+    text-align: left;
+    padding: 0 0.5em;
+    position: relative;
+    overflow: hidden;
+    margin: 0.15em 0.15em 0.43em;
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+.places_map_legend_title {
+    display: inline-block;
+    white-space: nowrap;
+    position: relative;
+    font-size: 0.93em;
+    line-height: 1.5em;
+    vertical-align: middle;
+}
+
+.places_map_legend_suffix {
+    font-size: 0.93em;
+    line-height: 1.5em;
+    vertical-align: middle;
+    color: #9a9a9a;
+    margin-left: 0.25em;
+}
+
+.places_map_legend_color {
+    display: inline-block;
+    width: 0.93em;
+    height: 0.93em;
+    margin-right: 0.4em;
+    border-radius: 999px;
+    vertical-align: middle;
+}
