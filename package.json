@@ -1,31 +1,5 @@
 {
-  "_from": "piletilevi-venuemap@10.22.0",
-  "_id": "piletilevi-venuemap@10.22.0",
-  "_inBundle": false,
-  "_integrity": "sha512-J7LF+IWtno01z+rBjtxXrdmryK6UJF8v+Oic505DhOQ+7tgS0xXrW73kOCGCfRnrcqOpL67/xhSpuWowJYyZPA==",
-  "_location": "/piletilevi-venuemap",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "version",
-    "registry": true,
-    "raw": "piletilevi-venuemap@10.22.0",
-    "name": "piletilevi-venuemap",
-    "escapedName": "piletilevi-venuemap",
-    "rawSpec": "10.22.0",
-    "saveSpec": null,
-    "fetchSpec": "10.22.0"
-  },
-  "_requiredBy": [
-    "#USER",
-    "/"
-  ],
-  "_resolved": "https://registry.npmjs.org/piletilevi-venuemap/-/piletilevi-venuemap-10.22.0.tgz",
-  "_shasum": "10e3be28e8f19bc0189b1e38a9d46936780ed8fd",
-  "_spec": "piletilevi-venuemap@10.22.0",
-  "_where": "D:\\projects\\piletilevi_shop\\htdocs\\public",
-  "author": {
-    "name": "Piletilevi AS"
-  },
+  "author": "Piletilevi AS",
   "bugs": {
     "url": "https://github.com/Piletilevi/venue_widget/issues"
   },
@@ -35,19 +9,15 @@
   "license": "",
   "main": "",
   "name": "piletilevi-venuemap",
-  "description": "Venue map",
-  "main": "",
   "version": "10.22.0",
-  "author": "Piletilevi AS",
-  "license": "",
   "repository": "Piletilevi/venue_widget",
-  "homepage": "http://www.piletilevi.ee"
   "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.11.6",
     "@babel/plugin-transform-shorthand-properties": "^7.10.4",
     "@babel/preset-env": "^7.11.0",
     "babel-loader": "^8.1.0",
+    "base64-inline-loader": "^1.1.1",
     "css-loader": "^4.3.0",
     "style-loader": "^1.2.1",
     "webpack": "^4.44.1",
