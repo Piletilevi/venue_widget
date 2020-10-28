@@ -51,7 +51,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
 
             venueMap.getPlaceToolTip().display(seatInfo, status, x, y);
         }
-        if (manuallySelectable) {
+        if (manuallySelectable && status === Constants.STATUS_AVAILABLE) {
             self.highlight();
         }
     };

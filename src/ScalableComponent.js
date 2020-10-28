@@ -1,6 +1,6 @@
 import touchManager from './TouchManager';
 
-export default function() {
+export default function ScalableComponent() {
     let scaledElement;
     let gestureElement;
     let beforeStartCallback;

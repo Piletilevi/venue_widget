@@ -11,7 +11,7 @@ export default function() {
     let connectionSecure = false;
     let confId = '';
     let seatSelectionEnabled = false;
-    let seatsStatusDisplayed = false;
+    let seatsStatusDisplayed = true;
     let seatSuggestingEnabled = false;
     let sectionsMapType = 'vector';
     let currency = '';
@@ -54,7 +54,8 @@ export default function() {
     let fixedHeight = 0;
     let previousSuggestedSeatsIndex = {};
     let offsetPlaces = 0;
-
+    let windowInnerWidth;
+    let windowInnerHeight;
     this.displayMapInPlaces = false;
 
     const seatColors = {
@@ -73,7 +74,14 @@ export default function() {
         componentElement.style['-webkit-user-select'] = 'none';
         componentElement.style.userSelect = 'none';
         self.hide();
-        window.addEventListener('resize', self.resize);
+        window.addEventListener('resize', resizeHandler);
+    };
+    const resizeHandler = function() {
+        if (Math.round(window.innerHeight) !== windowInnerHeight || Math.round(window.innerWidth) !== windowInnerWidth) {
+            window.requestAnimationFrame(self.resize);
+            windowInnerWidth = Math.round(window.innerWidth);
+            windowInnerHeight = Math.round(window.innerHeight);
+        }
     };
     const adjustToZoom = function(withAnimation, focalPoint) {
         adjustZoomControls();
@@ -542,18 +550,15 @@ export default function() {
         adjustZoomControls();
     };
     this.resize = function() {
-        let dupe = componentElement.cloneNode(false);
-        dupe.style.visibility = 'hidden';
-        dupe.style.display = 'block';
-        componentElement.parentNode.appendChild(dupe);
-        fixedHeight = dupe.offsetHeight;
-        componentElement.parentNode.removeChild(dupe);
         if (placesMap) {
             placesMap.resize();
         }
     };
     this.getFixedHeight = function() {
         return fixedHeight;
+    };
+    this.setFixedHeight = function(height) {
+        fixedHeight = height;
     };
     this.getZoomLevel = function() {
         return zoomLevel;

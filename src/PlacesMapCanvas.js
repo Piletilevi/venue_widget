@@ -35,9 +35,7 @@ export default function PlacesMapCanvas(venueMap, svgElement, sectionLabelElemen
         sectionLabelElements = sectionLabelElements || {};
         componentElement = document.createElement('div');
         componentElement.className = 'piletilevi_venue_map_canvas';
-        componentElement.style.overflow = 'hidden';
-        componentElement.style.position = 'relative';
-        componentElement.style.textAlign = 'center';
+        componentElement.style.position = 'absolute';
         componentElement.style.display = 'none';
         if (venueMap.isPlacesMapFlipped()) {
             componentElement.style.transform = 'rotate(180deg)';
@@ -120,8 +118,8 @@ export default function PlacesMapCanvas(venueMap, svgElement, sectionLabelElemen
         let maxSeatRadius = venueMap.getZoomLimit();
         let diff = maxSeatRadius / Constants.SEAT_CIRCLE_RADIUS;
         maxZoomWidth = svgDimensions.width * diff;
-        let paddings = getPaddings();
-        maxZoomWidth += paddings.left + paddings.right;
+        // let paddings = getPaddings();
+        // maxZoomWidth += paddings.left + paddings.right;
         maxZoomLevel = Math.max(0, calculateZoomLevelFromMapWidth(maxZoomWidth));
     };
     this.getMaxZoomLevel = function() {
@@ -134,13 +132,13 @@ export default function PlacesMapCanvas(venueMap, svgElement, sectionLabelElemen
         let placeObject = placesIndex[seatInfo.id];
         placeObject.setSeatInfo(seatInfo);
         placeObject.refreshStatus();
-    }
+    };
     this.updateSection = function(sectionDetails) {
         if (!sectionDetails) {
             return;
         }
         if (sectionLabelElements[sectionDetails.id]) {
-            self.setTextContent(sectionLabelElements[sectionDetails.id], sectionDetails.title);
+            sectionLabelElements[sectionDetails.id].textContent = sectionDetails.title;
         }
         let priceClasses = sectionDetails.priceClasses || [];
         let priceClassesIndex = {};
@@ -166,57 +164,27 @@ export default function PlacesMapCanvas(venueMap, svgElement, sectionLabelElemen
             placeObject.refreshStatus();
         }
     };
-    this.setTextContent = function(element, text) {
-        text = text || '';
-        while (element.firstChild) {
-            element.removeChild(element.firstChild);
-        }
-        element.appendChild(document.createTextNode(text));
-    };
     this.setSectionsBoundaries = function(newSectionsBoundaries) {
         sectionsBoundaries = newSectionsBoundaries;
     };
     this.resize = function() {
-        componentElement.style.width = '';
-        componentElement.style.height = '';
-        containerElement.style.width = '';
-        containerElement.style.height = '';
-
-        let paddings = getPaddings();
-        let svgStyle = svgElement.style;
-        if (venueMap.getFixedHeight()) {
-            containerElement.style.height = venueMap.getFixedHeight() - container.getLegendHeight() + 'px';
-        } else {
-            let svgWidth, svgHeight;
-            svgWidth = componentElement.offsetWidth - paddings.left - paddings.right;
-            svgHeight = svgWidth / aspectRatio;
-
-            svgStyle.width = svgWidth + 'px';
-            svgStyle.height = svgHeight + 'px';
-            let highSvg = componentElement.offsetHeight > containerElement.offsetHeight;
-            if (highSvg) {
-                // container has limited height
-                svgHeight = containerElement.offsetHeight - paddings.top - paddings.bottom;
-                svgWidth = svgHeight * aspectRatio;
-            }
-            svgStyle.width = svgWidth + 'px';
-            svgStyle.height = svgHeight + 'px';
-        }
+        // let svgStyle = svgElement.style;
+        // if (venueMap.getFixedHeight()) {
+        //     containerElement.style.height = venueMap.getFixedHeight() - container.getLegendHeight() + 'px';
+        // }
         containerDimensions = {
             width: containerElement.offsetWidth,
             height: containerElement.offsetHeight
         };
         containerInnerDimensions = {
-            width: containerDimensions.width - paddings.left - paddings.right,
-            height: containerDimensions.height - paddings.top - paddings.bottom
+            width: containerDimensions.width,
+            height: containerDimensions.height
         };
-        componentElement.style.width = containerDimensions.width + 'px';
-        componentElement.style.height = containerDimensions.height + 'px';
-        containerElement.style.width = containerDimensions.width + 'px';
-        containerElement.style.height = containerDimensions.height + 'px';
-
-        svgStyle.width = '';
-        svgStyle.height = '';
+        let width = containerDimensions.width;
+        let height = width / aspectRatio;
+        componentElement.style.width = width + 'px';
+        componentElement.style.height = height + 'px';
+        containerElement.style.height = height + 'px';
         lastZoomlevel = -1;
         let focalPoint = getCurrentRelativeFocalPoint();
         focalPoint.centered = true;
@@ -224,29 +192,29 @@ export default function PlacesMapCanvas(venueMap, svgElement, sectionLabelElemen
         self.registerScalableElement({
             'scaledElement': componentElement,
             'gestureElement': componentElement,
-            'minWidth': containerElement.offsetWidth,
-            'minHeight': containerElement.offsetWidth / aspectRatio,
+            'minWidth': width,
+            'minHeight': height,
             'maxWidth': maxZoomWidth,
             'afterStartCallback': scaleStartCallback,
             'preChangeCallback': scaleChangeCallback,
             'endCallback': scaleEndCallback
         });
-        if (venueMap.getZoomLevel() > maxZoomLevel) {
-            venueMap.setZoomLevel(maxZoomLevel, false);
-        } else {
-            self.adjustToZoom(false, focalPoint);
-            container.adjustZoomControls();
-        }
+        // if (venueMap.getZoomLevel() > maxZoomLevel) {
+        //     venueMap.setZoomLevel(maxZoomLevel, false);
+        // } else {
+        //     self.adjustToZoom(false, focalPoint);
+        //     container.adjustZoomControls();
+        // }
     };
-    const getPaddings = function() {
-        let style = window.getComputedStyle(componentElement);
-        return {
-            top: parseFloat(style.paddingTop),
-            bottom: parseFloat(style.paddingBottom),
-            left: parseFloat(style.paddingLeft),
-            right: parseFloat(style.paddingRight),
-        };
-    };
+    // const getPaddings = function() {
+    //     let style = window.getComputedStyle(componentElement);
+    //     return {
+    //         top: parseFloat(style.paddingTop),
+    //         bottom: parseFloat(style.paddingBottom),
+    //         left: parseFloat(style.paddingLeft),
+    //         right: parseFloat(style.paddingRight),
+    //     };
+    // };
     this.adjustToZoom = function(withAnimation, newFocalPoint) {
         withAnimation = withAnimation || typeof withAnimation == 'undefined';
         let zoomLevel = venueMap.getZoomLevel();

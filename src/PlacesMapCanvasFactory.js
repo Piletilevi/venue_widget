@@ -2,14 +2,12 @@ import Constants from './Constants';
 import PlacesMapCanvas from './PlacesMapCanvas';
 import Utilities from './Utilities';
 
-export default function PlacesMapCanvasFactory(venueMap) {
-    this.createCanvas = function(options) {
+export default new function PlacesMapCanvasFactory() {
+    this.createCanvas = function(venueMap, options) {
         let data = JSON.parse(JSON.stringify(options.data));
         let relevantSections = options.relevantSections || [];
         let svgElement = Utilities.createSvgNode('svg', {
             viewBox: '0 0 ' + data.width + ' ' + data.height,
-            width: '100%',
-            height: '100%',
         });
         let node;
         let sectionsSeats = {};
@@ -117,13 +115,14 @@ export default function PlacesMapCanvasFactory(venueMap) {
             node.appendChild(textNode);
             svgElement.appendChild(node);
         }
+        let flipped = venueMap.isPlacesMapFlipped();
         for (let key in rowEdges) {
             let edge = rowEdges[key];
             if (!edge.firstSeat || !edge.lastSeat) {
                 continue;
             }
-            svgElement.appendChild(createRowNumberNode(edge.firstSeat, edge.lastSeat));
-            svgElement.appendChild(createRowNumberNode(edge.lastSeat, edge.firstSeat));
+            svgElement.appendChild(createRowNumberNode(edge.firstSeat, edge.lastSeat, flipped));
+            svgElement.appendChild(createRowNumberNode(edge.lastSeat, edge.firstSeat, flipped));
         }
         let topLeftOffset = Constants.SEAT_CIRCLE_RADIUS / 2;
         for (let i = 0; i < relevantSeats.length; ++i) {
@@ -228,7 +227,7 @@ export default function PlacesMapCanvasFactory(venueMap) {
             height: bottomRight.y - topLeft.y + seatRadius * 2,
         };
     };
-    const createRowNumberNode = function(seat1, seat2) {
+    const createRowNumberNode = function(seat1, seat2, flipped) {
         let alignedLeft = seat1.x <= seat2.x;
         let position = seat1.x;
         if (alignedLeft) {
@@ -253,7 +252,6 @@ export default function PlacesMapCanvasFactory(venueMap) {
                 seat1.y
                 ));
         let transform = 'rotate(' + angle + ',' + seat1.x + ',' + seat1.y + ')';
-        let flipped = venueMap.isPlacesMapFlipped();
         if (flipped) {
             transform += ', rotate(180 ' + position + ' ' + seat1.y + ')';
         }

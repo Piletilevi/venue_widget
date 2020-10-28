@@ -215,9 +215,7 @@ export default function PlacesMap(venueMap) {
         if (canvas) {
             canvas.remove();
         }
-        let canvasFactory = new PlacesMapCanvasFactory(venueMap);
-
-        canvas = canvasFactory.createCanvas(data);
+        canvas = PlacesMapCanvasFactory.createCanvas(venueMap, data);
         canvas.attachTo(self);
         for (let key in details) {
             canvas.updateSection(details[key]);
