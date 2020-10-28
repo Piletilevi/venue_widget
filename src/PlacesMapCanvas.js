@@ -184,21 +184,23 @@ export default function PlacesMapCanvas(venueMap, svgElement, sectionLabelElemen
         let height = width / aspectRatio;
         componentElement.style.width = width + 'px';
         componentElement.style.height = height + 'px';
+
         containerElement.style.height = height + 'px';
-        lastZoomlevel = -1;
-        let focalPoint = getCurrentRelativeFocalPoint();
-        focalPoint.centered = true;
-        calculateMaxZoomLevel();
-        self.registerScalableElement({
-            'scaledElement': componentElement,
-            'gestureElement': componentElement,
-            'minWidth': width,
-            'minHeight': height,
-            'maxWidth': maxZoomWidth,
-            'afterStartCallback': scaleStartCallback,
-            'preChangeCallback': scaleChangeCallback,
-            'endCallback': scaleEndCallback
-        });
+        
+        // lastZoomlevel = -1;
+        // let focalPoint = getCurrentRelativeFocalPoint();
+        // focalPoint.centered = true;
+        // calculateMaxZoomLevel();
+        // self.registerScalableElement({
+        //     'scaledElement': componentElement,
+        //     'gestureElement': componentElement,
+        //     'minWidth': width,
+        //     'minHeight': height,
+        //     'maxWidth': maxZoomWidth,
+        //     'afterStartCallback': scaleStartCallback,
+        //     'preChangeCallback': scaleChangeCallback,
+        //     'endCallback': scaleEndCallback
+        // });
         // if (venueMap.getZoomLevel() > maxZoomLevel) {
         //     venueMap.setZoomLevel(maxZoomLevel, false);
         // } else {

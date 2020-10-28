@@ -1,4 +1,5 @@
-import touchManager from './TouchManager'
+import touchManager from './TouchManager';
+
 export default function() {
     let draggableElement;
     let parentElement;
@@ -151,6 +152,8 @@ export default function() {
             if ((beforeMoveCallback === undefined) || beforeMoveCallback(compileInfo())) {
                 draggableElement.style.left = currentElementX + 'px';
                 draggableElement.style.top = currentElementY + 'px';
+                // draggableElement.style.transform = 'translate(' + currentElementX + 'px' + ', ' + currentElementY + 'px)';
+                // console.log('translate(' + currentElementX + 'px' + ', ' + currentElementY + 'px)');
 
                 if (afterMoveCallback) {
                     afterMoveCallback(compileInfo());
