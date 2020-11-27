@@ -19,7 +19,8 @@ export default function(venueMap) {
         0: 'booked',
         1: 'available',
         2: 'selected',
-        3: 'not_sold'
+        3: 'not_sold',
+        4: 'basket'
     };
 
     const createDomElements = function() {

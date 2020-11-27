@@ -160,7 +160,7 @@ export default function PlacesMapCanvas(venueMap, svgElement, sectionLabelElemen
             let seatPriceClass = priceClassesIndex[seatInfo.priceClass] || null;
             let selectable = seatsManuallySelectable && seatInfo;
             placeObject.setPriceClass(seatPriceClass);
-            placeObject.setSelected(venueMap.isSeatSelected(seatInfo.id) || seatInfo.status === Constants.STATUS_SELECTED);
+            placeObject.setSelected(venueMap.isSeatSelected(seatInfo.id));
             placeObject.allowManuallySelectable(selectable);
             placeObject.allowSeatsStatusDisplaying(venueMap.isSeatsStatusDisplayed());
             placeObject.refreshStatus();

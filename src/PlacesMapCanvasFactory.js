@@ -125,7 +125,7 @@ export default function PlacesMapCanvasFactory(venueMap) {
             svgElement.appendChild(createRowNumberNode(edge.firstSeat, edge.lastSeat));
             svgElement.appendChild(createRowNumberNode(edge.lastSeat, edge.firstSeat));
         }
-        let topLeftOffset = Constants.SEAT_CIRCLE_RADIUS / 2;
+        let centerOffset = Constants.SEAT_CIRCLE_RADIUS;
         for (let i = 0; i < relevantSeats.length; ++i) {
             let seat = relevantSeats[i];
             let groupNode = Utilities.createSvgNode('g', {
@@ -135,23 +135,23 @@ export default function PlacesMapCanvasFactory(venueMap) {
             });
             svgElement.appendChild(groupNode);
             let node = Utilities.createSvgNode('circle', {
-                cx: topLeftOffset,
-                cy: topLeftOffset,
+                cx: centerOffset,
+                cy: centerOffset,
                 r: Constants.SEAT_CIRCLE_RADIUS
             });
             groupNode.appendChild(node);
             if (seat.place) {
                 let attributes = {
                     'class': 'place_detail seat_text',
-                    x: topLeftOffset,
-                    y: topLeftOffset,
+                    x: centerOffset,
+                    y: centerOffset,
                     dy: '0.35em', // center align vertically
                     'stroke-width': 0,
                     'text-anchor': 'middle',  // center align horizontally
                     'font-size': 6.9,
                 };
                 if (venueMap.isPlacesMapFlipped()) {
-                    attributes['transform'] = 'rotate(180 ' + topLeftOffset + ' ' + topLeftOffset + ')';
+                    attributes['transform'] = 'rotate(180 ' + centerOffset + ' ' + centerOffset + ')';
                 }
                 node = Utilities.createSvgNode('text', attributes);
                 let textNode = document.createTextNode(seat.place);

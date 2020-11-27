@@ -1,6 +1,6 @@
 .piletilevi_venue_map_canvas .place {
     cursor: pointer;
-    stroke-width: 1;
+    stroke-width: 1.75;
 }
 
 .piletilevi_venue_map .place_detail {

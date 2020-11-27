@@ -17,6 +17,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     let status = Constants.STATUS_TAKEN;
     let textElement;
     let bufferedPlacePath;
+    let basketPlacePath;
 
     const init = function() {
         textElement = placeElement.querySelector('text');
@@ -82,14 +83,17 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     this.refreshStatus = function() {
         if ((status === Constants.STATUS_BUFFERED) && seatsStatusDisplayed) {
             self.renderBuffered();
+        } else if ((status === Constants.STATUS_BASKET)) {
+            self.renderInBasket();
         } else {
-            let seatColor;
+            let seatColor = false;
+            let borderColor = false;
             let textColor;
 
             withText = true;
             textColor = '#ffffff';
             if (status === Constants.STATUS_SELECTED) {
-                seatColor = venueMap.getSeatColor('active');
+                borderColor = venueMap.getSeatColor('active');
             } else if (priceClass && (status === Constants.STATUS_AVAILABLE || !seatsStatusDisplayed)) {
                 seatColor = priceClass.color;
             } else {
@@ -102,8 +106,9 @@ export default function PlacesMapPlace(venueMap, placeElement) {
             }
             setSeatColor(seatColor);
             setTextColor(textColor);
-            setSeatBorderColor(false);
+            setSeatBorderColor(borderColor);
             enableBufferedPlacePath(false);
+            enableBasketPlacePath(false);
         }
 
         if (seatInfo) {
@@ -183,7 +188,6 @@ export default function PlacesMapPlace(venueMap, placeElement) {
                 status = newSelected ? Constants.STATUS_SELECTED : Constants.STATUS_AVAILABLE;
                 break;
         }
-
     };
     this.isSelected = function() {
         return status === Constants.STATUS_SELECTED;
@@ -197,11 +201,14 @@ export default function PlacesMapPlace(venueMap, placeElement) {
         enableBufferedPlacePath(false);
     };
     this.renderBuffered = function() {
-        const seatColor = venueMap.getSeatColor('buffered');
-        const seatBorderColor = venueMap.getSeatColor('bufferedBorder');
-        setSeatColor(seatColor);
-        setSeatBorderColor(seatBorderColor);
+        setSeatColor(venueMap.getSeatColor('buffered'));
+        setSeatBorderColor(venueMap.getSeatColor('bufferedBorder'));
         enableBufferedPlacePath(true);
+    };
+    this.renderInBasket = function() {
+        setSeatColor(venueMap.getSeatColor('basket'));
+        setSeatBorderColor(false);
+        enableBasketPlacePath(true);
     };
     const enableBufferedPlacePath = function(enabled) {
         if (enabled) {
@@ -218,6 +225,22 @@ export default function PlacesMapPlace(venueMap, placeElement) {
             placeElement.appendChild(bufferedPlacePath);
         } else if (bufferedPlacePath && bufferedPlacePath.parentNode === placeElement) {
             placeElement.removeChild(bufferedPlacePath);
+        }
+    };
+    const enableBasketPlacePath = function(enabled) {
+        if (enabled) {
+            const fillColor = venueMap.getSeatColor('basketIcon');
+
+            if (!basketPlacePath) {
+                basketPlacePath = Utilities.createSvgNode('path', {
+                    d: "M 7.59375 3.6875 L 2.386719 4.511719 C 1.90625 4.925781 2.417969 5.28125 2.417969 5.28125 L 7.507812 5.308594 L 7.507812 5.996094 L 1.90625 5.941406 C 1.675781 5.804688 1.507812 5.363281 1.449219 4.980469 C 1.394531 4.59375 1.820312 4.183594 1.820312 4.183594 L 0.9375 0.96875 L 0.453125 0.96875 L 0.339844 0.367188 L 1.5625 0.367188 L 1.875 1.355469 L 7.707031 1.328125 Z M 2.902344 6.242188 C 3.324219 6.242188 3.667969 6.574219 3.667969 6.984375 C 3.667969 7.394531 3.324219 7.726562 2.902344 7.726562 C 2.476562 7.726562 2.132812 7.394531 2.132812 6.984375 C 2.132812 6.574219 2.476562 6.242188 2.902344 6.242188 Z M 6.652344 6.242188 C 7.078125 6.242188 7.421875 6.574219 7.421875 6.984375 C 7.421875 7.394531 7.078125 7.726562 6.652344 7.726562 C 6.230469 7.726562 5.886719 7.394531 5.886719 6.984375 C 5.886719 6.574219 6.230469 6.242188 6.652344 6.242188 Z M 6.652344 6.242188 ",
+                    style: "fill: " + fillColor + ";",
+                    transform: 'translate(2, 2)'
+                });
+            }
+            placeElement.appendChild(basketPlacePath);
+        } else if (basketPlacePath && basketPlacePath.parentNode === placeElement) {
+            placeElement.removeChild(basketPlacePath);
         }
     };
     init();

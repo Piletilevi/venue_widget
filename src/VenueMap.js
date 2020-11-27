@@ -63,6 +63,8 @@ export default function() {
         'inactive': Constants.DEFAULT_SEAT_INACTIVE_COLOR,
         'buffered': Constants.DEFAULT_SEAT_BUFFERED_COLOR,
         'bufferedBorder': Constants.DEFAULT_SEAT_BUFFERED_BORDER_COLOR,
+        'basket': Constants.DEFAULT_SEAT_BASKET_COLOR,
+        'basketIcon': Constants.DEFAULT_SEAT_BASKETICON_COLOR,
     };
     const init = function() {
         componentElement = document.createElement('div');
@@ -464,11 +466,11 @@ export default function() {
         delete customerSeatsIndex[seatId];
     };
     this.setSeatColors = function(newColors) {
-        seatColors.hover = newColors.hover || Constants.DEFAULT_SEAT_HOVER_COLOR;
-        seatColors.active = newColors.active || Constants.DEFAULT_SEAT_ACTIVE_COLOR;
-        seatColors.inactive = newColors.inactive || Constants.DEFAULT_SEAT_INACTIVE_COLOR;
-        seatColors.buffered = newColors.buffered || Constants.DEFAULT_SEAT_BUFFERED_COLOR;
-        seatColors.bufferedBorder = newColors.bufferedBorder || Constants.DEFAULT_SEAT_BUFFERED_BORDER_COLOR;
+        for (let i in newColors) {
+            if (newColors.hasOwnProperty(i) && newColors[i]) {
+                seatColors[i] = newColors[i];
+            }
+        }
     };
     this.getSeatColor = function(state) {
         return seatColors[state];
