@@ -219,7 +219,8 @@ export default function PlacesMapPlace(venueMap, placeElement) {
             if (!bufferedPlacePath) {
                 bufferedPlacePath = Utilities.createSvgNode('path', {
                     d: 'M ' + o + ' ' + o + ', ' + (o + l) + ' ' + (o + l) + ' Z' + ' M ' + o + ' ' + (o + l) + ', ' + (o + l) + ' ' + o + ' Z',
-                    stroke: seatBorderColor
+                    stroke: seatBorderColor,
+                    transform: 'translate(3, 3)'
                 });
             }
             placeElement.appendChild(bufferedPlacePath);
