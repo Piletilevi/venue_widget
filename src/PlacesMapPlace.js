@@ -81,16 +81,19 @@ export default function PlacesMapPlace(venueMap, placeElement) {
         venueMap.seatClicked(sectionId, seatInfo.id);
     };
     this.refreshStatus = function() {
+        withText = true;
         if ((status === Constants.STATUS_BUFFERED) && seatsStatusDisplayed) {
             self.renderBuffered();
         } else if ((status === Constants.STATUS_BASKET)) {
-            self.renderInBasket();
+            setSeatColor(venueMap.getSeatColor('basket'));
+            setSeatBorderColor(false);
+            withText = false;
+            enableBasketPlacePath(true);
         } else {
             let seatColor = false;
             let borderColor = false;
             let textColor;
 
-            withText = true;
             textColor = '#ffffff';
             if (status === Constants.STATUS_SELECTED) {
                 borderColor = venueMap.getSeatColor('active');
@@ -101,16 +104,16 @@ export default function PlacesMapPlace(venueMap, placeElement) {
                 withText = inactiveNumbered;
                 textColor = '#000000';
             }
-            if (textElement) {
-                textElement.style.display = withText ? '' : 'none';
-            }
+
             setSeatColor(seatColor);
             setTextColor(textColor);
             setSeatBorderColor(borderColor);
             enableBufferedPlacePath(false);
             enableBasketPlacePath(false);
         }
-
+        if (textElement) {
+            textElement.style.display = withText ? '' : 'none';
+        }
         if (seatInfo) {
             if (venueMap.isSeatSuggestingEnabled()) {
                 placeElement.addEventListener('pointerenter', pointerEnter);
@@ -205,10 +208,7 @@ export default function PlacesMapPlace(venueMap, placeElement) {
         setSeatBorderColor(venueMap.getSeatColor('bufferedBorder'));
         enableBufferedPlacePath(true);
     };
-    this.renderInBasket = function() {
-        setSeatColor(venueMap.getSeatColor('basket'));
-        setSeatBorderColor(false);
-        enableBasketPlacePath(true);
+    const renderInBasket = function() {
     };
     const enableBufferedPlacePath = function(enabled) {
         if (enabled) {
@@ -230,12 +230,11 @@ export default function PlacesMapPlace(venueMap, placeElement) {
     const enableBasketPlacePath = function(enabled) {
         if (enabled) {
             const fillColor = venueMap.getSeatColor('basketIcon');
-
             if (!basketPlacePath) {
                 basketPlacePath = Utilities.createSvgNode('path', {
                     d: "M 7.59375 3.6875 L 2.386719 4.511719 C 1.90625 4.925781 2.417969 5.28125 2.417969 5.28125 L 7.507812 5.308594 L 7.507812 5.996094 L 1.90625 5.941406 C 1.675781 5.804688 1.507812 5.363281 1.449219 4.980469 C 1.394531 4.59375 1.820312 4.183594 1.820312 4.183594 L 0.9375 0.96875 L 0.453125 0.96875 L 0.339844 0.367188 L 1.5625 0.367188 L 1.875 1.355469 L 7.707031 1.328125 Z M 2.902344 6.242188 C 3.324219 6.242188 3.667969 6.574219 3.667969 6.984375 C 3.667969 7.394531 3.324219 7.726562 2.902344 7.726562 C 2.476562 7.726562 2.132812 7.394531 2.132812 6.984375 C 2.132812 6.574219 2.476562 6.242188 2.902344 6.242188 Z M 6.652344 6.242188 C 7.078125 6.242188 7.421875 6.574219 7.421875 6.984375 C 7.421875 7.394531 7.078125 7.726562 6.652344 7.726562 C 6.230469 7.726562 5.886719 7.394531 5.886719 6.984375 C 5.886719 6.574219 6.230469 6.242188 6.652344 6.242188 Z M 6.652344 6.242188 ",
                     style: "fill: " + fillColor + ";",
-                    transform: 'translate(2, 2)'
+                    transform: 'translate(1.8, 2)'
                 });
             }
             placeElement.appendChild(basketPlacePath);
