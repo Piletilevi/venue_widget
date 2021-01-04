@@ -665,6 +665,8 @@ export default function() {
         }
     };
     this.dispose = function() {
+        window.removeEventListener('resize', self.resize);
+
         if (componentElement && componentElement.parentNode) {
             componentElement.parentNode.removeChild(componentElement);
         }
