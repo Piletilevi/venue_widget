@@ -542,12 +542,14 @@ export default function() {
         adjustZoomControls();
     };
     this.resize = function() {
-        let dupe = componentElement.cloneNode(false);
-        dupe.style.visibility = 'hidden';
-        dupe.style.display = 'block';
-        componentElement.parentNode.appendChild(dupe);
-        fixedHeight = dupe.offsetHeight;
-        componentElement.parentNode.removeChild(dupe);
+        if (componentElement) {
+            let dupe = componentElement.cloneNode(false);
+            dupe.style.visibility = 'hidden';
+            dupe.style.display = 'block';
+            componentElement.parentNode.appendChild(dupe);
+            fixedHeight = dupe.offsetHeight;
+            componentElement.parentNode.removeChild(dupe);
+        }
         if (placesMap) {
             placesMap.resize();
         }
